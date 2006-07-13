@@ -99,11 +99,11 @@ public class SqlExecMojo
     private Fileset fileset;
 
     /**
-     * SQL statement
-     * @parameter
+     * SQL input command
+     * @parameter default-value=""
      */
-    private Statement statement = null;
-
+    private String sqlCommand = "";
+    
     /**
      * SQL input file
      * @parameter
@@ -120,11 +120,13 @@ public class SqlExecMojo
      */
     private Connection conn = null;
     
-    /**
-     * SQL input command
-     */
-    private String sqlCommand = "";
 
+    /**
+     * SQL statement
+     */
+    private Statement statement = null;
+
+    
     /**
      * SQL transactions to perform
      */
@@ -311,8 +313,17 @@ public class SqlExecMojo
 
         try
         {
-            fileset.scan();
-            String[] includedFiles = fileset.getIncludedFiles();
+            String[] includedFiles;
+            if ( fileset != null )
+            {
+                fileset.scan();
+                includedFiles = fileset.getIncludedFiles();
+            }
+            else
+            {
+                includedFiles = new String[0];
+            }
+            
             if ( srcFile == null && sqlCommand.length() == 0 && includedFiles.length == 0 )
             {
                 if ( transactions.size() == 0 )
