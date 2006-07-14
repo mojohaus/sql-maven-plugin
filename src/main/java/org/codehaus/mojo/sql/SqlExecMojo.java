@@ -63,33 +63,33 @@ public class SqlExecMojo
 
     /**
      * Database username.  If not given, it will be looked up through settings.xml's server with ${url} as key
-     * @parameter expression="username" 
+     * @parameter expression="${username}" 
      */
     private String username;
 
     /**
      * Database password. If not given, it will be looked up through settings.xml's server with ${url} as key
-     * @parameter expression="password" 
+     * @parameter expression="${password}" 
      */
     private String password;
 
     /**
      * Database URL
-     * @parameter expression="url" 
+     * @parameter expression="${url}" 
      * @required
      */
     private String url;
 
     /**
      * Database driver classname
-     * @parameter expression="driver" 
+     * @parameter expression="${driver}" 
      * @required
      */
     private String driver;
 
     /**
      * Set to true to execute none-transactional SQL
-     * @parameter expression="autocommit" default-value="false"
+     * @parameter expression="${autocommit}" default-value="false"
      */
     private boolean autocommit;
 
@@ -101,19 +101,19 @@ public class SqlExecMojo
 
     /**
      * SQL input commands separated by ${delimiter}
-     * @parameter expression="sqlCommand" default-value=""
+     * @parameter expression="${sqlCommand}" default-value=""
      */
     private String sqlCommand = "";
     
     /**
      * File containing SQL statments to load
-     * @parameter expression="srcFile" 
+     * @parameter expression="${srcFile}" 
      */
     private File srcFile;
     
     /**
      * SQL Statement delimiter
-     * @parameter expression="delimiter" default-value=";"
+     * @parameter expression="${delimiter}" default-value=";"
      */
     private String delimiter = ";";
     
@@ -171,7 +171,7 @@ public class SqlExecMojo
 
     /**
      * Action to perform if an error is found
-     * parameter expression="onError" default-value="abort"
+     * parameter expression="${onError}" default-value="abort"
      **/
     private String onError = "abort";
 
