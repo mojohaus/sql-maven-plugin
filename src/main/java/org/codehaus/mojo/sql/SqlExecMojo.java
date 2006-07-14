@@ -26,6 +26,8 @@ package org.codehaus.mojo.sql;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.settings.Server;
+import org.apache.maven.settings.Settings;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -60,56 +62,68 @@ public class SqlExecMojo
 {
 
     /**
-     * Database username
-     * @parameter
-     * @required
+     * Database username.  If not given, it will be looked up through settings.xml's server with ${url} as key
+     * @parameter expression="username" 
      */
     private String username;
 
     /**
-     * Database password
-     * @parameter
-     * @required
+     * Database password. If not given, it will be looked up through settings.xml's server with ${url} as key
+     * @parameter expression="password" 
      */
     private String password;
 
     /**
      * Database URL
-     * @parameter
+     * @parameter expression="url" 
      * @required
      */
     private String url;
 
     /**
      * Database driver classname
-     * @parameter
+     * @parameter expression="driver" 
      * @required
      */
     private String driver;
 
     /**
-     * @parameter default-value="false"
+     * Set to true to execute none-transactional SQL
+     * @parameter expression="autocommit" default-value="false"
      */
     private boolean autocommit;
 
     /**
-     * File containing SQL statements to load
+     * File(s) containing SQL statements to load
      * @parameter
      */
     private Fileset fileset;
 
     /**
-     * SQL input command
-     * @parameter default-value=""
+     * SQL input commands separated by ${delimiter}
+     * @parameter expression="sqlCommand" default-value=""
      */
     private String sqlCommand = "";
     
     /**
-     * SQL input file
-     * @parameter
+     * File containing SQL statments to load
+     * @parameter expression="srcFile" 
      */
-    private File srcFile = null;
-
+    private File srcFile;
+    
+    /**
+     * SQL Statement delimiter
+     * @parameter expression="delimiter" default-value=";"
+     */
+    private String delimiter = ";";
+    
+    
+    /**
+     * @parameter expression="${settings}"
+     * @required
+     * @readonly
+     */
+    private Settings settings;
     
     private int goodSql = 0;
 
@@ -132,10 +146,7 @@ public class SqlExecMojo
      */
     private Vector transactions = new Vector();
 
-    /**
-     * SQL Statement delimiter
-     */
-    private String delimiter = ";";
+
 
     /**
      * The delimiter type indicating whether the delimiter will
@@ -160,6 +171,7 @@ public class SqlExecMojo
 
     /**
      * Action to perform if an error is found
+     * parameter expression="onError" default-value="abort"
      **/
     private String onError = "abort";
 
@@ -306,6 +318,8 @@ public class SqlExecMojo
     public void execute()
         throws MojoExecutionException
     {
+    	loadUserInfoFromSettings();
+    	
         Vector savedTransaction = (Vector) transactions.clone();
         String savedSqlCommand = sqlCommand;
 
@@ -449,6 +463,43 @@ public class SqlExecMojo
         }
     }
 
+    /**
+     * Load username password from settings if user has not set them in JVM properties
+     */
+    private void loadUserInfoFromSettings( )
+    	throws MojoExecutionException    
+    {
+        if ( username == null || password == null )
+        {
+
+            Server server = this.settings.getServer( this.url );
+
+            if ( server != null )
+            {
+                if ( username == null )
+                {
+                    username = server.getUsername();
+                }
+
+                if ( password == null )
+                {
+                    password = server.getPassword();
+                }
+            }
+        }
+        
+        if ( username == null || username.trim().length() == 0 )
+        {
+        	throw new MojoExecutionException( "username is required" );
+        }
+        
+        if ( password == null )
+        {
+        	//allow emtpy password
+        	password = "";
+        }        
+    }
+    
     /**
      * Creates a new Connection as using the driver, url, userid and password
      * specified.

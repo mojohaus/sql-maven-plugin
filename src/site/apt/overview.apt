@@ -1,0 +1,150 @@
+ ------
+ Maven 2 SQL Plugin
+ ------
+ Dan T. Tran
+ <dantran@gmail.com>
+ ------
+ September 29, 2005
+
+Overview
+
+  Use this plugin to execute sql statements in a combination of strings, a file, and/or a set of files.
+
+
+Examples
+
+
+* Configuration
+
+  The following build configuration shows how to drop/create database and schema, then populate before test phase, and
+  drop database after test.
+
+-------------------
+
+....
+
+      <plugin>
+
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>sql-maven-plugin</artifactId>
+
+        <dependencies>
+          <!-- need to the dependency jdbc driver here -->
+          <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>8.1-407.jdbc3</version>
+          </dependency>
+        </dependencies>
+
+        <!-- common configuration shared by all executions -->
+        <configuration>
+           <url>jdbc:postgressql://localhost:5432:yourdb</url>
+        </configuration>
+
+        <executions>
+
+          <execution>
+            <id>drop-db-before-test-if-any</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <!-- need another database to drop the targeted one -->
+              <url>jdbc:postgressql://localhost:5432:bootstrapdb</url>
+              <autocommit>true</autocommit>
+              <sqlCommand>drop database yourdb</sqlCommand>
+              <onError>continue</onError>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>create-db</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <url>jdbc:postgressql://localhost:5432:yourdb</url>
+              <!-- no transaction -->
+              <autocommit>true</autocommit>
+              <sqlCommand>drop database yourdb</sqlCommand>
+              <onError>continue</onError>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>create-schema</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <autocommit>true</autocommit>
+              <srcFile>src/main/resourced/your-schema.sql</srcFile>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>create-data</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <fileset>
+                <basedir>${basedir}</basedir>
+                <includes>
+                  <include>test/sql/test-data1.sql</include>
+                  <include>test/sql/test-data2.sql</include>
+                </includes>
+              </fileset>
+            </configuration>
+          </execution>
+
+          <!-- drop db after test -->
+          <execution>
+            <id>drop-db-after-test</id>
+            <phase>test/phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <autocommit>true</autocommit>
+              <sqlCommand>create database yourdb</sqlCommand>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+....
+
+
+
+-------------------
+
+
+* Settings
+
+  You can hide username/password in your settings.xml
+  
+  
+--------------------
+
+<settings>
+
+  ....
+
+  <servers>
+  
+    <server>
+     <id>jdbc:postgressql://localhost:5432:yourdb</id>
+     <username>postgres</username>
+     <password>password</password>
+    </server>
+
+   </servers>
+ 
+ </settings>
+--------------------
