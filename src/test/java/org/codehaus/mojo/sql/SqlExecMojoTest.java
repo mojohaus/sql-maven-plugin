@@ -1,27 +1,20 @@
 package org.codehaus.mojo.sql;
 
 /*
- * The MIT License
+ * Copyright 2006 The Apache Software Foundation
  *
- * Copyright (c) 2004, The Codehaus
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
  */
 
 import junit.framework.TestCase;
@@ -58,16 +51,25 @@ public class SqlExecMojoTest
 
     }
 
- 
+    /**
+     * No error when there is no input
+     */
+    public void testNoCommandMojo()
+        throws MojoExecutionException
+    {
+        mojo.execute();
+
+        assertEquals( 0, mojo.getGoodSqls() );
+    }
+
     public void testCreateCommandMojo()
         throws MojoExecutionException
     {
         String command = "create table PERSON ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
         mojo.addText( command );
         mojo.execute();
-        
+
         assertEquals( 1, mojo.getGoodSqls() );
-        
     }
 
     public void testDropCommandMojo()
@@ -92,9 +94,9 @@ public class SqlExecMojoTest
         mojo.setFileset( ds );
 
         mojo.execute();
-        
+
         assertEquals( 3, mojo.getGoodSqls() );
-        
+
     }
 
     public void testFileArrayMojo()
@@ -105,9 +107,9 @@ public class SqlExecMojoTest
 
         mojo.setSrcFiles( srcFiles );
         mojo.execute();
-        
+
         assertEquals( 3, mojo.getGoodSqls() );
-        
+
     }
 
     /** 
@@ -117,9 +119,9 @@ public class SqlExecMojoTest
     public void testAllMojo()
         throws MojoExecutionException
     {
-        
+
         String command = "create table PERSON2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
-        mojo.addText( command );        
+        mojo.addText( command );
 
         File[] srcFiles = new File[1];
         srcFiles[0] = new File( System.getProperty( "basedir" ) + "/src/test/data/create-test-tables.sql" );
@@ -133,6 +135,36 @@ public class SqlExecMojoTest
         mojo.execute();
 
         assertEquals( 7, mojo.getGoodSqls() );
+    }
+
+    public void testOnErrorContinueMojo()
+        throws MojoExecutionException
+    {
+        String command = "create table BOGUS"; //bad syntax
+        mojo.addText( command );
+        mojo.setOnError( "continue" );
+        mojo.execute();
+        assertEquals( 0, mojo.getGoodSqls() );
+    }
+
+    public void testOnErrorAbortMojo()
+        throws MojoExecutionException
+    {
+        String command = "create table BOGUS"; //bad syntax
+        mojo.addText( command );
+
+        try
+        {
+            mojo.execute();
+            fail( "Execution is not aborted on error." );
+
+        }
+        catch ( MojoExecutionException e )
+        {
+
+        }
+
+        assertEquals( 0, mojo.getGoodSqls() );
     }
 
 }

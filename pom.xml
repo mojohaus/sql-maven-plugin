@@ -36,9 +36,9 @@
     </developers>
     <licenses>
         <license>
-            <name>The MIT License</name>
-            <url>LICENSE.txt</url>
-            <distribution>repo</distribution>
+          <name>Apache License 2</name> 
+          <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url> 
+          <distribution>repo</distribution> 
         </license>
     </licenses>
     <build>
