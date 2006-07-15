@@ -22,7 +22,7 @@ package org.codehaus.mojo.sql;
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
-*/
+ */
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -60,19 +60,59 @@ import java.util.Vector;
 public class SqlExecMojo
     extends AbstractMojo
 {
+    
+    //////////////////////////// User Info ///////////////////////////////////
 
     /**
-     * Database username.  If not given, it will be looked up through settings.xml's server with ${url} as key
+     * Database username.  If not given, it will be looked up through 
+     * settings.xml's server with ${url} as key
      * @parameter expression="${username}" 
      */
     private String username;
 
     /**
-     * Database password. If not given, it will be looked up through settings.xml's server with ${url} as key
+     * Database password. If not given, it will be looked up through settings.xml's 
+     * server with ${url} as key
      * @parameter expression="${password}" 
      */
     private String password;
+    
+    /**
+     * @parameter expression="${settings}"
+     * @required
+     * @readonly
+     */
+    private Settings settings;    
+    
+    //////////////////////////////// Source info /////////////////////////////
+    
+    /**
+     * SQL input commands separated by ${delimiter}
+     * @parameter expression="${sqlCommand}" default-value=""
+     */
+    private String sqlCommand = "";
 
+    /**
+     * A single file containing SQL statements to load
+     * @parameter expression="${srcFile}" 
+     * @deprecated use srcFiles instead
+     */
+    private File  srcFile;
+
+    /**
+     * List of files containing SQL statements to load
+     * @parameter 
+     */
+    private File []  srcFiles;
+    
+    /**
+     * File(s) containing SQL statements to load
+     * @parameter
+     */
+    private Fileset fileset;
+    
+        
+    ////////////////////////////////// Database info /////////////////////////
     /**
      * Database URL
      * @parameter expression="${url}" 
@@ -87,73 +127,35 @@ public class SqlExecMojo
      */
     private String driver;
 
+    
+    ////////////////////////////// Operation Configuration ////////////////////
     /**
      * Set to true to execute none-transactional SQL
      * @parameter expression="${autocommit}" default-value="false"
      */
     private boolean autocommit;
-
-    /**
-     * File(s) containing SQL statements to load
-     * @parameter
-     */
-    private Fileset fileset;
-
-    /**
-     * SQL input commands separated by ${delimiter}
-     * @parameter expression="${sqlCommand}" default-value=""
-     */
-    private String sqlCommand = "";
+    
     
     /**
-     * File containing SQL statments to load
-     * @parameter expression="${srcFile}" 
-     */
-    private File srcFile;
+     * Action to perform if an error is found
+     * parameter expression="${onError}" default-value="abort"
+     **/
+    private String onError = "abort";
     
     /**
      * SQL Statement delimiter
      * @parameter expression="${delimiter}" default-value=";"
      */
     private String delimiter = ";";
-    
-    
-    /**
-     * @parameter expression="${settings}"
-     * @required
-     * @readonly
-     */
-    private Settings settings;
-    
-    private int goodSql = 0;
-
-    private int totalSql = 0;
-
-    /**
-     * Database connection
-     */
-    private Connection conn = null;
-    
-
-    /**
-     * SQL statement
-     */
-    private Statement statement = null;
 
     
-    /**
-     * SQL transactions to perform
-     */
-    private Vector transactions = new Vector();
-
-
-
     /**
      * The delimiter type indicating whether the delimiter will
      * only be recognized on a line by itself
      */
     private String delimiterType = DelimiterType.NORMAL;
 
+    
     /**
      * Print SQL results.
      */
@@ -169,11 +171,6 @@ public class SqlExecMojo
      */
     private File output = null;
 
-    /**
-     * Action to perform if an error is found
-     * parameter expression="${onError}" default-value="abort"
-     **/
-    private String onError = "abort";
 
     /**
      * Encoding to use when reading SQL statements from a file
@@ -193,7 +190,31 @@ public class SqlExecMojo
     /**
      * Argument to Statement.setEscapeProcessing
      */
-    private boolean escapeProcessing = true;
+    private boolean escapeProcessing = true;    
+
+
+    ////////////////////////////////// Internal properties//////////////////////
+
+    private int goodSql = 0;
+
+    private int totalSql = 0;
+
+    /**
+     * Database connection
+     */
+    private Connection conn = null;
+
+    /**
+     * SQL statement
+     */
+    private Statement statement = null;
+
+    /**
+     * SQL transactions to perform
+     */
+    private Vector transactions = new Vector();
+
+
 
     /**
      * Add a SQL transaction to execute
@@ -318,156 +339,160 @@ public class SqlExecMojo
     public void execute()
         throws MojoExecutionException
     {
-    	loadUserInfoFromSettings();
-    	
-        Vector savedTransaction = (Vector) transactions.clone();
-        String savedSqlCommand = sqlCommand;
+        loadUserInfoFromSettings();
 
-        sqlCommand = sqlCommand.trim();
+        addCommandToTransactions();
+        
+        addFilesToTransactions();
+        
+        addFileSetToTransactions();
+        
+        conn = getConnection();
 
         try
         {
-            String[] includedFiles;
-            if ( fileset != null )
-            {
-                fileset.scan();
-                includedFiles = fileset.getIncludedFiles();
-            }
-            else
-            {
-                includedFiles = new String[0];
-            }
-            
-            if ( srcFile == null && sqlCommand.length() == 0 && includedFiles.length == 0 )
-            {
-                if ( transactions.size() == 0 )
-                {
-                    throw new MojoExecutionException( "Source file or fileset, " + "transactions or sql statement "
-                        + "must be set!" );
-                }
-            }
+            statement = conn.createStatement();
+            statement.setEscapeProcessing( escapeProcessing );
 
-            if ( srcFile != null && !srcFile.exists() )
-            {
-                throw new MojoExecutionException( "Source file does not exist!" );
-            }
-
-            // deal with the filesets
-
-            // Make a transaction for each file
-            for ( int j = 0; j < includedFiles.length; j++ )
-            {
-                Transaction t = createTransaction();
-                t.setSrc( new File( fileset.getBasedir(), includedFiles[j] ) );
-            }
-
-            // Make a transaction group for the outer command
-            Transaction t = createTransaction();
-            t.setSrc( srcFile );
-            t.addText( sqlCommand );
-            conn = getConnection();
-
+            PrintStream out = System.out;
             try
             {
-                statement = conn.createStatement();
-                statement.setEscapeProcessing( escapeProcessing );
+                if ( output != null )
+                {
+                    getLog().debug( "Opening PrintStream to output file " + output );
+                    out = new PrintStream( new BufferedOutputStream( new FileOutputStream( output.getAbsolutePath(),
+                                                                                           append ) ) );
+                }
 
-                PrintStream out = System.out;
-                try
+                // Process all transactions
+                for ( Enumeration e = transactions.elements(); e.hasMoreElements(); )
                 {
-                    if ( output != null )
-                    {
-                        getLog().debug( "Opening PrintStream to output file " + output );
-                        out = new PrintStream(
-                                               new BufferedOutputStream(
-                                                                         new FileOutputStream(
-                                                                                               output.getAbsolutePath(),
-                                                                                               append ) ) );
-                    }
 
-                    // Process all transactions
-                    for ( Enumeration e = transactions.elements(); e.hasMoreElements(); )
+                    ( (Transaction) e.nextElement() ).runTransaction( out );
+                    if ( !autocommit )
                     {
-
-                        ( (Transaction) e.nextElement() ).runTransaction( out );
-                        if ( !autocommit )
-                        {
-                            getLog().debug( "Committing transaction" );
-                            conn.commit();
-                        }
+                        getLog().debug( "Committing transaction" );
+                        conn.commit();
                     }
                 }
-                finally
-                {
-                    if ( out != null && out != System.out )
-                    {
-                        out.close();
-                    }
-                }
-            }
-            catch ( IOException e )
-            {
-                if ( !autocommit && conn != null && onError.equals( "abort" ) )
-                {
-                    try
-                    {
-                        conn.rollback();
-                    }
-                    catch ( SQLException ex )
-                    {
-                        // ignore
-                    }
-                }
-                throw new MojoExecutionException( e.getMessage(), e );
-            }
-            catch ( SQLException e )
-            {
-                if ( !autocommit && conn != null && onError.equals( "abort" ) )
-                {
-                    try
-                    {
-                        conn.rollback();
-                    }
-                    catch ( SQLException ex )
-                    {
-                        // ignore
-                    }
-                }
-                throw new MojoExecutionException( e.getMessage(), e );
             }
             finally
             {
+                if ( out != null && out != System.out )
+                {
+                    out.close();
+                }
+            }
+        }
+        catch ( IOException e )
+        {
+            throw new MojoExecutionException( e.getMessage(), e );
+        }
+        catch ( SQLException e )
+        {
+            if ( !autocommit && conn != null && onError.equals( "abort" ) )
+            {
                 try
                 {
-                    if ( statement != null )
-                    {
-                        statement.close();
-                    }
-                    if ( conn != null )
-                    {
-                        conn.close();
-                    }
+                    conn.rollback();
                 }
                 catch ( SQLException ex )
                 {
                     // ignore
                 }
             }
-
-            getLog().info( goodSql + " of " + totalSql + " SQL statements executed successfully" );
+            throw new MojoExecutionException( e.getMessage(), e );
         }
         finally
         {
-            transactions = savedTransaction;
-            sqlCommand = savedSqlCommand;
+            try
+            {
+                if ( statement != null )
+                {
+                    statement.close();
+                }
+                if ( conn != null )
+                {
+                    conn.close();
+                }
+            }
+            catch ( SQLException ex )
+            {
+                // ignore
+            }
         }
+
+        getLog().info( goodSql + " of " + totalSql + " SQL statements executed successfully" );
+
     }
 
     /**
+     * Add sql command to transactions list
+     *
+     */
+    private void addCommandToTransactions()
+    {
+        sqlCommand = sqlCommand.trim();
+        
+        createTransaction().addText( sqlCommand.replace( this.delimiter.charAt( 0 ), '\n' ) );
+                
+    }
+    /**
+     * Add user sql fileset to transation list
+     *
+     */
+    private void addFileSetToTransactions()
+    {
+        String[] includedFiles;
+        if ( fileset != null )
+        {
+            fileset.scan();
+            includedFiles = fileset.getIncludedFiles();
+        }
+        else
+        {
+            includedFiles = new String[0];
+        }
+        
+        for ( int j = 0; j < includedFiles.length; j++ )
+        {
+            createTransaction().setSrc( new File( fileset.getBasedir(), includedFiles[j] ) );
+        }
+    }
+    
+    /**
+     * Add user input of srcFiles to transaction list
+     * @throws MojoExecutionException
+     */
+    private void addFilesToTransactions()
+        throws MojoExecutionException
+    {
+        for ( int i = 0 ; srcFiles != null && i < srcFiles.length; ++i )
+        {
+            if ( srcFiles[i] != null )
+            {
+                if ( ! srcFiles[i].exists() )
+                {
+                    throw new MojoExecutionException( srcFiles[i].getPath() + " not found." );
+                }
+            }
+            createTransaction().setSrc( srcFiles[i] );
+        }
+        
+        if ( srcFile != null && !srcFile.exists() )
+        {
+            throw new MojoExecutionException( srcFile.getPath() + " not found." );
+        }        
+        createTransaction().setSrc( srcFile );
+        
+    }
+    
+    
+    /**
      * Load username password from settings if user has not set them in JVM properties
      */
-    private void loadUserInfoFromSettings( )
-    	throws MojoExecutionException    
+    private void loadUserInfoFromSettings()
+        throws MojoExecutionException
     {
         if ( username == null || password == null )
         {
@@ -487,19 +512,19 @@ public class SqlExecMojo
                 }
             }
         }
-        
+
         if ( username == null || username.trim().length() == 0 )
         {
-        	throw new MojoExecutionException( "username is required" );
+            throw new MojoExecutionException( "username is required" );
         }
-        
+
         if ( password == null )
         {
-        	//allow emtpy password
-        	password = "";
-        }        
+            //allow emtpy password
+            password = "";
+        }
     }
-    
+
     /**
      * Creates a new Connection as using the driver, url, userid and password
      * specified.
@@ -826,6 +851,8 @@ public class SqlExecMojo
             if ( tSqlCommand.length() != 0 )
             {
                 getLog().info( "Executing commands" );
+                
+                
                 runStatements( new StringReader( tSqlCommand ), out );
             }
 
@@ -904,5 +931,20 @@ public class SqlExecMojo
     public void setFileset( Fileset fileset )
     {
         this.fileset = fileset;
+    }
+    
+    public File [] getSrcFiles()
+    {
+        return this.srcFiles;
+    }
+    
+    public void setSrcFiles( File [] files )
+    {
+        this.srcFiles = files;
+    }
+    
+    public int getGoodSqls()
+    {
+        return this.goodSql;
     }
 }
