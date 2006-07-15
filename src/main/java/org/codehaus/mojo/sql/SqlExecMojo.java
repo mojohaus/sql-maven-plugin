@@ -60,7 +60,7 @@ import java.util.Vector;
 public class SqlExecMojo
     extends AbstractMojo
 {
-    
+
     //////////////////////////// User Info ///////////////////////////////////
 
     /**
@@ -76,16 +76,16 @@ public class SqlExecMojo
      * @parameter expression="${password}" 
      */
     private String password;
-    
+
     /**
      * @parameter expression="${settings}"
      * @required
      * @readonly
      */
-    private Settings settings;    
-    
+    private Settings settings;
+
     //////////////////////////////// Source info /////////////////////////////
-    
+
     /**
      * SQL input commands separated by ${delimiter}
      * @parameter expression="${sqlCommand}" default-value=""
@@ -97,21 +97,20 @@ public class SqlExecMojo
      * @parameter expression="${srcFile}" 
      * @deprecated use srcFiles instead
      */
-    private File  srcFile;
+    private File srcFile;
 
     /**
      * List of files containing SQL statements to load
      * @parameter 
      */
-    private File []  srcFiles;
-    
+    private File[] srcFiles;
+
     /**
      * File(s) containing SQL statements to load
      * @parameter
      */
     private Fileset fileset;
-    
-        
+
     ////////////////////////////////// Database info /////////////////////////
     /**
      * Database URL
@@ -127,35 +126,31 @@ public class SqlExecMojo
      */
     private String driver;
 
-    
     ////////////////////////////// Operation Configuration ////////////////////
     /**
      * Set to true to execute none-transactional SQL
      * @parameter expression="${autocommit}" default-value="false"
      */
     private boolean autocommit;
-    
-    
+
     /**
      * Action to perform if an error is found
      * parameter expression="${onError}" default-value="abort"
      **/
     private String onError = "abort";
-    
+
     /**
      * SQL Statement delimiter
      * @parameter expression="${delimiter}" default-value=";"
      */
     private String delimiter = ";";
 
-    
     /**
      * The delimiter type indicating whether the delimiter will
      * only be recognized on a line by itself
      */
     private String delimiterType = DelimiterType.NORMAL;
 
-    
     /**
      * Print SQL results.
      */
@@ -170,7 +165,6 @@ public class SqlExecMojo
      * Results Output file.
      */
     private File output = null;
-
 
     /**
      * Encoding to use when reading SQL statements from a file
@@ -190,8 +184,7 @@ public class SqlExecMojo
     /**
      * Argument to Statement.setEscapeProcessing
      */
-    private boolean escapeProcessing = true;    
-
+    private boolean escapeProcessing = true;
 
     ////////////////////////////////// Internal properties//////////////////////
 
@@ -213,8 +206,6 @@ public class SqlExecMojo
      * SQL transactions to perform
      */
     private Vector transactions = new Vector();
-
-
 
     /**
      * Add a SQL transaction to execute
@@ -342,11 +333,11 @@ public class SqlExecMojo
         loadUserInfoFromSettings();
 
         addCommandToTransactions();
-        
+
         addFilesToTransactions();
-        
+
         addFileSetToTransactions();
-        
+
         conn = getConnection();
 
         try
@@ -367,8 +358,10 @@ public class SqlExecMojo
                 // Process all transactions
                 for ( Enumeration e = transactions.elements(); e.hasMoreElements(); )
                 {
+                    Transaction t = (Transaction) e.nextElement();
 
-                    ( (Transaction) e.nextElement() ).runTransaction( out );
+                    t.runTransaction( out );
+
                     if ( !autocommit )
                     {
                         getLog().debug( "Committing transaction" );
@@ -433,10 +426,10 @@ public class SqlExecMojo
     private void addCommandToTransactions()
     {
         sqlCommand = sqlCommand.trim();
-        
+
         createTransaction().addText( sqlCommand.replace( this.delimiter.charAt( 0 ), '\n' ) );
-                
     }
+
     /**
      * Add user sql fileset to transation list
      *
@@ -453,13 +446,13 @@ public class SqlExecMojo
         {
             includedFiles = new String[0];
         }
-        
+
         for ( int j = 0; j < includedFiles.length; j++ )
         {
             createTransaction().setSrc( new File( fileset.getBasedir(), includedFiles[j] ) );
         }
     }
-    
+
     /**
      * Add user input of srcFiles to transaction list
      * @throws MojoExecutionException
@@ -467,27 +460,24 @@ public class SqlExecMojo
     private void addFilesToTransactions()
         throws MojoExecutionException
     {
-        for ( int i = 0 ; srcFiles != null && i < srcFiles.length; ++i )
+        for ( int i = 0; srcFiles != null && i < srcFiles.length; ++i )
         {
-            if ( srcFiles[i] != null )
+            if ( srcFiles[i] != null && !srcFiles[i].exists() )
             {
-                if ( ! srcFiles[i].exists() )
-                {
-                    throw new MojoExecutionException( srcFiles[i].getPath() + " not found." );
-                }
+                throw new MojoExecutionException( srcFiles[i].getPath() + " not found." );
             }
+
             createTransaction().setSrc( srcFiles[i] );
         }
-        
+
         if ( srcFile != null && !srcFile.exists() )
         {
             throw new MojoExecutionException( srcFile.getPath() + " not found." );
-        }        
+        }
         createTransaction().setSrc( srcFile );
-        
+
     }
-    
-    
+
     /**
      * Load username password from settings if user has not set them in JVM properties
      */
@@ -535,7 +525,7 @@ public class SqlExecMojo
      * @throws MojoExecutionException if the UserId/Password/Url is not set or there
      * is no suitable driver or the driver fails to load.
      */
-    protected Connection getConnection()
+    private Connection getConnection()
         throws MojoExecutionException
     {
         try
@@ -581,7 +571,7 @@ public class SqlExecMojo
     /**
      * read in lines and execute them
      */
-    protected void runStatements( Reader reader, PrintStream out )
+    private void runStatements( Reader reader, PrintStream out )
         throws SQLException, IOException
     {
         StringBuffer sql = new StringBuffer();
@@ -653,7 +643,7 @@ public class SqlExecMojo
     /**
      * Exec the sql statement.
      */
-    protected void execSQL( String sql, PrintStream out )
+    private void execSQL( String sql, PrintStream out )
         throws SQLException
     {
         // Check and ignore empty statements
@@ -735,30 +725,6 @@ public class SqlExecMojo
         }
     }
 
-    /**
-     * print any results in the statement
-     * @deprecated use {@link #printResults(java.sql.ResultSet, java.io.PrintStream)
-     *             the two arg version} instead.
-     * @param out the place to print results
-     * @throws SQLException on SQL problems.
-     */
-    protected void printResults( PrintStream out )
-        throws SQLException
-    {
-        ResultSet rs;
-        rs = statement.getResultSet();
-        try
-        {
-            printResults( rs, out );
-        }
-        finally
-        {
-            if ( rs != null )
-            {
-                rs.close();
-            }
-        }
-    }
 
     /**
      * print any results in the result set.
@@ -766,7 +732,7 @@ public class SqlExecMojo
      * @param out the place to print results
      * @throws SQLException on SQL problems.
      */
-    protected void printResults( ResultSet rs, PrintStream out )
+    private void printResults( ResultSet rs, PrintStream out )
         throws SQLException
     {
         if ( rs != null )
@@ -820,7 +786,7 @@ public class SqlExecMojo
      * to be executed using the same JDBC connection and commit
      * operation in between.
      */
-    public class Transaction
+    private class Transaction
     {
         private File tSrcFile = null;
 
@@ -851,8 +817,7 @@ public class SqlExecMojo
             if ( tSqlCommand.length() != 0 )
             {
                 getLog().info( "Executing commands" );
-                
-                
+
                 runStatements( new StringReader( tSqlCommand ), out );
             }
 
@@ -932,17 +897,17 @@ public class SqlExecMojo
     {
         this.fileset = fileset;
     }
-    
-    public File [] getSrcFiles()
+
+    public File[] getSrcFiles()
     {
         return this.srcFiles;
     }
-    
-    public void setSrcFiles( File [] files )
+
+    public void setSrcFiles( File[] files )
     {
         this.srcFiles = files;
     }
-    
+
     public int getGoodSqls()
     {
         return this.goodSql;
