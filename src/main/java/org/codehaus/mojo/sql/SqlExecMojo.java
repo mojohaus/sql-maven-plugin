@@ -477,7 +477,6 @@ public class SqlExecMojo
     {
         if ( username == null || password == null )
         {
-
             Server server = this.settings.getServer( this.url );
 
             if ( server != null )
@@ -494,9 +493,10 @@ public class SqlExecMojo
             }
         }
 
-        if ( username == null || username.trim().length() == 0 )
+        if ( username == null )
         {
-            throw new MojoExecutionException( "username is required" );
+            //allow emtpy username
+            username= "";
         }
 
         if ( password == null )

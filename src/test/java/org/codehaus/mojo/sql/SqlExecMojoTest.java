@@ -167,4 +167,22 @@ public class SqlExecMojoTest
         assertEquals( 0, mojo.getGoodSqls() );
     }
 
+    public void testSettings()
+        throws MojoExecutionException    
+    {
+        //force a lookup of username in settings which will fail wince
+        //  settings is not looked outside of maven, ie this unittest
+        mojo.setUsername( null );
+        
+        try
+        {
+            mojo.execute();
+            
+            fail( "Failure is expected here since settings is null in unittest" );
+        }
+        catch ( NullPointerException e )
+        {
+            
+        }
+    }
 }
