@@ -39,6 +39,13 @@ Examples
 
         <!-- common configuration shared by all executions -->
         <configuration>
+           <username>postgres</username>
+           <password>password</password>
+           <!-- You can comment out username/password configurations and 
+                have maven to look them up in your settings.xml
+           -->
+           <settingsKeys>sensibleKey</settingsKeys>
+           
            <url>jdbc:postgressql://localhost:5432:yourdb</url>
         </configuration>
 
@@ -69,8 +76,7 @@ Examples
               <url>jdbc:postgressql://localhost:5432:yourdb</url>
               <!-- no transaction -->
               <autocommit>true</autocommit>
-              <sqlCommand>drop database yourdb</sqlCommand>
-              <onError>continue</onError>
+              <sqlCommand>create database yourdb</sqlCommand>
             </configuration>
           </execution>
 
@@ -98,7 +104,7 @@ Examples
               <fileset>
                 <basedir>${basedir}</basedir>
                 <includes>
-                  <!-- no guarantee these 2 files are executed in sequence, use srcFiles instead if required -->
+                  <!-- These 2 files may not get executed in sequence, use srcFiles instead, if needed -->
                   <include>test/sql/test-data1.sql</include>
                   <include>test/sql/test-data2.sql</include>
                 </includes>
@@ -130,8 +136,8 @@ Examples
 
 * Settings
 
-  You can hide username/password in your settings.xml
-  
+  You can hide username/password in your settings.xml, ensure to configure "settingsKey" in your
+  pom's configuration, otherwise it will use your database's url as lookup key
   
 --------------------
 
@@ -142,7 +148,7 @@ Examples
   <servers>
   
     <server>
-     <id>jdbc:postgressql://localhost:5432:yourdb</id>
+     <id>sensibleKey</id>
      <username>postgres</username>
      <password>password</password>
     </server>

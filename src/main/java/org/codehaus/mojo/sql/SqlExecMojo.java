@@ -46,9 +46,9 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 /**
- * A repackaging of the SQLExec plugin for Ant.
+ * Executes SQL against a database
  * @goal execute
- * @description Executes SQL against a database
+ * @description A repackaging of ANT's SQLExec task.
  */
 public class SqlExecMojo
     extends AbstractMojo
@@ -58,14 +58,14 @@ public class SqlExecMojo
 
     /**
      * Database username.  If not given, it will be looked up through 
-     * settings.xml's server with ${url} as key
+     * settings.xml's server with ${settingsKey} as key
      * @parameter expression="${username}" 
      */
     private String username;
 
     /**
      * Database password. If not given, it will be looked up through settings.xml's 
-     * server with ${url} as key
+     * server with ${settingsKey} as key
      * @parameter expression="${password}" 
      */
     private String password;
@@ -76,6 +76,13 @@ public class SqlExecMojo
      * @readonly
      */
     private Settings settings;
+    
+    /**
+     * Server's id in the settings.xml to be used to lookup username and password.
+     * Default to ${url} if not given.
+     * @parameter expression="${settingsKey}" 
+     */
+    private String settingsKey;    
 
     //////////////////////////////// Source info /////////////////////////////
 
@@ -475,9 +482,14 @@ public class SqlExecMojo
     private void loadUserInfoFromSettings()
         throws MojoExecutionException
     {
+        if ( this.settingsKey == null )
+        {
+            this.settingsKey = this.url;
+        }
+        
         if ( username == null || password == null )
         {
-            Server server = this.settings.getServer( this.url );
+            Server server = this.settings.getServer( this.settingsKey );
 
             if ( server != null )
             {
