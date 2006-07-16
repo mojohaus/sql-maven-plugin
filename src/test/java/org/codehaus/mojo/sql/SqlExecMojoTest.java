@@ -168,21 +168,69 @@ public class SqlExecMojoTest
     }
 
     public void testSettings()
-        throws MojoExecutionException    
+        throws MojoExecutionException
     {
         //force a lookup of username in settings which will fail wince
         //  settings is not looked outside of maven, ie this unittest
         mojo.setUsername( null );
-        
+
         try
         {
             mojo.execute();
-            
+
             fail( "Failure is expected here since settings is null in unittest" );
         }
         catch ( NullPointerException e )
         {
-            
+
         }
     }
+
+    public void testBadDriver()
+    {
+        mojo.setDriver( "bad-driver" );
+        try
+        {
+            mojo.execute();
+
+            fail( "Bad driver is not detected" );
+        }
+        catch ( MojoExecutionException e )
+        {
+
+        }
+    }
+
+    public void testBadUrl()
+    {
+        mojo.setUrl( "bad-url" );
+        try
+        {
+            mojo.execute();
+
+            fail( "Bad URL is not detected" );
+        }
+        catch ( MojoExecutionException e )
+        {
+
+        }
+    }
+    
+    public void testBadFile()
+    {
+        File[] srcFiles = new File[1];
+        srcFiles[0] = new File( "a-every-bogus-file-that-does-not-exist" );
+        
+        mojo.setSrcFiles( srcFiles );
+        try
+        {
+            mojo.execute();
+
+            fail( "Bad files is not detected" );
+        }
+        catch ( MojoExecutionException e )
+        {
+
+        }
+    }    
 }
