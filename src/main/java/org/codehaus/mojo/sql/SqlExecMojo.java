@@ -78,7 +78,7 @@ public class SqlExecMojo
     private Settings settings;
     
     /**
-     * Server's id in the settings.xml to be used to lookup username and password.
+     * Server's id in settings.xml to look up username and password.
      * Default to ${url} if not given.
      * @parameter expression="${settingsKey}" 
      */
@@ -580,6 +580,7 @@ public class SqlExecMojo
             {
                 line = line.trim();
             }
+            
             //            line = getProject().replaceProperties(line);
             if ( !keepformat )
             {
@@ -621,6 +622,7 @@ public class SqlExecMojo
                     sql.append( "\n" );
                 }
             }
+            
             if ( ( delimiterType.equals( DelimiterType.NORMAL ) && sql.toString().endsWith( delimiter ) )
                 || ( delimiterType.equals( DelimiterType.ROW ) && line.equals( delimiter ) ) )
             {
@@ -628,6 +630,7 @@ public class SqlExecMojo
                 sql.replace( 0, sql.length(), "" );
             }
         }
+        
         // Catch any statements not followed by ;
         if ( !sql.equals( "" ) )
         {

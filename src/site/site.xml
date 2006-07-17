@@ -34,9 +34,13 @@
          <item name="Mojo" href="http://mojo.codehaus.org"/>
          <item name="Maven" href="http://maven.apache.org/maven2"/>
       </links>
-      <menu name="SQL Maven Plugin">
-         <item name="Overview" href="overview.html"/>
-         <item name="Configuration" href="plugin-info.html"/>
+      <menu name="Overview">
+         <item name="Introduction" href="overview.html"/>
+         <item name="Goals" href="plugin-info.html"/>
+      </menu>
+      <menu name="Examples">
+         <item name="Executions" href="execute-examples.html"/>
+         <item name="Settings" href="settings-example.html"/>
       </menu>
       ${reports}
    </body>
