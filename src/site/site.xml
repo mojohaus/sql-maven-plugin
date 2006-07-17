@@ -39,8 +39,8 @@
          <item name="Goals" href="plugin-info.html"/>
       </menu>
       <menu name="Examples">
-         <item name="Executions" href="execute-examples.html"/>
-         <item name="Settings" href="settings-example.html"/>
+         <item name="Executions" href="examples/execute.html"/>
+         <item name="Settings" href="examples/example.html"/>
       </menu>
       ${reports}
    </body>
