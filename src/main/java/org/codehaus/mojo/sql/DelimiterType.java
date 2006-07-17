@@ -54,9 +54,7 @@ public class DelimiterType
     {
     }
 
-    /**
-     * Invoked by {@link org.apache.tools.ant.IntrospectionHelper IntrospectionHelper}.
-     */
+
     public final void setValue( String value )
     {
         int index = indexOfValue( value );

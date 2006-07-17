@@ -217,14 +217,6 @@ public class SqlExecMojo
         return t;
     }
 
-    /**
-     * Set the name of the SQL file to be run.
-     * Required unless statements are enclosed in the build file
-     */
-    public void setSrc( File srcFile )
-    {
-        this.srcFile = srcFile;
-    }
 
     /**
      * Set an inline SQL command to execute.
