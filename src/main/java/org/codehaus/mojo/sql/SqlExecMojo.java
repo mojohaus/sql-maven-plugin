@@ -840,49 +840,68 @@ public class SqlExecMojo
     // helper accessors for unit test purposes
     //
     
+    String getUsername()
+    {
+        return this.username;
+    }
 
-    public void setUsername( String username )
+    void setUsername( String username )
     {
         this.username = username;
     }
 
-    public void setPassword( String password )
+    String getPassword()
+    {
+        return this.password;
+    }
+    
+    void setPassword( String password )
     {
         this.password = password;
     }
 
-    public void setUrl( String url )
+    void setUrl( String url )
     {
         this.url = url;
     }
 
-    public void setDriver( String driver )
+    void setDriver( String driver )
     {
         this.driver = driver;
     }
 
-    public void setAutocommit( boolean autocommit )
+    void setAutocommit( boolean autocommit )
     {
         this.autocommit = autocommit;
     }
 
-    public void setFileset( Fileset fileset )
+    void setFileset( Fileset fileset )
     {
         this.fileset = fileset;
     }
 
-    public void setSrcFiles( File[] files )
+    void setSrcFiles( File[] files )
     {
         this.srcFiles = files;
     }
 
-    public int getGoodSqls()
+    int getGoodSqls()
     {
         return this.goodSql;
     }
     
-    public void setOnError( String action )
+    void setOnError( String action )
     {
         this.onError = action;
+    }
+    
+    void setSettings( Settings settings )
+    {
+        this.settings = settings; 
+    }
+    
+    void setSettingsKey( String key ) 
+    {
+        this.settingsKey = key;
     }
 }

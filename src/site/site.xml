@@ -40,7 +40,7 @@
       </menu>
       <menu name="Examples">
          <item name="Executions" href="examples/execute.html"/>
-         <item name="Settings" href="examples/example.html"/>
+         <item name="Settings" href="examples/settings.html"/>
       </menu>
       ${reports}
    </body>

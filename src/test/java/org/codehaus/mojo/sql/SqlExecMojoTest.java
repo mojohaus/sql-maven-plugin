@@ -23,6 +23,8 @@ import java.io.File;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.settings.Server;
+import org.apache.maven.settings.Settings;
 
 /**
  * Unit test for simple SqlExecMojo.
@@ -167,9 +169,10 @@ public class SqlExecMojoTest
         assertEquals( 0, mojo.getGoodSqls() );
     }
 
-    public void testSettings()
+    public void testNullSettings()
         throws MojoExecutionException
     {
+
         //force a lookup of username in settings which will fail wince
         //  settings is not looked outside of maven, ie this unittest
         mojo.setUsername( null );
@@ -184,6 +187,52 @@ public class SqlExecMojoTest
         {
 
         }
+    }
+
+    public void testDefaultUsernamePassword()
+        throws MojoExecutionException
+    {
+
+        Settings settings = new Settings();
+        Server server = new Server();
+        settings.addServer( server );
+
+        mojo.setSettings( settings );
+
+        //force a lookup of username
+        mojo.setUsername( null );
+        mojo.setPassword( null );
+
+        mojo.execute();
+
+        assertEquals( "", mojo.getUsername() );
+        assertEquals( "", mojo.getPassword() );
+
+    }
+
+    public void testUsernamePasswordLookup()
+        throws MojoExecutionException
+    {
+
+        Settings settings = new Settings();
+        Server server = new Server();
+        server.setId( "somekey" );
+        server.setUsername( "username" );
+        server.setPassword( "password" );
+        settings.addServer( server );
+
+        mojo.setSettings( settings );
+
+        //force a lookup of username
+        mojo.setSettingsKey( "somekey" );
+        mojo.setUsername( null );
+        mojo.setPassword( null );
+
+        mojo.execute();
+
+        assertEquals( "username", mojo.getUsername() );
+        assertEquals( "password", mojo.getPassword() );
+
     }
 
     public void testBadDriver()
@@ -215,12 +264,12 @@ public class SqlExecMojoTest
 
         }
     }
-    
+
     public void testBadFile()
     {
         File[] srcFiles = new File[1];
         srcFiles[0] = new File( "a-every-bogus-file-that-does-not-exist" );
-        
+
         mojo.setSrcFiles( srcFiles );
         try
         {
@@ -232,5 +281,5 @@ public class SqlExecMojoTest
         {
 
         }
-    }    
+    }
 }
