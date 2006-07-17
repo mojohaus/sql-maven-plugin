@@ -174,7 +174,7 @@ public class SqlExecMojoTest
     {
 
         //force a lookup of username in settings which will fail wince
-        //  settings is not looked outside of maven, ie this unittest
+        //  settings is not set yet
         mojo.setUsername( null );
 
         try
