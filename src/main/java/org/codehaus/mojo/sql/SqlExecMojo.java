@@ -134,8 +134,8 @@ public class SqlExecMojo
     private boolean autocommit;
 
     /**
-     * Action to perform if an error is found
-     * parameter expression="${onError}" default-value="abort"
+     * Action to perform if an error is found ("abort" or "continue")
+     * @parameter expression="${onError}" default-value="abort"
      **/
     private String onError = "abort";
 
