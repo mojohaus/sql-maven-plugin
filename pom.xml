@@ -1,27 +1,20 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-         
-    <modelVersion>4.0.0</modelVersion>
-    
-    <parent>
-      <groupId>org.codehaus.mojo</groupId>
-      <artifactId>mojo</artifactId>
-      <version>9</version>
-    </parent>
-    
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <artifactId>mojo</artifactId>
+    <groupId>org.codehaus.mojo</groupId>
+    <version>11</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
     <artifactId>sql-maven-plugin</artifactId>
-    
     <packaging>maven-plugin</packaging>
-    
     <version>1.0-beta-2-SNAPSHOT</version>
-    
     <name>SQL Plugin for Maven</name>
-    
-    <url>http://mojo.codehaus.org/sql-maven-plugin/</url>
-    
     <inceptionYear>2006</inceptionYear>
-     
     <description>Execute SQL Statements</description>
-    
+
     <developers>
       <developer>
         <id>topping</id>
