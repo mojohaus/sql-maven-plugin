@@ -538,11 +538,11 @@ public class SqlExecMojo
             }
             catch ( ClassNotFoundException e )
             {
-                throw new MojoExecutionException( "Driver class not found: " + driver );
+                throw new MojoExecutionException( "Driver class not found: " + driver, e );
             }
             catch ( Exception e )
             {
-                throw new MojoExecutionException( "Failure loading driver: " + driver );
+                throw new MojoExecutionException( "Failure loading driver: " + driver, e );
             }
 
             Connection conn = driverInstance.connect( url, info );
