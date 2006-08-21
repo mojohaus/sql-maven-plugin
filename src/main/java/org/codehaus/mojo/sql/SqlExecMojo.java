@@ -840,32 +840,42 @@ public class SqlExecMojo
     // helper accessors for unit test purposes
     //
     
-    String getUsername()
+    public String getUsername()
     {
         return this.username;
     }
 
-    void setUsername( String username )
+    public void setUsername( String username )
     {
         this.username = username;
     }
 
-    String getPassword()
+    public String getPassword()
     {
         return this.password;
     }
     
-    void setPassword( String password )
+    public void setPassword( String password )
     {
         this.password = password;
     }
 
-    void setUrl( String url )
+    public String getUrl()
+    {
+        return this.url;
+    }
+    
+    public void setUrl( String url )
     {
         this.url = url;
     }
 
-    void setDriver( String driver )
+    public String getDriver()
+    {
+        return this.driver;
+    }
+    
+    public void setDriver( String driver )
     {
         this.driver = driver;
     }
@@ -890,7 +900,7 @@ public class SqlExecMojo
         return this.goodSql;
     }
     
-    void setOnError( String action )
+    public void setOnError( String action )
     {
         this.onError = action;
     }
