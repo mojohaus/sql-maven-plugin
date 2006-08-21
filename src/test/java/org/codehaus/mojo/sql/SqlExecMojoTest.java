@@ -282,4 +282,30 @@ public class SqlExecMojoTest
 
         }
     }
+
+    public void testOnError()
+    {
+        mojo.setOnError( "AbOrT" );
+        assertEquals( SqlExecMojo.ON_ERROR_ABORT, mojo.getOnError() );
+        mojo.setOnError( "cOnTiNuE" );
+        assertEquals( SqlExecMojo.ON_ERROR_CONTINUE, mojo.getOnError() );
+        try
+        {
+            mojo.setOnError( "bad" );
+            fail( IllegalArgumentException.class.getName() + " was not thrown." );
+        }
+        catch ( IllegalArgumentException e )
+        {
+            //expected
+        }
+        try
+        {
+            mojo.setOnError( null );
+            fail( IllegalArgumentException.class.getName() + " was not thrown." );
+        }
+        catch ( IllegalArgumentException e )
+        {
+            //expected
+        }
+    }
 }

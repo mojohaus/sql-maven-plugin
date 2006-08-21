@@ -387,7 +387,7 @@ public class SqlExecMojo
         }
         catch ( SQLException e )
         {
-            if ( !autocommit && conn != null && getOnError().equalsIgnoreCase( ON_ERROR_ABORT ) )
+            if ( !autocommit && conn != null && ON_ERROR_ABORT.equalsIgnoreCase( getOnError() ) )
             {
                 try
                 {
@@ -721,7 +721,7 @@ public class SqlExecMojo
         catch ( SQLException e )
         {
             getLog().error( "Failed to execute: " + sql );
-            if ( !getOnError().equalsIgnoreCase( ON_ERROR_CONTINUE ) )
+            if ( !ON_ERROR_CONTINUE.equalsIgnoreCase( getOnError() ) )
             {
                 throw e;
             }
@@ -925,18 +925,18 @@ public class SqlExecMojo
     
     public void setOnError( String action )
     {
-        if ( action.equalsIgnoreCase( ON_ERROR_ABORT ) )
+        if ( ON_ERROR_ABORT.equalsIgnoreCase( action ) )
         {
             this.onError = ON_ERROR_ABORT;
         }
-        else if ( action.equalsIgnoreCase( ON_ERROR_CONTINUE ) )
+        else if ( ON_ERROR_CONTINUE.equalsIgnoreCase( action ) )
         {
             this.onError = ON_ERROR_CONTINUE;
         }
         else
         {
-            throw new IllegalArgumentException( action + " is not a valid value, only '" + ON_ERROR_ABORT + "' or '"
-                + ON_ERROR_CONTINUE + "'." );
+            throw new IllegalArgumentException( action + " is not a valid value for onError, only '" + ON_ERROR_ABORT
+                + "' or '" + ON_ERROR_CONTINUE + "'." );
         }
     }
     
