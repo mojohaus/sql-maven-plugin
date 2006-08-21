@@ -54,6 +54,18 @@ public class SqlExecMojo
     extends AbstractMojo
 {
 
+    /**
+     * Call {@link #setOnError(String)} with this value to abort SQL command execution
+     * if an error is found.
+     */
+    public static final String ON_ERROR_ABORT = "abort";
+
+    /**
+     * Call {@link #setOnError(String)} with this value to continue SQL command execution
+     * if an error is found.
+     */
+     public static final String ON_ERROR_CONTINUE = "continue";
+
     //////////////////////////// User Info ///////////////////////////////////
 
     /**
@@ -136,8 +148,8 @@ public class SqlExecMojo
     /**
      * Action to perform if an error is found ("abort" or "continue")
      * @parameter expression="${onError}" default-value="abort"
-     **/
-    private String onError = "abort";
+     */
+    private String onError = ON_ERROR_ABORT;
 
     /**
      * SQL Statement delimiter
@@ -375,7 +387,7 @@ public class SqlExecMojo
         }
         catch ( SQLException e )
         {
-            if ( !autocommit && conn != null && onError.equals( "abort" ) )
+            if ( !autocommit && conn != null && getOnError().equalsIgnoreCase( ON_ERROR_ABORT ) )
             {
                 try
                 {
@@ -709,7 +721,7 @@ public class SqlExecMojo
         catch ( SQLException e )
         {
             getLog().error( "Failed to execute: " + sql );
-            if ( !onError.equals( "continue" ) )
+            if ( !getOnError().equalsIgnoreCase( ON_ERROR_CONTINUE ) )
             {
                 throw e;
             }
@@ -906,9 +918,26 @@ public class SqlExecMojo
         return this.goodSql;
     }
     
+    public String getOnError()
+    {
+        return this.onError;
+    }
+    
     public void setOnError( String action )
     {
-        this.onError = action;
+        if ( action.equalsIgnoreCase( ON_ERROR_ABORT ) )
+        {
+            this.onError = ON_ERROR_ABORT;
+        }
+        else if ( action.equalsIgnoreCase( ON_ERROR_CONTINUE ) )
+        {
+            this.onError = ON_ERROR_CONTINUE;
+        }
+        else
+        {
+            throw new IllegalArgumentException( action + " is not a valid value, only '" + ON_ERROR_ABORT + "' or '"
+                + ON_ERROR_CONTINUE + "'." );
+        }
     }
     
     void setSettings( Settings settings )
