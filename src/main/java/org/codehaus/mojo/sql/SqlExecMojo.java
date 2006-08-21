@@ -450,14 +450,15 @@ public class SqlExecMojo
     private void addFilesToTransactions()
         throws MojoExecutionException
     {
-        for ( int i = 0; srcFiles != null && i < srcFiles.length; ++i )
+        File[] files = getSrcFiles();
+        for ( int i = 0; files != null && i < files.length; ++i )
         {
-            if ( srcFiles[i] != null && !srcFiles[i].exists() )
+            if ( files[i] != null && !files[i].exists() )
             {
-                throw new MojoExecutionException( srcFiles[i].getPath() + " not found." );
+                throw new MojoExecutionException( files[i].getPath() + " not found." );
             }
 
-            createTransaction().setSrc( srcFiles[i] );
+            createTransaction().setSrc( files[i] );
         }
 
         if ( srcFile != null && !srcFile.exists() )
@@ -476,37 +477,37 @@ public class SqlExecMojo
     {
         if ( this.settingsKey == null )
         {
-            this.settingsKey = this.url;
+            this.settingsKey = getUrl();
         }
-        
-        if ( username == null || password == null )
+
+        if ( getUsername() == null || getPassword() == null )
         {
             Server server = this.settings.getServer( this.settingsKey );
 
             if ( server != null )
             {
-                if ( username == null )
+                if ( getUsername() == null )
                 {
-                    username = server.getUsername();
+                    setUsername( server.getUsername() );
                 }
 
-                if ( password == null )
+                if ( getPassword() == null )
                 {
-                    password = server.getPassword();
+                    setPassword( server.getPassword() );
                 }
             }
         }
 
-        if ( username == null )
+        if ( getUsername() == null )
         {
             //allow emtpy username
-            username= "";
+            setUsername( "" );
         }
 
-        if ( password == null )
+        if ( getPassword() == null )
         {
             //allow emtpy password
-            password = "";
+            setPassword( "" );
         }
     }
 
@@ -526,31 +527,31 @@ public class SqlExecMojo
         try
         {
 
-            getLog().debug( "connecting to " + url );
+            getLog().debug( "connecting to " + getUrl() );
             Properties info = new Properties();
-            info.put( "user", username );
-            info.put( "password", password );
+            info.put( "user", getUsername() );
+            info.put( "password", getPassword() );
             Driver driverInstance = null;
             try
             {
-                Class dc = Class.forName( driver );
+                Class dc = Class.forName( getDriver() );
                 driverInstance = (Driver) dc.newInstance();
             }
             catch ( ClassNotFoundException e )
             {
-                throw new MojoExecutionException( "Driver class not found: " + driver, e );
+                throw new MojoExecutionException( "Driver class not found: " + getDriver(), e );
             }
             catch ( Exception e )
             {
-                throw new MojoExecutionException( "Failure loading driver: " + driver, e );
+                throw new MojoExecutionException( "Failure loading driver: " + getDriver(), e );
             }
 
-            Connection conn = driverInstance.connect( url, info );
+            Connection conn = driverInstance.connect( getUrl(), info );
 
             if ( conn == null )
             {
                 // Driver doesn't understand the URL
-                throw new SQLException( "No suitable Driver for " + url );
+                throw new SQLException( "No suitable Driver for " + getUrl() );
             }
 
             conn.setAutoCommit( autocommit );
@@ -890,7 +891,12 @@ public class SqlExecMojo
         this.fileset = fileset;
     }
 
-    void setSrcFiles( File[] files )
+    public File[] getSrcFiles()
+    {
+        return this.srcFiles;
+    }
+
+    public void setSrcFiles( File[] files )
     {
         this.srcFiles = files;
     }
