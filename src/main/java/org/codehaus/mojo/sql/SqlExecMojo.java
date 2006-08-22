@@ -334,6 +334,10 @@ public class SqlExecMojo
     public void execute()
         throws MojoExecutionException
     {
+        successfulStatements = 0;
+        
+        totalStatements = 0;
+
         loadUserInfoFromSettings();
 
         addCommandToTransactions();
