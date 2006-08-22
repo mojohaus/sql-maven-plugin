@@ -61,7 +61,7 @@ public class SqlExecMojoTest
     {
         mojo.execute();
 
-        assertEquals( 0, mojo.getGoodSqls() );
+        assertEquals( 0, mojo.getSuccessfulStatements() );
     }
 
     public void testCreateCommandMojo()
@@ -71,7 +71,7 @@ public class SqlExecMojoTest
         mojo.addText( command );
         mojo.execute();
 
-        assertEquals( 1, mojo.getGoodSqls() );
+        assertEquals( 1, mojo.getSuccessfulStatements() );
     }
 
     public void testDropCommandMojo()
@@ -80,7 +80,7 @@ public class SqlExecMojoTest
         String command = "drop table PERSON";
         mojo.addText( command );
         mojo.execute();
-        assertEquals( 1, mojo.getGoodSqls() );
+        assertEquals( 1, mojo.getSuccessfulStatements() );
     }
 
     public void testFileSetMojo()
@@ -97,7 +97,7 @@ public class SqlExecMojoTest
 
         mojo.execute();
 
-        assertEquals( 3, mojo.getGoodSqls() );
+        assertEquals( 3, mojo.getSuccessfulStatements() );
 
     }
 
@@ -110,7 +110,7 @@ public class SqlExecMojoTest
         mojo.setSrcFiles( srcFiles );
         mojo.execute();
 
-        assertEquals( 3, mojo.getGoodSqls() );
+        assertEquals( 3, mojo.getSuccessfulStatements() );
 
     }
 
@@ -136,7 +136,7 @@ public class SqlExecMojoTest
         mojo.setFileset( ds );
         mojo.execute();
 
-        assertEquals( 7, mojo.getGoodSqls() );
+        assertEquals( 7, mojo.getSuccessfulStatements() );
     }
 
     public void testOnErrorContinueMojo()
@@ -146,7 +146,7 @@ public class SqlExecMojoTest
         mojo.addText( command );
         mojo.setOnError( "continue" );
         mojo.execute();
-        assertEquals( 0, mojo.getGoodSqls() );
+        assertEquals( 0, mojo.getSuccessfulStatements() );
     }
 
     public void testOnErrorAbortMojo()
@@ -166,7 +166,7 @@ public class SqlExecMojoTest
 
         }
 
-        assertEquals( 0, mojo.getGoodSqls() );
+        assertEquals( 0, mojo.getSuccessfulStatements() );
     }
 
     public void testNullSettings()

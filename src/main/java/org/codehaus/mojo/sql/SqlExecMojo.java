@@ -200,9 +200,9 @@ public class SqlExecMojo
 
     ////////////////////////////////// Internal properties//////////////////////
 
-    private int goodSql = 0;
+    private int successfulStatements = 0;
 
-    private int totalSql = 0;
+    private int totalStatements = 0;
 
     /**
      * Database connection
@@ -419,7 +419,8 @@ public class SqlExecMojo
             }
         }
 
-        getLog().info( goodSql + " of " + totalSql + " SQL statements executed successfully" );
+        getLog().info( getSuccessfulStatements() + " of " + getTotalStatements()
+            + " SQL statements executed successfully" );
 
     }
 
@@ -666,7 +667,7 @@ public class SqlExecMojo
         ResultSet resultSet = null;
         try
         {
-            totalSql++;
+            totalStatements++;
             getLog().debug( "SQL: " + sql );
 
             boolean ret;
@@ -716,7 +717,7 @@ public class SqlExecMojo
                 warning = warning.getNextWarning();
             }
             conn.clearWarnings();
-            goodSql++;
+            successfulStatements++;
         }
         catch ( SQLException e )
         {
@@ -913,11 +914,34 @@ public class SqlExecMojo
         this.srcFiles = files;
     }
 
+    /**
+     * @deprecated use {@link #getSuccessfulStatements()}
+     */
     int getGoodSqls()
     {
-        return this.goodSql;
+        return this.getSuccessfulStatements();
     }
     
+    /**
+     * Number of SQL statements executed so far that caused errors.
+     * 
+     * @return the number
+     */
+    public int getSuccessfulStatements()
+    {
+        return successfulStatements;
+    }
+
+    /**
+     * Number of SQL statements executed so far, including the ones that caused errors.
+     * 
+     * @return the number
+     */
+    public int getTotalStatements()
+    {
+        return totalStatements;
+    }
+
     public String getOnError()
     {
         return this.onError;
