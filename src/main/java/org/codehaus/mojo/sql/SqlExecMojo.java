@@ -497,7 +497,7 @@ public class SqlExecMojo
             this.settingsKey = getUrl();
         }
 
-        if ( getUsername() == null || getPassword() == null )
+        if ( ( getUsername() == null || getPassword() == null ) && ( settings != null ) )
         {
             Server server = this.settings.getServer( this.settingsKey );
 
