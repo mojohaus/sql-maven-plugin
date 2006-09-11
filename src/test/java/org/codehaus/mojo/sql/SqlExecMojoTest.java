@@ -169,26 +169,6 @@ public class SqlExecMojoTest
         assertEquals( 0, mojo.getSuccessfulStatements() );
     }
 
-    public void testNullSettings()
-        throws MojoExecutionException
-    {
-
-        //force a lookup of username in settings which will fail wince
-        //  settings is not set yet
-        mojo.setUsername( null );
-
-        try
-        {
-            mojo.execute();
-
-            fail( "Failure is expected here since settings is null in unittest" );
-        }
-        catch ( NullPointerException e )
-        {
-
-        }
-    }
-
     public void testDefaultUsernamePassword()
         throws MojoExecutionException
     {
