@@ -123,6 +123,12 @@ public class SqlExecMojo
      */
     private Fileset fileset;
 
+    /**
+     * When true, skip the execution
+     * @parameter default-value="false"
+     */
+    private boolean skip;
+    
     ////////////////////////////////// Database info /////////////////////////
     /**
      * Database URL
@@ -334,6 +340,13 @@ public class SqlExecMojo
     public void execute()
         throws MojoExecutionException
     {
+        
+        if ( skip )
+        {
+            this.getLog().info( "Skip sql execution" );
+            return;
+        }
+        
         successfulStatements = 0;
         
         totalStatements = 0;
@@ -977,4 +990,9 @@ public class SqlExecMojo
     {
         this.settingsKey = key;
     }
+    
+    void setSkip( boolean skip ) 
+    {
+        this.skip = skip;
+    }    
 }

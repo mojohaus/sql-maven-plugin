@@ -288,4 +288,16 @@ public class SqlExecMojoTest
             //expected
         }
     }
+
+    public void testSkip()
+        throws MojoExecutionException
+    {
+        String command = "create table PERSON ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        mojo.addText( command );
+        mojo.setSkip( true );
+        mojo.execute();
+
+        //no command was executed due to skip is on
+        assertEquals( 0, mojo.getSuccessfulStatements() );
+    }
 }
