@@ -15,7 +15,7 @@ SQL Maven Plugin
 
 * Goals Overview
 
-  * {{{operation-mojo.html}sql:execute}}: Execute SQL statements.  
+  * {{{execute-mojo.html}sql:execute}}: Execute SQL statements.  
   
   []
   

@@ -17,7 +17,7 @@ Examples
 
 <build>
 
-  [....]
+  [...]
 
       <plugin>
 
@@ -41,8 +41,9 @@ Examples
                 have maven to look them up in your settings.xml using ${settingsKey}
            -->
            <settingsKeys>sensibleKey</settingsKeys>
-           
            <url>jdbc:postgressql://localhost:5432:yourdb</url>
+           <!--all executions are ignored if -Dmaven.test.skip=true-->
+           <skip>${maven.test.skip}</skip>
         </configuration>
 
         <executions>
@@ -124,7 +125,7 @@ Examples
         </executions>
       </plugin>
 
-  [....]
+  [...]
 
 </build>
 

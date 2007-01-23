@@ -46,7 +46,7 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 /**
- * Executes SQL against a database
+ * Executes SQL against a database.
  * @goal execute
  * @description A repackaging of ANT's SQLExec task.
  */
@@ -70,7 +70,7 @@ public class SqlExecMojo
 
     /**
      * Database username.  If not given, it will be looked up through 
-     * settings.xml's server with ${settingsKey} as key
+     * settings.xml's server with ${settingsKey} as key.
      * @parameter expression="${username}" 
      */
     private String username;
@@ -99,32 +99,25 @@ public class SqlExecMojo
     //////////////////////////////// Source info /////////////////////////////
 
     /**
-     * SQL input commands separated by ${delimiter}
+     * SQL input commands separated by ${delimiter}.
      * @parameter expression="${sqlCommand}" default-value=""
      */
     private String sqlCommand = "";
 
     /**
-     * A single file containing SQL statements to load
-     * @parameter expression="${srcFile}" 
-     * @deprecated use srcFiles instead
-     */
-    private File srcFile;
-
-    /**
-     * List of files containing SQL statements to load
+     * List of files containing SQL statements to load.
      * @parameter 
      */
     private File[] srcFiles;
 
     /**
-     * File(s) containing SQL statements to load
+     * File(s) containing SQL statements to load.
      * @parameter
      */
     private Fileset fileset;
 
     /**
-     * When true, skip the execution
+     * When true, skip the execution.
      * @parameter default-value="false"
      */
     private boolean skip;
@@ -158,7 +151,7 @@ public class SqlExecMojo
     private String onError = ON_ERROR_ABORT;
 
     /**
-     * SQL Statement delimiter
+     * SQL Statement delimiter.
      * @parameter expression="${delimiter}" default-value=";"
      */
     private String delimiter = ";";
@@ -442,7 +435,7 @@ public class SqlExecMojo
     }
 
     /**
-     * Add sql command to transactions list
+     * Add sql command to transactions list.
      *
      */
     private void addCommandToTransactions()
@@ -474,7 +467,7 @@ public class SqlExecMojo
     }
 
     /**
-     * Add user input of srcFiles to transaction list
+     * Add user input of srcFiles to transaction list.
      * @throws MojoExecutionException
      */
     private void addFilesToTransactions()
@@ -490,13 +483,6 @@ public class SqlExecMojo
 
             createTransaction().setSrc( files[i] );
         }
-
-        if ( srcFile != null && !srcFile.exists() )
-        {
-            throw new MojoExecutionException( srcFile.getPath() + " not found." );
-        }
-        createTransaction().setSrc( srcFile );
-
     }
 
     /**

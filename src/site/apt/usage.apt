@@ -50,8 +50,8 @@ Usage
             </goals>
             <!-- specific configurations -->
             <configuration>
-              <!-- specified your sql commands, can be all of the following configuration -->
-              <fileset>/fileset>
+              <!-- specified your sql commands, can be all of the following configurations -->
+              <fileset></fileset>
               <sqlCommand></sqlCommand>
               <srcFiles>
                 <srcFile></srcFile>
