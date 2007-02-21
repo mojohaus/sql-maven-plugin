@@ -43,7 +43,7 @@
         
         <configuration>
           <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
-          <url>jdbc:derby:testdb;create=true</url>
+          <url>jdbc:derby:${project.build.directory}/testdb;create=true</url>
           <skip>${maven.test.skip}</skip>
         </configuration>
         
