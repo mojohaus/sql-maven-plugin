@@ -7,9 +7,23 @@
   <version>1.0-SNAPSHOT</version>
   
   <name>sql-maven-plugin Derby Database Integration Test</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <version>10.2.2.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
   
   <build>
-    
     
     <plugins>
 
@@ -29,7 +43,7 @@
         
         <configuration>
           <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
-          <url>jdbc:derby:${project.build.directory}/testdb;create=true</url>
+          <url>jdbc:derby:testdb;create=true</url>
           <skip>${maven.test.skip}</skip>
         </configuration>
         
@@ -57,14 +71,13 @@
                  insert into derbyDB values (1956,'Webster St.');
                  insert into derbyDB values (1910,'Union St.');
                  update derbyDB set num=180, addr='Grand Ave.' where num=1956;
-                 select * from derbyDb
               </sqlCommand>
             </configuration>
           </execution>
           
           <execution>
             <id>drop-table</id>
-            <phase>process-test-resources</phase>
+            <phase>test</phase>
             <goals>
               <goal>execute</goal>
             </goals>
