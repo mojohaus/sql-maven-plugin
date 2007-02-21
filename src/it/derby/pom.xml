@@ -1,0 +1,86 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  
+  <groupId>org.codehaus.mojo</groupId>
+  <artifactId>sql-maven-plugin-it-derby</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  
+  <name>sql-maven-plugin Derby Database Integration Test</name>
+  
+  <build>
+    
+    
+    <plugins>
+
+
+      <plugin>
+      
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>sql-maven-plugin</artifactId>
+        
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>10.2.2.0</version>
+          </dependency>
+        </dependencies>
+        
+        <configuration>
+          <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
+          <url>jdbc:derby:${project.build.directory}/testdb;create=true</url>
+          <skip>${maven.test.skip}</skip>
+        </configuration>
+        
+        <executions>
+
+          <execution>
+            <id>create-table</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <sqlCommand>create table derbyDB(num int, addr varchar(40))</sqlCommand>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>update-table</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <sqlCommand>
+                 insert into derbyDB values (1956,'Webster St.');
+                 insert into derbyDB values (1910,'Union St.');
+                 update derbyDB set num=180, addr='Grand Ave.' where num=1956;
+                 select * from derbyDb
+              </sqlCommand>
+            </configuration>
+          </execution>
+          
+          <execution>
+            <id>drop-table</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <sqlCommand>drop table derbyDB</sqlCommand>
+            </configuration>
+          </execution>
+          
+
+        </executions>
+      </plugin>
+      
+    </plugins>
+    
+    
+  </build>
+
+  
+</project>
