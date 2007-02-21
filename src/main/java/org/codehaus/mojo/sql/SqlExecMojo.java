@@ -96,6 +96,13 @@ public class SqlExecMojo
      */
     private String settingsKey;    
 
+    /**
+     * Skip execution when there is error obtaining connection.
+     * This is special case to support database such as embedded Derby
+     * to shutdown database via URL( ie shutdown=true).
+     * @parameter expression="${skipOnConnectionError}" default-value="false"
+     */    
+    private boolean skipOnConnectionError;
     //////////////////////////////// Source info /////////////////////////////
 
     /**
@@ -352,7 +359,23 @@ public class SqlExecMojo
 
         addFileSetToTransactions();
 
-        conn = getConnection();
+        try
+        {
+            conn = getConnection();
+        }
+        catch( SQLException e )
+        {
+        	if ( ! this.skipOnConnectionError )
+        	{
+        		throw new MojoExecutionException( e.getMessage(), e );
+        	}
+        	else
+        	{
+        		//error on get connection and user asked to skip the rest
+        		return;
+        	}
+        }
+        
 
         try
         {
@@ -535,14 +558,13 @@ public class SqlExecMojo
      *
      * @return Connection the newly created connection.
      * @throws MojoExecutionException if the UserId/Password/Url is not set or there
-     * is no suitable driver or the driver fails to load.
+     *    is no suitable driver or the driver fails to load.
+     * @throws SQLException if there is problem getting connection with valid url
+     *  
      */
     private Connection getConnection()
-        throws MojoExecutionException
+        throws MojoExecutionException, SQLException
     {
-        try
-        {
-
             getLog().debug( "connecting to " + getUrl() );
             Properties info = new Properties();
             info.put( "user", getUsername() );
@@ -572,12 +594,6 @@ public class SqlExecMojo
 
             conn.setAutoCommit( autocommit );
             return conn;
-        }
-        catch ( SQLException e )
-        {
-            throw new MojoExecutionException( e.getMessage(), e );
-        }
-
     }
 
     /**
