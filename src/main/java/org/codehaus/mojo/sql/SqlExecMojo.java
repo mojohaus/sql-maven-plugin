@@ -164,7 +164,10 @@ public class SqlExecMojo
     private String onError = ON_ERROR_ABORT;
 
     /**
-     * SQL Statement delimiter.
+     * Set the delimiter that separates SQL statements. 
+     *
+     * <p>For example, set this to "go" and delimiterType to "row" for
+     * Sybase ASE or MS SQL Server.</p>
      * @parameter expression="${delimiter}" default-value=";"
      */
     private String delimiter = ";";
@@ -172,8 +175,8 @@ public class SqlExecMojo
     /**
      * The delimiter type indicating whether the delimiter will
      * only be recognized on a line by itself. Acceptable values are
-     * NORMAL, and ROW
-     * @parameter expression="${delimiterType}" default-value="NORMAL"
+     * "normal", and "row"
+     * parameter expression="${delimiterType}" default-value="normal"
      */
     private String delimiterType = DelimiterType.NORMAL;
 
