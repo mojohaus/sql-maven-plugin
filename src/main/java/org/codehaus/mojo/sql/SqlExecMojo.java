@@ -21,6 +21,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+import org.codehaus.plexus.util.StringUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -186,6 +187,7 @@ public class SqlExecMojo
 
     /**
      * Encoding to use when reading SQL statements from a file
+     * @parameter expression="${encoding}" default-value=null
      */
     private String encoding = null;
 
@@ -855,8 +857,18 @@ public class SqlExecMojo
             if ( tSrcFile != null )
             {
                 getLog().info( "Executing file: " + tSrcFile.getAbsolutePath() );
-                Reader reader = ( encoding == null ) ? new FileReader( tSrcFile )
-                                                    : new InputStreamReader( new FileInputStream( tSrcFile ), encoding );
+                
+                Reader reader = null;
+                
+                if (  StringUtils.isEmpty( encoding ) )
+                {
+                    reader  =  new FileReader( tSrcFile );
+                }
+                else
+                {
+                	reader = new InputStreamReader( new FileInputStream( tSrcFile ), encoding );
+                }
+                                                    
                 try
                 {
                     runStatements( reader, out );
