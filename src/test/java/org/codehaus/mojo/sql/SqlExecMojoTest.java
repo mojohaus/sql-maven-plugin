@@ -48,6 +48,7 @@ public class SqlExecMojoTest
         mojo.setUsername( p.getProperty( "user" ) );
         mojo.setPassword( p.getProperty( "password" ) );
         mojo.setUrl( p.getProperty( "url" ) );
+        mojo.setDriverProperties( p.getProperty( "driverProperties" ) );
 
     }
 
@@ -297,5 +298,24 @@ public class SqlExecMojoTest
 
         //no command was executed due to skip is on
         assertEquals( 0, mojo.getSuccessfulStatements() );
+    }
+
+    public void testDriverProperties()
+        throws MojoExecutionException
+    {
+        Properties driverProperties = this.mojo.getDriverProperties();
+        assertEquals( 2, driverProperties.size() );
+        assertEquals( "value1", driverProperties.get( "key1" ) );
+        assertEquals( "value2", driverProperties.get( "key2" ) );
+        
+        mojo.setDriverProperties( "key1=value1,key2" );
+        try
+        {
+            driverProperties = this.mojo.getDriverProperties();
+        }
+        catch ( MojoExecutionException e )
+        {
+        }
+        
     }
 }

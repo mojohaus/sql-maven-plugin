@@ -80,6 +80,12 @@ public class SqlExecMojo
      * @parameter expression="${password}" 
      */
     private String password;
+    
+    /**
+     * Additional key=value separated by comma to be passed into JDBC driver
+     * @parameter expression="${driverProperties}" default-value = ""
+     */
+    private String driverProperties;    
 
     /**
      * @parameter expression="${settings}"
@@ -186,9 +192,9 @@ public class SqlExecMojo
 
     /**
      * Encoding to use when reading SQL statements from a file
-     * @parameter expression="${encoding}" default-value=null
+     * @parameter expression="${encoding}" default-value= ""
      */
-    private String encoding = null;
+    private String encoding = "";
 
     /**
      * Append to an existing file or overwrite it?
@@ -569,7 +575,11 @@ public class SqlExecMojo
         Properties info = new Properties();
         info.put( "user", getUsername() );
         info.put( "password", getPassword() );
+        
+        info.putAll( this.getDriverProperties() );
+        
         Driver driverInstance = null;
+        
         try
         {
             Class dc = Class.forName( getDriver() );
@@ -596,6 +606,34 @@ public class SqlExecMojo
         return conn;
     }
 
+    /**
+     * parse driverProperties into Properties set
+     * @return
+     * @throws MojoExecutionException
+     */
+    protected Properties getDriverProperties()
+        throws MojoExecutionException
+    {
+        Properties properties = new Properties();
+        
+        if ( ! StringUtils.isEmpty( this.driverProperties ) )
+        {
+            String [] tokens = StringUtils.split( this.driverProperties, "," );
+            for ( int i = 0 ; i < tokens.length; ++i )
+            {
+                String [] keyValueTokens = StringUtils.split( tokens[i].trim(), "=" );
+                if ( keyValueTokens.length != 2 )
+                {
+                    throw  new MojoExecutionException( "Invalid JDBC Driver properties: " + this.driverProperties );
+                }
+                
+                properties.setProperty( keyValueTokens[0], keyValueTokens[1] );
+                
+            }
+        }
+        
+        return properties;
+    }
     /**
      * read in lines and execute them
      */
@@ -1005,5 +1043,10 @@ public class SqlExecMojo
     void setSkip( boolean skip )
     {
         this.skip = skip;
+    }
+
+    public void setDriverProperties( String driverProperties )
+    {
+        this.driverProperties = driverProperties;
     }
 }
