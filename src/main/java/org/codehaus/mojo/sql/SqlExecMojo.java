@@ -1,20 +1,18 @@
 package org.codehaus.mojo.sql;
 
 /*
- * Copyright  2000-2006 The Apache Software Foundation
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
+ * Copyright 2000-2006 The Apache Software Foundation
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ * 
  */
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -65,7 +63,7 @@ public class SqlExecMojo
      * Call {@link #setOnError(String)} with this value to continue SQL command execution
      * if an error is found.
      */
-     public static final String ON_ERROR_CONTINUE = "continue";
+    public static final String ON_ERROR_CONTINUE = "continue";
 
     //////////////////////////// User Info ///////////////////////////////////
 
@@ -89,21 +87,22 @@ public class SqlExecMojo
      * @readonly
      */
     private Settings settings;
-    
+
     /**
      * Server's id in settings.xml to look up username and password.
      * Default to ${url} if not given.
      * @parameter expression="${settingsKey}" 
      */
-    private String settingsKey;    
+    private String settingsKey;
 
     /**
      * Skip execution when there is error obtaining connection.
      * This is special case to support database such as embedded Derby
      * to shutdown database via URL( ie shutdown=true).
      * @parameter expression="${skipOnConnectionError}" default-value="false"
-     */    
+     */
     private boolean skipOnConnectionError;
+
     //////////////////////////////// Source info /////////////////////////////
 
     /**
@@ -129,7 +128,7 @@ public class SqlExecMojo
      * @parameter default-value="false"
      */
     private boolean skip;
-    
+
     ////////////////////////////////// Database info /////////////////////////
     /**
      * Database URL
@@ -237,7 +236,6 @@ public class SqlExecMojo
         return t;
     }
 
-
     /**
      * Set an inline SQL command to execute.
      * NB: Properties are not expanded in this text.
@@ -342,15 +340,15 @@ public class SqlExecMojo
     public void execute()
         throws MojoExecutionException
     {
-        
+
         if ( skip )
         {
             this.getLog().info( "Skip sql execution" );
             return;
         }
-        
+
         successfulStatements = 0;
-        
+
         totalStatements = 0;
 
         loadUserInfoFromSettings();
@@ -365,19 +363,18 @@ public class SqlExecMojo
         {
             conn = getConnection();
         }
-        catch( SQLException e )
+        catch ( SQLException e )
         {
-        	if ( ! this.skipOnConnectionError )
-        	{
-        		throw new MojoExecutionException( e.getMessage(), e );
-        	}
-        	else
-        	{
-        		//error on get connection and user asked to skip the rest
-        		return;
-        	}
+            if ( !this.skipOnConnectionError )
+            {
+                throw new MojoExecutionException( e.getMessage(), e );
+            }
+            else
+            {
+                //error on get connection and user asked to skip the rest
+                return;
+            }
         }
-        
 
         try
         {
@@ -454,8 +451,9 @@ public class SqlExecMojo
             }
         }
 
-        getLog().info( getSuccessfulStatements() + " of " + getTotalStatements()
-            + " SQL statements executed successfully" );
+        getLog().info(
+                       getSuccessfulStatements() + " of " + getTotalStatements()
+                           + " SQL statements executed successfully" );
 
     }
 
@@ -465,7 +463,7 @@ public class SqlExecMojo
      */
     private void addCommandToTransactions()
     {
-        createTransaction().addText( sqlCommand.trim()  );
+        createTransaction().addText( sqlCommand.trim() );
     }
 
     /**
@@ -567,35 +565,35 @@ public class SqlExecMojo
     private Connection getConnection()
         throws MojoExecutionException, SQLException
     {
-            getLog().debug( "connecting to " + getUrl() );
-            Properties info = new Properties();
-            info.put( "user", getUsername() );
-            info.put( "password", getPassword() );
-            Driver driverInstance = null;
-            try
-            {
-                Class dc = Class.forName( getDriver() );
-                driverInstance = (Driver) dc.newInstance();
-            }
-            catch ( ClassNotFoundException e )
-            {
-                throw new MojoExecutionException( "Driver class not found: " + getDriver(), e );
-            }
-            catch ( Exception e )
-            {
-                throw new MojoExecutionException( "Failure loading driver: " + getDriver(), e );
-            }
+        getLog().debug( "connecting to " + getUrl() );
+        Properties info = new Properties();
+        info.put( "user", getUsername() );
+        info.put( "password", getPassword() );
+        Driver driverInstance = null;
+        try
+        {
+            Class dc = Class.forName( getDriver() );
+            driverInstance = (Driver) dc.newInstance();
+        }
+        catch ( ClassNotFoundException e )
+        {
+            throw new MojoExecutionException( "Driver class not found: " + getDriver(), e );
+        }
+        catch ( Exception e )
+        {
+            throw new MojoExecutionException( "Failure loading driver: " + getDriver(), e );
+        }
 
-            Connection conn = driverInstance.connect( getUrl(), info );
+        Connection conn = driverInstance.connect( getUrl(), info );
 
-            if ( conn == null )
-            {
-                // Driver doesn't understand the URL
-                throw new SQLException( "No suitable Driver for " + getUrl() );
-            }
+        if ( conn == null )
+        {
+            // Driver doesn't understand the URL
+            throw new SQLException( "No suitable Driver for " + getUrl() );
+        }
 
-            conn.setAutoCommit( autocommit );
-            return conn;
+        conn.setAutoCommit( autocommit );
+        return conn;
     }
 
     /**
@@ -615,7 +613,7 @@ public class SqlExecMojo
             {
                 line = line.trim();
             }
-            
+
             //            line = getProject().replaceProperties(line);
             if ( !keepformat )
             {
@@ -657,7 +655,7 @@ public class SqlExecMojo
                     sql.append( "\n" );
                 }
             }
-            
+
             if ( ( delimiterType.equals( DelimiterType.NORMAL ) && sql.toString().endsWith( delimiter ) )
                 || ( delimiterType.equals( DelimiterType.ROW ) && line.equals( delimiter ) ) )
             {
@@ -665,7 +663,7 @@ public class SqlExecMojo
                 sql.replace( 0, sql.length(), "" );
             }
         }
-        
+
         // Catch any statements not followed by ;
         if ( !sql.equals( "" ) )
         {
@@ -757,7 +755,6 @@ public class SqlExecMojo
             }
         }
     }
-
 
     /**
      * print any results in the result set.
@@ -857,18 +854,18 @@ public class SqlExecMojo
             if ( tSrcFile != null )
             {
                 getLog().info( "Executing file: " + tSrcFile.getAbsolutePath() );
-                
+
                 Reader reader = null;
-                
-                if (  StringUtils.isEmpty( encoding ) )
+
+                if ( StringUtils.isEmpty( encoding ) )
                 {
-                    reader  =  new FileReader( tSrcFile );
+                    reader = new FileReader( tSrcFile );
                 }
                 else
                 {
-                	reader = new InputStreamReader( new FileInputStream( tSrcFile ), encoding );
+                    reader = new InputStreamReader( new FileInputStream( tSrcFile ), encoding );
                 }
-                                                    
+
                 try
                 {
                     runStatements( reader, out );
@@ -880,11 +877,11 @@ public class SqlExecMojo
             }
         }
     }
-    
+
     //
     // helper accessors for unit test purposes
     //
-    
+
     public String getUsername()
     {
         return this.username;
@@ -899,7 +896,7 @@ public class SqlExecMojo
     {
         return this.password;
     }
-    
+
     public void setPassword( String password )
     {
         this.password = password;
@@ -909,7 +906,7 @@ public class SqlExecMojo
     {
         return this.url;
     }
-    
+
     public void setUrl( String url )
     {
         this.url = url;
@@ -919,7 +916,7 @@ public class SqlExecMojo
     {
         return this.driver;
     }
-    
+
     public void setDriver( String driver )
     {
         this.driver = driver;
@@ -952,7 +949,7 @@ public class SqlExecMojo
     {
         return this.getSuccessfulStatements();
     }
-    
+
     /**
      * Number of SQL statements executed so far that caused errors.
      * 
@@ -977,7 +974,7 @@ public class SqlExecMojo
     {
         return this.onError;
     }
-    
+
     public void setOnError( String action )
     {
         if ( ON_ERROR_ABORT.equalsIgnoreCase( action ) )
@@ -994,19 +991,19 @@ public class SqlExecMojo
                 + "' or '" + ON_ERROR_CONTINUE + "'." );
         }
     }
-    
+
     void setSettings( Settings settings )
     {
-        this.settings = settings; 
+        this.settings = settings;
     }
-    
-    void setSettingsKey( String key ) 
+
+    void setSettingsKey( String key )
     {
         this.settingsKey = key;
     }
-    
-    void setSkip( boolean skip ) 
+
+    void setSkip( boolean skip )
     {
         this.skip = skip;
-    }    
+    }
 }
