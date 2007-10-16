@@ -171,7 +171,9 @@ public class SqlExecMojo
 
     /**
      * The delimiter type indicating whether the delimiter will
-     * only be recognized on a line by itself
+     * only be recognized on a line by itself. Acceptable values are
+     * NORMAL, and ROW
+     * @parameter expression="${delimiterType}" default-value="NORMAL"
      */
     private String delimiterType = DelimiterType.NORMAL;
 
