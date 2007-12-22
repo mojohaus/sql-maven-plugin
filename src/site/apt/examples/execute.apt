@@ -99,12 +99,13 @@ Examples
               <goal>execute</goal>
             </goals>
             <configuration>
+              <orderFile>ascending</orderFile>
               <fileset>
                 <basedir>${basedir}</basedir>
                 <includes>
                   <!-- These 2 files may not get executed in sequence, use srcFiles instead, if needed -->
-                  <include>test/sql/test-data1.sql</include>
                   <include>test/sql/test-data2.sql</include>
+                  <include>test/sql/test-data1.sql</include>
                 </includes>
               </fileset>
             </configuration>
