@@ -19,6 +19,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
 
 import java.io.BufferedOutputStream;
@@ -174,6 +175,8 @@ public class SqlExecMojo
      */
     private String onError = ON_ERROR_ABORT;
 
+    ////////////////////////////// Parser Configuration ////////////////////
+    
     /**
      * Set the delimiter that separates SQL statements. 
      *
@@ -193,10 +196,21 @@ public class SqlExecMojo
 
     /**
      * Set the order with the sql files will be executed.
+     * Possible values are "ascending and descending". Any other
+     * values mean no sorting will be performed
      * @parameter expression="${orderFile}" 
      */
     private String orderFile = null;
 
+    /**
+     * When true, the whole sql content in sqlCommand, srcFiles and 
+     * fileSet are sent directly to jdbc in one sql statment. This option
+     * is for executing database store procedure/function
+     * @parameter expression="${enableBlockMode}" 
+     */
+    
+    private boolean enableBlockMode = false;
+    
     /**
      * Print SQL results.
      */
@@ -680,8 +694,20 @@ public class SqlExecMojo
     private void runStatements( Reader reader, PrintStream out )
         throws SQLException, IOException
     {
-        StringBuffer sql = new StringBuffer();
         String line;
+        
+        if ( enableBlockMode )
+        {
+            //no need to parse the content, ship it directly to jdbc in one sql statement
+            line = IOUtil.toString( reader );
+            execSQL( line, out );
+            return;
+        }
+        
+        
+        StringBuffer sql = new StringBuffer();
+        
+        
 
         BufferedReader in = new BufferedReader( reader );
 
