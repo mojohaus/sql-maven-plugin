@@ -104,7 +104,7 @@ public class SqlExecMojoTest
         throws MojoExecutionException
     {
         File[] srcFiles = new File[1];
-        srcFiles[0] = new File( System.getProperty( "basedir" ) + "/src/test/data/drop-test-tables.sql" );
+        srcFiles[0] = new File( "src/test/data/drop-test-tables.sql" );
 
         mojo.setSrcFiles( srcFiles );
         mojo.execute();
@@ -125,7 +125,7 @@ public class SqlExecMojoTest
         mojo.addText( command );
 
         File[] srcFiles = new File[1];
-        srcFiles[0] = new File( System.getProperty( "basedir" ) + "/src/test/data/create-test-tables.sql" );
+        srcFiles[0] = new File( "src/test/data/create-test-tables.sql" );
         mojo.setSrcFiles( srcFiles );
 
         Fileset ds = new Fileset();
@@ -136,6 +136,28 @@ public class SqlExecMojoTest
         mojo.execute();
 
         assertEquals( 7, mojo.getSuccessfulStatements() );
+    }
+
+    public void testOrderFile() throws MojoExecutionException {
+        Fileset ds = new Fileset();
+        ds.setBasedir( "src/test" );
+        ds.setIncludes( new String[] { "**/drop*.sql", "**/create*.sql" } );
+        ds.scan();
+        mojo.setFileset( ds );
+
+        mojo.setOrderFile( SqlExecMojo.FILE_SORTING_ASC );
+        mojo.execute();
+
+        assertEquals( 6, mojo.getSuccessfulStatements() );
+        
+        try 
+        {
+            mojo.setOrderFile( SqlExecMojo.FILE_SORTING_DSC );
+            mojo.execute();
+            fail( "Execution is not aborted on error." );
+        } 
+        catch ( MojoExecutionException e ) {
+        }
     }
 
     public void testOnErrorContinueMojo()

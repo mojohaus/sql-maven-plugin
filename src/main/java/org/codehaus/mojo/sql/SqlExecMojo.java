@@ -39,6 +39,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -65,6 +66,16 @@ public class SqlExecMojo
      */
     public static final String ON_ERROR_CONTINUE = "continue";
 
+    /**
+     * Call {@link #setOrderFile(String)} with this value to sort in ascendant order the sql files.
+     */
+    public static final String FILE_SORTING_ASC = "ascending";
+
+    /**
+     * Call {@link #setOrderFile(String)} with this value to sort in descendant order the sql files.
+     */
+    public static final String FILE_SORTING_DSC = "descending";
+
     //////////////////////////// User Info ///////////////////////////////////
 
     /**
@@ -80,12 +91,12 @@ public class SqlExecMojo
      * @parameter expression="${password}" 
      */
     private String password;
-    
+
     /**
      * Additional key=value separated by comma to be passed into JDBC driver
      * @parameter expression="${driverProperties}" default-value = ""
      */
-    private String driverProperties;    
+    private String driverProperties;
 
     /**
      * @parameter expression="${settings}"
@@ -179,6 +190,12 @@ public class SqlExecMojo
      * parameter expression="${delimiterType}" default-value="normal"
      */
     private String delimiterType = DelimiterType.NORMAL;
+
+    /**
+     * Set the order with the sql files will be executed.
+     * @parameter expression="${orderFile}" 
+     */
+    private String orderFile = null;
 
     /**
      * Print SQL results.
@@ -370,6 +387,8 @@ public class SqlExecMojo
 
         addFileSetToTransactions();
 
+        sortTransactions();
+
         try
         {
             conn = getConnection();
@@ -520,6 +539,21 @@ public class SqlExecMojo
     }
 
     /**
+     * Sort the transaction list.
+     */
+    private void sortTransactions()
+    {
+        if ( FILE_SORTING_ASC.equalsIgnoreCase( this.orderFile ) )
+        {
+            Collections.sort( transactions );
+        }
+        else if ( FILE_SORTING_DSC.equalsIgnoreCase( this.orderFile ) )
+        {
+            Collections.sort( transactions, Collections.reverseOrder() );
+        }
+    }
+
+    /**
      * Load username password from settings if user has not set them in JVM properties
      */
     private void loadUserInfoFromSettings()
@@ -580,11 +614,11 @@ public class SqlExecMojo
         Properties info = new Properties();
         info.put( "user", getUsername() );
         info.put( "password", getPassword() );
-        
+
         info.putAll( this.getDriverProperties() );
-        
+
         Driver driverInstance = null;
-        
+
         try
         {
             Class dc = Class.forName( getDriver() );
@@ -620,25 +654,26 @@ public class SqlExecMojo
         throws MojoExecutionException
     {
         Properties properties = new Properties();
-        
-        if ( ! StringUtils.isEmpty( this.driverProperties ) )
+
+        if ( !StringUtils.isEmpty( this.driverProperties ) )
         {
-            String [] tokens = StringUtils.split( this.driverProperties, "," );
-            for ( int i = 0 ; i < tokens.length; ++i )
+            String[] tokens = StringUtils.split( this.driverProperties, "," );
+            for ( int i = 0; i < tokens.length; ++i )
             {
-                String [] keyValueTokens = StringUtils.split( tokens[i].trim(), "=" );
+                String[] keyValueTokens = StringUtils.split( tokens[i].trim(), "=" );
                 if ( keyValueTokens.length != 2 )
                 {
-                    throw  new MojoExecutionException( "Invalid JDBC Driver properties: " + this.driverProperties );
+                    throw new MojoExecutionException( "Invalid JDBC Driver properties: " + this.driverProperties );
                 }
-                
+
                 properties.setProperty( keyValueTokens[0], keyValueTokens[1] );
-                
+
             }
         }
-        
+
         return properties;
     }
+
     /**
      * read in lines and execute them
      */
@@ -860,6 +895,7 @@ public class SqlExecMojo
      * operation in between.
      */
     private class Transaction
+        implements Comparable
     {
         private File tSrcFile = null;
 
@@ -916,6 +952,34 @@ public class SqlExecMojo
                 finally
                 {
                     reader.close();
+                }
+            }
+        }
+
+        public int compareTo( Object object )
+        {
+            Transaction transaction = (Transaction) object;
+
+            if ( transaction.tSrcFile == null )
+            {
+                if ( this.tSrcFile == null )
+                {
+                    return 0;
+                }
+                else
+                {
+                    return Integer.MAX_VALUE;
+                }
+            }
+            else
+            {
+                if ( this.tSrcFile == null )
+                {
+                    return Integer.MIN_VALUE;
+                }
+                else
+                {
+                    return this.tSrcFile.compareTo( transaction.tSrcFile );
                 }
             }
         }
@@ -983,6 +1047,28 @@ public class SqlExecMojo
     public void setSrcFiles( File[] files )
     {
         this.srcFiles = files;
+    }
+
+    public String getOrderFile()
+    {
+        return this.orderFile;
+    }
+
+    public void setOrderFile( String orderFile )
+    {
+        if ( FILE_SORTING_ASC.equalsIgnoreCase( orderFile ) )
+        {
+            this.orderFile = FILE_SORTING_ASC;
+        }
+        else if ( FILE_SORTING_DSC.equalsIgnoreCase( orderFile ) )
+        {
+            this.orderFile = FILE_SORTING_DSC;
+        }
+        else
+        {
+            throw new IllegalArgumentException( orderFile + " is not a valid value for orderFile, only '"
+                + FILE_SORTING_ASC + "' or '" + FILE_SORTING_DSC + "'." );
+        }
     }
 
     /**
