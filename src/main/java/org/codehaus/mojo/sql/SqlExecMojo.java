@@ -1166,4 +1166,34 @@ public class SqlExecMojo
     {
         this.driverProperties = driverProperties;
     }
+
+    public boolean isEnableBlockMode()
+    {
+        return enableBlockMode;
+    }
+
+    public void setEnableBlockMode( boolean enableBlockMode )
+    {
+        this.enableBlockMode = enableBlockMode;
+    }
+
+    public String getSqlCommand()
+    {
+        return sqlCommand;
+    }
+
+    public void setSqlCommand( String sqlCommand )
+    {
+        this.sqlCommand = sqlCommand;
+    }
+
+    public Vector getTransactions()
+    {
+        return transactions;
+    }
+
+    public void setTransactions( Vector transactions )
+    {
+        this.transactions = transactions;
+    }
 }

@@ -138,7 +138,9 @@ public class SqlExecMojoTest
         assertEquals( 7, mojo.getSuccessfulStatements() );
     }
 
-    public void testOrderFile() throws MojoExecutionException {
+    public void testOrderFile()
+        throws MojoExecutionException
+    {
         Fileset ds = new Fileset();
         ds.setBasedir( "src/test" );
         ds.setIncludes( new String[] { "**/drop*.sql", "**/create*.sql" } );
@@ -149,14 +151,15 @@ public class SqlExecMojoTest
         mojo.execute();
 
         assertEquals( 6, mojo.getSuccessfulStatements() );
-        
-        try 
+
+        try
         {
             mojo.setOrderFile( SqlExecMojo.FILE_SORTING_DSC );
             mojo.execute();
             fail( "Execution is not aborted on error." );
-        } 
-        catch ( MojoExecutionException e ) {
+        }
+        catch ( MojoExecutionException e )
+        {
         }
     }
 
@@ -329,7 +332,7 @@ public class SqlExecMojoTest
         assertEquals( 2, driverProperties.size() );
         assertEquals( "value1", driverProperties.get( "key1" ) );
         assertEquals( "value2", driverProperties.get( "key2" ) );
-        
+
         mojo.setDriverProperties( "key1=value1,key2" );
         try
         {
@@ -338,6 +341,24 @@ public class SqlExecMojoTest
         catch ( MojoExecutionException e )
         {
         }
-        
+
     }
+
+    public void testBlockMode()
+        throws MojoExecutionException
+    {
+        String command = "create table BLOCKTABLE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        mojo.addText( command );
+        mojo.setEnableBlockMode( true );
+        mojo.execute();
+        assertEquals( 1, mojo.getSuccessfulStatements() );
+        
+        mojo.setSqlCommand( "");
+        mojo.getTransactions().clear();
+        command = "drop table BLOCKTABLE";
+        mojo.addText( command );
+        mojo.execute();
+        assertEquals( 1, mojo.getSuccessfulStatements() );
+    }
+
 }
