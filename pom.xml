@@ -11,6 +11,10 @@
     <name>SQL Plugin for Maven</name>
     <inceptionYear>2006</inceptionYear>
     <description>Execute SQL Statements</description>
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://jira.codehaus.org/browse/MSQL</url>
+  </issueManagement>
 
     <developers>
       <developer>
