@@ -164,16 +164,26 @@ public class SqlExecMojo
 
     /**
      * Print SQL results.
+     * @parameter expression="${print}"
      */
     private boolean print = false;
 
     /**
      * Print header columns.
+     * @parameter expression="${showheaders}"
      */
     private boolean showheaders = true;
 
     /**
+     * Print the summary of the exectuted SQL Statement.
+     * @parameter expression="${showsummary}"
+     */
+    private boolean showsummary = true;
+
+    
+    /**
      * Results Output file.
+     * @parameter expression="${output}"
      */
     private File output = null;
 
@@ -706,7 +716,7 @@ public class SqlExecMojo
 
             getLog().debug( updateCountTotal + " rows affected" );
 
-            if ( print )
+            if ( print && showsummary)
             {
                 StringBuffer line = new StringBuffer();
                 line.append( updateCountTotal ).append( " rows affected" );
@@ -980,5 +990,11 @@ public class SqlExecMojo
     void setSkip( boolean skip ) 
     {
         this.skip = skip;
+    }
+
+
+    void setShowsummary(boolean showsummary)
+    {
+        this.showsummary = showsummary;
     }    
 }
