@@ -82,6 +82,7 @@ public class SqlExecMojo
     /**
      * Database username.  If not given, it will be looked up through 
      * settings.xml's server with ${settingsKey} as key.
+     * @since 1.0
      * @parameter expression="${username}" 
      */
     private String username;
@@ -89,12 +90,14 @@ public class SqlExecMojo
     /**
      * Database password. If not given, it will be looked up through settings.xml's 
      * server with ${settingsKey} as key
+     * @since 1.0
      * @parameter expression="${password}" 
      */
     private String password;
 
     /**
      * Additional key=value separated by comma to be passed into JDBC driver
+     * @since 1.0
      * @parameter expression="${driverProperties}" default-value = ""
      */
     private String driverProperties;
@@ -102,6 +105,7 @@ public class SqlExecMojo
     /**
      * @parameter expression="${settings}"
      * @required
+     * @since 1.0
      * @readonly
      */
     private Settings settings;
@@ -109,6 +113,7 @@ public class SqlExecMojo
     /**
      * Server's id in settings.xml to look up username and password.
      * Default to ${url} if not given.
+     * @since 1.0
      * @parameter expression="${settingsKey}" 
      */
     private String settingsKey;
@@ -117,6 +122,7 @@ public class SqlExecMojo
      * Skip execution when there is error obtaining connection.
      * This is special case to support database such as embedded Derby
      * to shutdown database via URL( ie shutdown=true).
+     * @since 1.1
      * @parameter expression="${skipOnConnectionError}" default-value="false"
      */
     private boolean skipOnConnectionError;
@@ -125,24 +131,28 @@ public class SqlExecMojo
 
     /**
      * SQL input commands separated by ${delimiter}.
+     * @since 1.0
      * @parameter expression="${sqlCommand}" default-value=""
      */
     private String sqlCommand = "";
 
     /**
      * List of files containing SQL statements to load.
+     * @since 1.0
      * @parameter 
      */
     private File[] srcFiles;
 
     /**
      * File(s) containing SQL statements to load.
+     * @since 1.0
      * @parameter
      */
     private Fileset fileset;
 
     /**
      * When true, skip the execution.
+     * @since 1.0
      * @parameter default-value="false"
      */
     private boolean skip;
@@ -157,6 +167,7 @@ public class SqlExecMojo
 
     /**
      * Database driver classname
+     * @since 1.0
      * @parameter expression="${driver}" 
      * @required
      */
@@ -165,12 +176,14 @@ public class SqlExecMojo
     ////////////////////////////// Operation Configuration ////////////////////
     /**
      * Set to true to execute none-transactional SQL
+     * @since 1.0
      * @parameter expression="${autocommit}" default-value="false"
      */
     private boolean autocommit;
 
     /**
      * Action to perform if an error is found ("abort" or "continue")
+     * @since 1.0
      * @parameter expression="${onError}" default-value="abort"
      */
     private String onError = ON_ERROR_ABORT;
@@ -182,6 +195,7 @@ public class SqlExecMojo
      *
      * <p>For example, set this to "go" and delimiterType to "row" for
      * Sybase ASE or MS SQL Server.</p>
+     * @since 1.0
      * @parameter expression="${delimiter}" default-value=";"
      */
     private String delimiter = ";";
@@ -190,6 +204,7 @@ public class SqlExecMojo
      * The delimiter type indicating whether the delimiter will
      * only be recognized on a line by itself. Acceptable values are
      * "normal", and "row"
+     * @since 1.0
      * parameter expression="${delimiterType}" default-value="normal"
      */
     private String delimiterType = DelimiterType.NORMAL;
@@ -198,6 +213,7 @@ public class SqlExecMojo
      * Set the order with the sql files will be executed.
      * Possible values are "ascending and descending". Any other
      * values mean no sorting will be performed
+     * @since 1.1
      * @parameter expression="${orderFile}" 
      */
     private String orderFile = null;
@@ -206,6 +222,7 @@ public class SqlExecMojo
      * When true, the whole sql content in sqlCommand, srcFiles and 
      * fileSet are sent directly to jdbc in one sql statment. This option
      * is for executing database store procedure/function
+     * @since 1.1
      * @parameter expression="${enableBlockMode}" 
      */
     
@@ -229,6 +246,7 @@ public class SqlExecMojo
     /**
      * Encoding to use when reading SQL statements from a file
      * @parameter expression="${encoding}" default-value= ""
+     * @since 1.1
      */
     private String encoding = "";
 
