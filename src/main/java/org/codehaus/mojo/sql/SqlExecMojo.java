@@ -227,7 +227,15 @@ public class SqlExecMojo
      */
     
     private boolean enableBlockMode = false;
-    
+
+    /**
+     * Keep the format of a sql block
+     * @since 1.1
+     * parameter expression="${keepFormat}" default-value="false"
+     */
+    private boolean keepFormat = false;
+
+    ///////////////////////////////////////////////////////////////////////////////////////
     /**
      * Print SQL results.
      */
@@ -255,10 +263,6 @@ public class SqlExecMojo
      */
     private boolean append = false;
 
-    /**
-     * Keep the format of a sql block?
-     */
-    private boolean keepformat = false;
 
     /**
      * Argument to Statement.setEscapeProcessing
@@ -383,7 +387,7 @@ public class SqlExecMojo
      */
     public void setKeepformat( boolean keepformat )
     {
-        this.keepformat = keepformat;
+        this.keepFormat = keepformat;
     }
 
     /**
@@ -731,13 +735,13 @@ public class SqlExecMojo
 
         while ( ( line = in.readLine() ) != null )
         {
-            if ( !keepformat )
+            if ( !keepFormat )
             {
                 line = line.trim();
             }
 
             //            line = getProject().replaceProperties(line);
-            if ( !keepformat )
+            if ( !keepFormat )
             {
                 if ( line.startsWith( "//" ) )
                 {
@@ -758,7 +762,7 @@ public class SqlExecMojo
                 }
             }
 
-            if ( !keepformat )
+            if ( !keepFormat )
             {
                 sql.append( " " ).append( line );
             }
@@ -770,7 +774,7 @@ public class SqlExecMojo
             // SQL defines "--" as a comment to EOL
             // and in Oracle it may contain a hint
             // so we cannot just remove it, instead we must end it
-            if ( !keepformat )
+            if ( !keepFormat )
             {
                 if ( line.indexOf( "--" ) >= 0 )
                 {

@@ -352,13 +352,35 @@ public class SqlExecMojoTest
         mojo.setEnableBlockMode( true );
         mojo.execute();
         assertEquals( 1, mojo.getSuccessfulStatements() );
-        
-        mojo.setSqlCommand( "");
+
+        mojo.setSqlCommand( "" );
         mojo.getTransactions().clear();
         command = "drop table BLOCKTABLE";
         mojo.addText( command );
         mojo.execute();
         assertEquals( 1, mojo.getSuccessfulStatements() );
+    }
+
+    public void testKeepFormat()
+        throws MojoExecutionException
+    {
+        // Normally a line starting in -- would be ignored, but with keepformat mode 
+        // on it will not.
+        String command = "--create table PERSON ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        mojo.addText( command );
+        mojo.setKeepformat( true );
+
+        try
+        {
+            mojo.execute();
+            fail( "-- at the start of the SQL command is ignored." );
+        }
+        catch ( MojoExecutionException e )
+        {
+        }
+
+        assertEquals( 0, mojo.getSuccessfulStatements() );
+
     }
 
 }
