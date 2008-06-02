@@ -385,7 +385,7 @@ public class SqlExecMojo
      *
      * @param keepformat The keepformat to set
      */
-    public void setKeepformat( boolean keepformat )
+    public void setKeepFormat( boolean keepformat )
     {
         this.keepFormat = keepformat;
     }

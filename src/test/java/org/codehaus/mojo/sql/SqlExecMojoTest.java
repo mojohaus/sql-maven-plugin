@@ -368,7 +368,7 @@ public class SqlExecMojoTest
         // on it will not.
         String command = "--create table PERSON ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
         mojo.addText( command );
-        mojo.setKeepformat( true );
+        mojo.setKeepFormat( true );
 
         try
         {
