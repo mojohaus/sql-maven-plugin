@@ -2,17 +2,17 @@ package org.codehaus.mojo.sql;
 
 /*
  * Copyright 2000-2006 The Apache Software Foundation
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
- * 
+ *
  */
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -80,18 +80,18 @@ public class SqlExecMojo
     //////////////////////////// User Info ///////////////////////////////////
 
     /**
-     * Database username.  If not given, it will be looked up through 
+     * Database username.  If not given, it will be looked up through
      * settings.xml's server with ${settingsKey} as key.
      * @since 1.0
-     * @parameter expression="${username}" 
+     * @parameter expression="${username}"
      */
     private String username;
 
     /**
-     * Database password. If not given, it will be looked up through settings.xml's 
+     * Database password. If not given, it will be looked up through settings.xml's
      * server with ${settingsKey} as key
      * @since 1.0
-     * @parameter expression="${password}" 
+     * @parameter expression="${password}"
      */
     private String password;
 
@@ -114,7 +114,7 @@ public class SqlExecMojo
      * Server's id in settings.xml to look up username and password.
      * Default to ${url} if not given.
      * @since 1.0
-     * @parameter expression="${settingsKey}" 
+     * @parameter expression="${settingsKey}"
      */
     private String settingsKey;
 
@@ -139,7 +139,7 @@ public class SqlExecMojo
     /**
      * List of files containing SQL statements to load.
      * @since 1.0
-     * @parameter 
+     * @parameter
      */
     private File[] srcFiles;
 
@@ -160,7 +160,7 @@ public class SqlExecMojo
     ////////////////////////////////// Database info /////////////////////////
     /**
      * Database URL
-     * @parameter expression="${url}" 
+     * @parameter expression="${url}"
      * @required
      */
     private String url;
@@ -168,7 +168,7 @@ public class SqlExecMojo
     /**
      * Database driver classname
      * @since 1.0
-     * @parameter expression="${driver}" 
+     * @parameter expression="${driver}"
      * @required
      */
     private String driver;
@@ -189,9 +189,9 @@ public class SqlExecMojo
     private String onError = ON_ERROR_ABORT;
 
     ////////////////////////////// Parser Configuration ////////////////////
-    
+
     /**
-     * Set the delimiter that separates SQL statements. 
+     * Set the delimiter that separates SQL statements.
      *
      * <p>For example, set this to "go" and delimiterType to "row" for
      * Sybase ASE or MS SQL Server.</p>
@@ -214,24 +214,24 @@ public class SqlExecMojo
      * Possible values are "ascending and descending". Any other
      * values mean no sorting will be performed
      * @since 1.1
-     * @parameter expression="${orderFile}" 
+     * @parameter expression="${orderFile}"
      */
     private String orderFile = null;
 
     /**
-     * When true, the whole sql content in sqlCommand, srcFiles and 
+     * When true, the whole sql content in sqlCommand, srcFiles and
      * fileSet are sent directly to jdbc in one sql statment. This option
      * is for executing database store procedure/function
      * @since 1.1
-     * @parameter expression="${enableBlockMode}" 
+     * @parameter expression="${enableBlockMode}"
      */
-    
+
     private boolean enableBlockMode = false;
 
     /**
      * Keep the format of a sql block
      * @since 1.1
-     * parameter expression="${keepFormat}" default-value="false"
+     * @parameter expression="${keepFormat}" default-value="false"
      */
     private boolean keepFormat = false;
 
@@ -641,7 +641,7 @@ public class SqlExecMojo
      * @throws MojoExecutionException if the UserId/Password/Url is not set or there
      *    is no suitable driver or the driver fails to load.
      * @throws SQLException if there is problem getting connection with valid url
-     *  
+     *
      */
     private Connection getConnection()
         throws MojoExecutionException, SQLException
@@ -717,7 +717,7 @@ public class SqlExecMojo
         throws SQLException, IOException
     {
         String line;
-        
+
         if ( enableBlockMode )
         {
             //no need to parse the content, ship it directly to jdbc in one sql statement
@@ -725,11 +725,11 @@ public class SqlExecMojo
             execSQL( line, out );
             return;
         }
-        
-        
+
+
         StringBuffer sql = new StringBuffer();
-        
-        
+
+
 
         BufferedReader in = new BufferedReader( reader );
 
@@ -1129,7 +1129,7 @@ public class SqlExecMojo
 
     /**
      * Number of SQL statements executed so far that caused errors.
-     * 
+     *
      * @return the number
      */
     public int getSuccessfulStatements()
@@ -1139,7 +1139,7 @@ public class SqlExecMojo
 
     /**
      * Number of SQL statements executed so far, including the ones that caused errors.
-     * 
+     *
      * @return the number
      */
     public int getTotalStatements()
