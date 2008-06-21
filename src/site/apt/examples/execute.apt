@@ -23,6 +23,7 @@ Examples
 
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>sql-maven-plugin</artifactId>
+        <version>1.1</version>
 
         <dependencies>
           <!-- specify the dependent jdbc driver here -->
