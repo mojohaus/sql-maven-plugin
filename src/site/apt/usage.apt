@@ -39,11 +39,11 @@ Usage
           <driver></driver>
           <url></url>
           <username></username>
-          <password><password>
-          [....]
+          <password></password>
+          [...]
         </configuration>
         
-        </executions>
+        <executions>
           <execution>
             <phase></phase>
             <goals>
