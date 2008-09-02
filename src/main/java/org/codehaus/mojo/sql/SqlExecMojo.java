@@ -81,22 +81,22 @@ public class SqlExecMojo
 
     /**
      * Database username.  If not given, it will be looked up through
-     * settings.xml's server with ${settingsKey} as key.
+     * <code>settings.xml</code>'s server with <code>${settingsKey}</code> as key.
      * @since 1.0
      * @parameter expression="${username}"
      */
     private String username;
 
     /**
-     * Database password. If not given, it will be looked up through settings.xml's
-     * server with ${settingsKey} as key
+     * Database password. If not given, it will be looked up through <code>settings.xml</code>'s
+     * server with <code>${settingsKey}</code> as key.
      * @since 1.0
      * @parameter expression="${password}"
      */
     private String password;
 
     /**
-     * Additional key=value separated by comma to be passed into JDBC driver
+     * Additional key=value pairs separated by comma to be passed into JDBC driver.
      * @since 1.0
      * @parameter expression="${driverProperties}" default-value = ""
      */
@@ -111,17 +111,17 @@ public class SqlExecMojo
     private Settings settings;
 
     /**
-     * Server's id in settings.xml to look up username and password.
-     * Default to ${url} if not given.
+     * Server's <code>id</code> in <code>settings.xml</code> to look up username and password.
+     * Defaults to <code>${url}</code> if not given.
      * @since 1.0
      * @parameter expression="${settingsKey}"
      */
     private String settingsKey;
 
     /**
-     * Skip execution when there is error obtaining connection.
-     * This is special case to support database such as embedded Derby
-     * to shutdown database via URL( ie shutdown=true).
+     * Skip execution when there is an error obtaining a connection.
+     * This is a special case to support databases, such as embedded Derby,
+     * that can shutdown the database via the URL (i.e. <code>shutdown=true</code>).
      * @since 1.1
      * @parameter expression="${skipOnConnectionError}" default-value="false"
      */
@@ -130,7 +130,7 @@ public class SqlExecMojo
     //////////////////////////////// Source info /////////////////////////////
 
     /**
-     * SQL input commands separated by ${delimiter}.
+     * SQL input commands separated by <code>${delimiter}</code>.
      * @since 1.0
      * @parameter expression="${sqlCommand}" default-value=""
      */
@@ -151,7 +151,7 @@ public class SqlExecMojo
     private Fileset fileset;
 
     /**
-     * When true, skip the execution.
+     * When <code>true</code>, skip the execution.
      * @since 1.0
      * @parameter default-value="false"
      */
@@ -159,14 +159,15 @@ public class SqlExecMojo
 
     ////////////////////////////////// Database info /////////////////////////
     /**
-     * Database URL
+     * Database URL.
      * @parameter expression="${url}"
      * @required
+     * @since 1.0-beta-1
      */
     private String url;
 
     /**
-     * Database driver classname
+     * Database driver classname.
      * @since 1.0
      * @parameter expression="${driver}"
      * @required
@@ -175,14 +176,15 @@ public class SqlExecMojo
 
     ////////////////////////////// Operation Configuration ////////////////////
     /**
-     * Set to true to execute none-transactional SQL
+     * Set to <code>true</code> to execute none-transactional SQL.
      * @since 1.0
      * @parameter expression="${autocommit}" default-value="false"
      */
     private boolean autocommit;
 
     /**
-     * Action to perform if an error is found ("abort" or "continue")
+     * Action to perform if an error is found.
+     * Possible values are <code>abort</code> and <code>continue</code>.
      * @since 1.0
      * @parameter expression="${onError}" default-value="abort"
      */
@@ -210,18 +212,18 @@ public class SqlExecMojo
     private String delimiterType = DelimiterType.NORMAL;
 
     /**
-     * Set the order with the sql files will be executed.
-     * Possible values are "ascending and descending". Any other
-     * values mean no sorting will be performed
+     * Set the order in which the SQL files will be executed.
+     * Possible values are <code>ascending</code> and <code>descending</code>.
+     * Any other value means that no sorting will be performed.
      * @since 1.1
      * @parameter expression="${orderFile}"
      */
     private String orderFile = null;
 
     /**
-     * When true, the whole sql content in sqlCommand, srcFiles and
-     * fileSet are sent directly to jdbc in one sql statment. This option
-     * is for executing database store procedure/function
+     * When <code>true</code>, the whole SQL content in <code>sqlCommand</code>, <code>srcFiles</code> and
+     * <code>fileset</code> are sent directly to JDBC in one SQL statement. This option
+     * is for executing database stored procedures/functions.
      * @since 1.1
      * @parameter expression="${enableBlockMode}"
      */
@@ -229,7 +231,7 @@ public class SqlExecMojo
     private boolean enableBlockMode = false;
 
     /**
-     * Keep the format of a sql block
+     * Keep the format of an SQL block.
      * @since 1.1
      * @parameter expression="${keepFormat}" default-value="false"
      */
@@ -252,7 +254,7 @@ public class SqlExecMojo
     private File output = null;
 
     /**
-     * Encoding to use when reading SQL statements from a file
+     * Encoding to use when reading SQL statements from a file.
      * @parameter expression="${encoding}" default-value= ""
      * @since 1.1
      */
