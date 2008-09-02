@@ -1,17 +1,18 @@
  ------
- Maven 2 SQL Plugin - Usage
+ Usage
  ------
  Dan T. Tran
  <dantran@gmail.com>
  ------
  January 05, 2007
+ ------
 
 Usage
 
   The execution of this plugin's mojo can be bound to a phase of build lifecycle.
-  Use the <dependencies> in <plugin> to specify the artifact that has your 
+  Use the <<<\<dependencies\>>>> in <<<\<plugin\>>>> to specify the artifact that has your
   JDBC driver.
-  
+
 ---------------------------
 
 <project>
@@ -24,7 +25,7 @@ Usage
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>sql-maven-plugin</artifactId>
         <version>1.1</version>
-        
+
         <!--jar file that has the jdbc driver -->
         <dependencies>
           <dependency>
@@ -33,7 +34,7 @@ Usage
             <version></version>
           </dependency>
         </dependencies>
-        
+
         <!-- common configurations -->
         <configuration>
           <driver></driver>
@@ -42,7 +43,7 @@ Usage
           <password></password>
           [...]
         </configuration>
-        
+
         <executions>
           <execution>
             <phase></phase>
@@ -65,7 +66,7 @@ Usage
           </execution>
           [...]
         </executions>
-        
+
         [...]
       </plugin>
       [...]

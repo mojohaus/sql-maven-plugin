@@ -1,17 +1,17 @@
-  ------
- Maven 2 SQL Plugin
+ ------
+ Executions
  ------
  Dan T. Tran
  <dantran@gmail.com>
  ------
  July 16, 2006
+ ------
+
+Executions
 
 
-Examples
-
-
-  The following build configuration shows how to drop/create database and schema, 
-  then populate before test phase, and drop database after test.
+  The following build configuration shows how to drop/create a database and schema,
+  then populate it before the <<<test>>> phase, and drop the database after the <<<test>>> phase.
 
 -------------------
 
@@ -38,7 +38,7 @@ Examples
         <configuration>
            <username>postgres</username>
            <password>password</password>
-           <!-- You can comment out username/password configurations and 
+           <!-- You can comment out username/password configurations and
                 have maven to look them up in your settings.xml using ${settingsKey}
            -->
            <settingsKeys>sensibleKey</settingsKeys>

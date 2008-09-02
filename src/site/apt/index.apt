@@ -1,30 +1,31 @@
  ------
- Maven 2 SQL Plugin - Introduction
+ Introduction
  ------
  Dan T. Tran
  <dantran@gmail.com>
  ------
  January 05, 2007
+ ------
 
 SQL Maven Plugin
 
-  Use this plugin to execute SQL statements in a combination of strings, 
-  a list files, and/or a set of files through sqlCommand, srcFiles, and 
-  fileset configurations respectively.
-  
+  Use this plugin to execute SQL statements in a combination of strings,
+  a list files and/or a set of files through <<<sqlCommand>>>, <<<srcFiles>>>, and
+  <<<fileset>>> configurations respectively.
+
 
 * Goals Overview
 
-  * {{{execute-mojo.html}sql:execute}}: Execute SQL statements.  
-  
+  * {{{execute-mojo.html}sql:execute}} Execute SQL statements.
+
   []
-  
+
 
 * Usage
-  
+
   Instructions on how to use the SQL Maven Plugin can be found on the {{{usage.html}usage page}}.
- 
-   
+
+
 * Examples
 
   * {{{examples/execute.html}  an comprehensive example.}}
@@ -32,5 +33,5 @@ SQL Maven Plugin
   * {{{examples/settings.html}Hide username/password in settings.xml.}}
 
   []
-  
-  
+
+
