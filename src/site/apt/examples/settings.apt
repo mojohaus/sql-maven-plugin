@@ -14,20 +14,16 @@ Settings
   POM's configuration, otherwise it will use your database's URL as lookup key.
 
 --------------------
-
 <settings>
-
   [...]
-
   <servers>
-
     <server>
-     <id>sensibleKey</id>
-     <username>postgres</username>
-     <password>password</password>
+      <id>sensibleKey</id>
+      <username>postgres</username>
+      <password>password</password>
     </server>
-
-   </servers>
-
- </settings>
+    [...]
+  </servers>
+  [...]
+</settings>
 --------------------

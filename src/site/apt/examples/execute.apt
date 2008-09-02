@@ -14,13 +14,12 @@ Executions
   then populate it before the <<<test>>> phase, and drop the database after the <<<test>>> phase.
 
 -------------------
-
-<build>
-
+<project>
   [...]
-
+  <build>
+    [...]
+    <plugins>
       <plugin>
-
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>sql-maven-plugin</artifactId>
         <version>1.1</version>
@@ -36,19 +35,18 @@ Executions
 
         <!-- common configuration shared by all executions -->
         <configuration>
-           <username>postgres</username>
-           <password>password</password>
-           <!-- You can comment out username/password configurations and
-                have maven to look them up in your settings.xml using ${settingsKey}
-           -->
-           <settingsKeys>sensibleKey</settingsKeys>
-           <url>jdbc:postgressql://localhost:5432:yourdb</url>
-           <!--all executions are ignored if -Dmaven.test.skip=true-->
-           <skip>${maven.test.skip}</skip>
+          <username>postgres</username>
+          <password>password</password>
+          <!-- You can comment out username/password configurations and
+               have maven to look them up in your settings.xml using ${settingsKey}
+          -->
+          <settingsKeys>sensibleKey</settingsKeys>
+          <url>jdbc:postgressql://localhost:5432:yourdb</url>
+          <!--all executions are ignored if -Dmaven.test.skip=true-->
+          <skip>${maven.test.skip}</skip>
         </configuration>
 
         <executions>
-
           <execution>
             <id>drop-db-before-test-if-any</id>
             <phase>process-test-resources</phase>
@@ -125,10 +123,10 @@ Executions
           </execution>
         </executions>
       </plugin>
-
+      [...]
+    </plugins>
+    [...]
+  </build>
   [...]
-
-</build>
-
-
-
+</project>
+-------------------

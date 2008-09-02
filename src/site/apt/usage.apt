@@ -14,7 +14,6 @@ Usage
   JDBC driver.
 
 ---------------------------
-
 <project>
   [...]
   <build>
@@ -26,7 +25,7 @@ Usage
         <artifactId>sql-maven-plugin</artifactId>
         <version>1.1</version>
 
-        <!--jar file that has the jdbc driver -->
+        <!-- jar file that has the jdbc driver -->
         <dependencies>
           <dependency>
             <groupId></groupId>
@@ -66,8 +65,6 @@ Usage
           </execution>
           [...]
         </executions>
-
-        [...]
       </plugin>
       [...]
     </plugins>
@@ -75,5 +72,4 @@ Usage
   </build>
   [...]
 </project>
-
 ---------------------------
