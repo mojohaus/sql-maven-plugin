@@ -383,4 +383,36 @@ public class SqlExecMojoTest
 
     }
 
+    public void testBadDelimiter()
+        throws Exception
+    {
+        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar):"
+            + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+
+        mojo.addText( command );
+        mojo.setDelimiter( ":" );
+
+        try
+        {
+            mojo.execute();
+            fail( "Expected parser error." );
+        }
+        catch ( MojoExecutionException e )
+        {
+        }
+    }
+
+    public void testGoodDelimiter()
+        throws Exception
+    {
+        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar):\n"
+            + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+
+        mojo.addText( command );
+        mojo.setDelimiter( ":" );
+
+        mojo.execute();
+        assertEquals( 2, mojo.getSuccessfulStatements() );
+    }
+
 }
