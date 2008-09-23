@@ -405,11 +405,46 @@ public class SqlExecMojoTest
     public void testGoodDelimiter()
         throws Exception
     {
-        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar):\n"
+        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)\n:\n"
             + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
 
         mojo.addText( command );
         mojo.setDelimiter( ":" );
+
+        mojo.execute();
+
+        assertEquals( 2, mojo.getSuccessfulStatements() );
+    }
+
+    public void testBadDelimiterType()
+        throws Exception
+    {
+        String command = "create table BADDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)" + "\n:"
+            + "create table BADDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+
+        mojo.addText( command );
+        mojo.setDelimiter( ":" );
+        mojo.setDelimiterType( DelimiterType.ROW );
+
+        try
+        {
+            mojo.execute();
+            fail( "Expected parser error." );
+        }
+        catch ( MojoExecutionException e )
+        {
+        }
+    }
+
+    public void testGoodDelimiterType()
+        throws Exception
+    {
+        String command = "create table GOODDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)" + "\n:\n"
+            + "create table GOODDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+
+        mojo.addText( command );
+        mojo.setDelimiter( ":" );
+        mojo.setDelimiterType( DelimiterType.ROW );
 
         mojo.execute();
         assertEquals( 2, mojo.getSuccessfulStatements() );

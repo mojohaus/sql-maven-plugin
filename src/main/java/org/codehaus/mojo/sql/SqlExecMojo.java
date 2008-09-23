@@ -206,8 +206,8 @@ public class SqlExecMojo
      * The delimiter type indicating whether the delimiter will
      * only be recognized on a line by itself. Acceptable values are
      * "normal", and "row"
-     * @since 1.0
-     * parameter expression="${delimiterType}" default-value="normal"
+     * @since 1.2
+     * @parameter expression="${delimiterType}" default-value="normal"
      */
     private String delimiterType = DelimiterType.NORMAL;
 
@@ -325,7 +325,7 @@ public class SqlExecMojo
      * Set the delimiter that separates SQL statements. Defaults to &quot;;&quot;;
      * optional
      *
-     * <p>For example, set this to "go" and delimitertype to "ROW" for
+     * <p>For example, set this to "go" and delimiterType to "ROW" for
      * Sybase ASE or MS SQL Server.</p>
      */
     public void setDelimiter( String delimiter )
@@ -341,9 +341,9 @@ public class SqlExecMojo
      * command whereas with row, only a line containing just the
      * delimiter is recognized as the end of the command.</p>
      */
-    public void setDelimiterType( DelimiterType delimiterType )
+    public void setDelimiterType( String delimiterType )
     {
-        this.delimiterType = delimiterType.getValue();
+        this.delimiterType = delimiterType;
     }
 
     /**
