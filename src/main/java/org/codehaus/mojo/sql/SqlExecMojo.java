@@ -195,17 +195,18 @@ public class SqlExecMojo
     /**
      * Set the delimiter that separates SQL statements.
      *
-     * <p>For example, set this to "go" and delimiterType to "row" for
-     * Sybase ASE or MS SQL Server.</p>
      * @since 1.0
      * @parameter expression="${delimiter}" default-value=";"
      */
     private String delimiter = ";";
 
     /**
-     * The delimiter type indicating whether the delimiter will
-     * only be recognized on a line by itself. Acceptable values are
-     * "normal", and "row"
+     * <p>The delimiter type takes two values - "normal" and "row". Normal
+     * means that any occurrence of the delimiter terminate the SQL
+     * command whereas with row, only a line containing just the
+     * delimiter is recognized as the end of the command.</p>
+     * <p>For example, set this to "go" and delimiterType to "row" for
+     * Sybase ASE or MS SQL Server.</p>
      * @since 1.2
      * @parameter expression="${delimiterType}" default-value="normal"
      */
@@ -224,6 +225,7 @@ public class SqlExecMojo
      * When <code>true</code>, the whole SQL content in <code>sqlCommand</code>, <code>srcFiles</code> and
      * <code>fileset</code> are sent directly to JDBC in one SQL statement. This option
      * is for executing database stored procedures/functions.
+     * @deprecated used <i>delimiterType<i> instead.
      * @since 1.1
      * @parameter expression="${enableBlockMode}"
      */
@@ -323,10 +325,6 @@ public class SqlExecMojo
 
     /**
      * Set the delimiter that separates SQL statements. Defaults to &quot;;&quot;;
-     * optional
-     *
-     * <p>For example, set this to "go" and delimiterType to "ROW" for
-     * Sybase ASE or MS SQL Server.</p>
      */
     public void setDelimiter( String delimiter )
     {
@@ -335,11 +333,6 @@ public class SqlExecMojo
 
     /**
      * Set the delimiter type: "normal" or "row" (default "normal").
-     *
-     * <p>The delimiter type takes two values - normal and row. Normal
-     * means that any occurrence of the delimiter terminate the SQL
-     * command whereas with row, only a line containing just the
-     * delimiter is recognized as the end of the command.</p>
      */
     public void setDelimiterType( String delimiterType )
     {
