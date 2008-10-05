@@ -49,7 +49,6 @@ import java.util.Vector;
 /**
  * Executes SQL against a database.
  * @goal execute
- * @description A repackaging of ANT's SQLExec task.
  */
 public class SqlExecMojo
     extends AbstractMojo
