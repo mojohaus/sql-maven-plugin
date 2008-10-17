@@ -42,7 +42,7 @@ Executions
           <!-- You can comment out username/password configurations and
                have maven to look them up in your settings.xml using ${settingsKey}
           -->
-          <settingsKeys>sensibleKey</settingsKeys>
+          <settingsKey>sensibleKey</settingsKey>
           <!--all executions are ignored if -Dmaven.test.skip=true-->
           <skip>${maven.test.skip}</skip>
         </configuration>
