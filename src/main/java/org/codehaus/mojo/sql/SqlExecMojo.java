@@ -720,10 +720,7 @@ public class SqlExecMojo
             return;
         }
 
-
         StringBuffer sql = new StringBuffer();
-
-
 
         BufferedReader in = new BufferedReader( reader );
 
@@ -734,7 +731,6 @@ public class SqlExecMojo
                 line = line.trim();
             }
 
-            //            line = getProject().replaceProperties(line);
             if ( !keepFormat )
             {
                 if ( line.startsWith( "//" ) )
@@ -777,7 +773,7 @@ public class SqlExecMojo
             }
 
             if ( ( delimiterType.equals( DelimiterType.NORMAL ) && sql.toString().endsWith( delimiter ) )
-                || ( delimiterType.equals( DelimiterType.ROW ) && line.equals( delimiter ) ) )
+                || ( delimiterType.equals( DelimiterType.ROW ) && line.trim().equals( delimiter ) ) )
             {
                 execSQL( sql.substring( 0, sql.length() - delimiter.length() ), out );
                 sql.replace( 0, sql.length(), "" );

@@ -439,7 +439,7 @@ public class SqlExecMojoTest
     public void testGoodDelimiterType()
         throws Exception
     {
-        String command = "create table GOODDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)" + "\n:\n"
+        String command = "create table GOODDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)" + "\n:  \n"
             + "create table GOODDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
 
         mojo.addText( command );
