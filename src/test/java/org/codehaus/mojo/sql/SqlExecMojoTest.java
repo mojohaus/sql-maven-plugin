@@ -12,7 +12,6 @@ package org.codehaus.mojo.sql;
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
- * 
  */
 
 import junit.framework.TestCase;
@@ -113,7 +112,7 @@ public class SqlExecMojoTest
 
     }
 
-    /** 
+    /**
      * Ensure srcFiles always execute first
      * 
      */
@@ -439,8 +438,8 @@ public class SqlExecMojoTest
     public void testGoodDelimiterType()
         throws Exception
     {
-        String command = "create table GOODDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)" + "\n:  \n"
-            + "create table GOODDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command = "create table GOODDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)"
+            + "\n:  \n" + "create table GOODDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
 
         mojo.addText( command );
         mojo.setDelimiter( ":" );
@@ -448,6 +447,33 @@ public class SqlExecMojoTest
 
         mojo.execute();
         assertEquals( 2, mojo.getSuccessfulStatements() );
+    }
+
+    public void testOutputFile()
+        throws Exception
+    {
+        String command = "create table GOODDELIMTYPE3 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)"
+            + "\n:  \n" + "create table GOODDELIMTYPE4 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+
+        mojo.addText( command );
+        mojo.setDelimiter( ":" );
+        mojo.setDelimiterType( DelimiterType.ROW );
+        
+        String basedir = System.getProperty( "basedir", "." );
+        File outputFile = new File( basedir, "target/sql.out" );
+        outputFile.delete();
+        mojo.setOutputFile( outputFile );
+        mojo.setPrint( true );
+
+        mojo.execute();
+        
+        assertTrue( "Output file: " + outputFile + " not found.", outputFile.exists() );
+        
+        assertTrue(  "Unexpected empty output file. ", outputFile.length() > 0 );
+        
+        //makesure we can remote the file, it is not locked
+        //assertTrue( outputFile.delete() );
+        
     }
 
 }

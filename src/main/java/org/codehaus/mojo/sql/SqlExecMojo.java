@@ -241,6 +241,8 @@ public class SqlExecMojo
     ///////////////////////////////////////////////////////////////////////////////////////
     /**
      * Print SQL results.
+     * @parameter 
+     * @since 1.3
      */
     private boolean print = false;
 
@@ -250,9 +252,11 @@ public class SqlExecMojo
     private boolean showheaders = true;
 
     /**
-     * Results Output file.
+     * Dump the SQL exection's output to a file.  Default is stdout.
+     * @parameter 
+     * @since 1.3
      */
-    private File output = null;
+    private File outputFile;
 
     /**
      * Encoding to use when reading SQL statements from a file.
@@ -359,9 +363,9 @@ public class SqlExecMojo
     /**
      * Set the output file;
      */
-    public void setOutput( File output )
+    public void setOutputFile( File output )
     {
-        this.output = output;
+        this.outputFile = output;
     }
 
     /**
@@ -444,10 +448,10 @@ public class SqlExecMojo
             PrintStream out = System.out;
             try
             {
-                if ( output != null )
+                if ( outputFile != null )
                 {
-                    getLog().debug( "Opening PrintStream to output file " + output );
-                    out = new PrintStream( new BufferedOutputStream( new FileOutputStream( output.getAbsolutePath(),
+                    getLog().debug( "Opening PrintStream to output file " + outputFile );
+                    out = new PrintStream( new BufferedOutputStream( new FileOutputStream( outputFile.getAbsolutePath(),
                                                                                            append ) ) );
                 }
 
