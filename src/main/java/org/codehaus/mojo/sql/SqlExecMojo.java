@@ -244,7 +244,7 @@ public class SqlExecMojo
      * @parameter 
      * @since 1.3
      */
-    private boolean print = false;
+    private boolean printResultSet = false;
 
     /**
      * Print header columns.
@@ -346,9 +346,9 @@ public class SqlExecMojo
      * Print result sets from the statements;
      * optional, default false
      */
-    public void setPrint( boolean print )
+    public void setPrintResutlSet( boolean print )
     {
-        this.print = print;
+        this.printResultSet = print;
     }
 
     /**
@@ -826,9 +826,9 @@ public class SqlExecMojo
                 }
                 else
                 {
-                    if ( print )
+                    if ( printResultSet )
                     {
-                        printResults( resultSet, out );
+                        printResultSet( resultSet, out );
                     }
                 }
                 ret = statement.getMoreResults();
@@ -842,7 +842,7 @@ public class SqlExecMojo
 
             getLog().debug( updateCountTotal + " rows affected" );
 
-            if ( print )
+            if ( printResultSet )
             {
                 StringBuffer line = new StringBuffer();
                 line.append( updateCountTotal ).append( " rows affected" );
@@ -882,7 +882,7 @@ public class SqlExecMojo
      * @param out the place to print results
      * @throws SQLException on SQL problems.
      */
-    private void printResults( ResultSet rs, PrintStream out )
+    private void printResultSet( ResultSet rs, PrintStream out )
         throws SQLException
     {
         if ( rs != null )

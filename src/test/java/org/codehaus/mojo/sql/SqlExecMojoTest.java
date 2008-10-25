@@ -463,7 +463,7 @@ public class SqlExecMojoTest
         File outputFile = new File( basedir, "target/sql.out" );
         outputFile.delete();
         mojo.setOutputFile( outputFile );
-        mojo.setPrint( true );
+        mojo.setPrintResutlSet( true );
 
         mojo.execute();
         
