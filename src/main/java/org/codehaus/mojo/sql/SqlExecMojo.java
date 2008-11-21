@@ -95,6 +95,15 @@ public class SqlExecMojo
     private String password;
 
     /**
+      * Ignore the password and use anonymous access.
+      * This may be useful for databases like MySQL which do not allow empty
+      * password parameters in the connection initialization.
+      * @since 1.4
+      * @parameter default-value="false"
+      */
+    private boolean enableAnonymousPassword;
+    
+    /**
      * Additional key=value pairs separated by comma to be passed into JDBC driver.
      * @since 1.0
      * @parameter expression="${driverProperties}" default-value = ""
@@ -647,7 +656,11 @@ public class SqlExecMojo
         getLog().debug( "connecting to " + getUrl() );
         Properties info = new Properties();
         info.put( "user", getUsername() );
-        info.put( "password", getPassword() );
+        
+        if ( ! enableAnonymousPassword )
+        {
+            info.put( "password", getPassword() );
+        }
 
         info.putAll( this.getDriverProperties() );
 
