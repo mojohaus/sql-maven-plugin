@@ -279,9 +279,12 @@ public class SqlExecMojo
      */
     private boolean append = false;
 
-
     /**
      * Argument to Statement.setEscapeProcessing
+     * If you want the driver to use regular SQL syntax then set this to false.
+     * 
+     * @since 1.4
+     * @parameter expression="${escapeProcessing}" default-value="true"
      */
     private boolean escapeProcessing = true;
 
