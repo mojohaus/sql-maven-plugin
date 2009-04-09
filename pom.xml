@@ -14,7 +14,9 @@
   <name>SQL Maven Plugin</name>
   <inceptionYear>2006</inceptionYear>
   <description>Execute SQL Statements</description>
-
+  <prerequisites>
+    <maven>2.0.6</maven>
+  </prerequisites>
   <issueManagement>
     <system>JIRA</system>
     <url>http://jira.codehaus.org/browse/MSQL</url>
@@ -94,7 +96,7 @@
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-      <version>1.0.4</version>
+      <version>1.5.8</version>
     </dependency>
   </dependencies>
 
