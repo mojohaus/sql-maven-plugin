@@ -61,6 +61,13 @@ public class SqlExecMojo
     public static final String ON_ERROR_ABORT = "abort";
 
     /**
+     * Call {@link #setOnError(String)} with this value to continue SQL command execution until 
+     * all commands have been attempted, then abort the build if an SQL error occurred in any 
+     * of the commands.
+     */
+    public static final String ON_ERROR_ABORT_AFTER = "abortAfter";
+    
+    /**
      * Call {@link #setOnError(String)} with this value to continue SQL command execution
      * if an error is found.
      */
@@ -530,6 +537,12 @@ public class SqlExecMojo
         getLog().info(
                        getSuccessfulStatements() + " of " + getTotalStatements()
                            + " SQL statements executed successfully" );
+        
+        if ( ON_ERROR_ABORT_AFTER.equalsIgnoreCase( getOnError() ) 
+             && totalStatements != successfulStatements )
+        {
+            throw new MojoExecutionException( "Some SQL statements failed to execute" );
+        }
 
     }
 
@@ -877,7 +890,7 @@ public class SqlExecMojo
         catch ( SQLException e )
         {
             getLog().error( "Failed to execute: " + sql );
-            if ( !ON_ERROR_CONTINUE.equalsIgnoreCase( getOnError() ) )
+            if ( ON_ERROR_ABORT.equalsIgnoreCase( getOnError() ) )
             {
                 throw e;
             }
@@ -1172,10 +1185,15 @@ public class SqlExecMojo
         {
             this.onError = ON_ERROR_CONTINUE;
         }
+        else if ( ON_ERROR_ABORT_AFTER.equalsIgnoreCase( action ) )
+        {
+            this.onError = ON_ERROR_ABORT_AFTER;
+        }
         else
         {
-            throw new IllegalArgumentException( action + " is not a valid value for onError, only '" + ON_ERROR_ABORT
-                + "' or '" + ON_ERROR_CONTINUE + "'." );
+            throw new IllegalArgumentException( action 
+                + " is not a valid value for onError, only '" + ON_ERROR_ABORT
+                + "', '" + ON_ERROR_ABORT_AFTER + "', or '" + ON_ERROR_CONTINUE + "'." );
         }
     }
 

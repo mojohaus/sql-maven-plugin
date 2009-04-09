@@ -191,6 +191,36 @@ public class SqlExecMojoTest
 
         assertEquals( 0, mojo.getSuccessfulStatements() );
     }
+    
+    public void testOnErrorAbortAfterMojo()
+        throws MojoExecutionException
+    {
+        String commands = "create table BOGUS"; //bad syntax
+    
+        mojo.addText( commands );
+    
+        File[] srcFiles = new File[1];
+        srcFiles[0] = new File( "src/test/data/invalid-syntax.sql" );
+        
+        assertTrue( srcFiles[0].exists() );
+        
+        mojo.setSrcFiles( srcFiles );    
+        mojo.setOnError( "abortAfter" );
+    
+        try
+        {
+            mojo.execute();
+            fail( "Execution is not aborted on error." );
+    
+        }
+        catch ( MojoExecutionException e )
+        {
+            //expected
+        }
+    
+        assertEquals( 0, mojo.getSuccessfulStatements() );
+        assertEquals( 2, mojo.getTotalStatements() );
+    }
 
     public void testDefaultUsernamePassword()
         throws MojoExecutionException
