@@ -814,7 +814,7 @@ public class SqlExecMojo
         }
 
         // Catch any statements not followed by ;
-        if ( !sql.equals( "" ) )
+        if ( !sql.toString().equals( "" ) )
         {
             execSQL( sql.toString(), out );
         }
