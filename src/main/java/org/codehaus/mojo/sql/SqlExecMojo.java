@@ -276,7 +276,7 @@ public class SqlExecMojo
 
     /**
      * Encoding to use when reading SQL statements from a file.
-     * @parameter expression="${encoding}" default-value= ""
+     * @parameter expression="${encoding}" default-value= "${project.build.sourceEncoding}"
      * @since 1.1
      */
     private String encoding = "";
