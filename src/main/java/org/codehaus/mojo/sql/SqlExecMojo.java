@@ -17,6 +17,7 @@ package org.codehaus.mojo.sql;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.util.IOUtil;
@@ -141,6 +142,25 @@ public class SqlExecMojo
      * @parameter expression="${skipOnConnectionError}" default-value="false"
      */
     private boolean skipOnConnectionError;
+
+    /**
+     * Setting this parameter to <code>true</code> will force
+     * the execution of this mojo, even if it would get skipped usually.
+     *  
+     * @parameter expression="${forceOpenJpaExecution}"
+     *            default-value=false
+     * @required
+     */
+    private boolean forceMojoExecution; 
+
+    /**
+     * The Maven Project Object
+     *
+     * @parameter default-value="${project}"
+     * @required
+     * @readonly
+     */
+    protected MavenProject project;
 
     //////////////////////////////// Source info /////////////////////////////
 
@@ -416,15 +436,42 @@ public class SqlExecMojo
     }
 
     /**
+     * <p>Determine if the mojo execution should get skipped.</p>
+     * This is the case if {@link #forceMojoExecution} is <code>false</code>
+     * and one of the following conditions occur:
+     * <ul>
+     *   <li>the skip flag is set</li>
+     *   <li>if the mojo gets executed on a project with packaging type 'pom'</li>
+     * </ul>
+     * 
+     * @return <code>true</code> if the mojo execution should be skipped.
+     */
+    protected boolean skipMojo() {
+        if ( skip )
+        {
+            getLog().info( "Skip sql execution" );
+            return true;
+        }
+        
+        if ( !forceMojoExecution && project != null && "pom".equals( project.getPackaging() ) )
+        {
+            getLog().info( "Skipping sql execution for project with packaging type 'pom'" );
+            return true;
+        }
+        
+        return false;
+    }
+    
+
+    /**
      * Load the sql file and then execute it
      */
     public void execute()
         throws MojoExecutionException
     {
 
-        if ( skip )
+        if ( skipMojo() )
         {
-            this.getLog().info( "Skip sql execution" );
             return;
         }
 
