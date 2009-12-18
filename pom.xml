@@ -15,7 +15,7 @@
   <inceptionYear>2006</inceptionYear>
   <description>Execute SQL Statements</description>
   <prerequisites>
-    <maven>2.0.6</maven>
+    <maven>${mavenVersion}</maven>
   </prerequisites>
   <issueManagement>
     <system>JIRA</system>
@@ -86,18 +86,18 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
-      <version>2.0</version>
+      <version>${mavenVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-settings</artifactId>
-      <version>2.0</version>
+      <version>${mavenVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-project</artifactId>
-      <version>2.0.6</version>
-    </dependency>    
+      <version>${mavenVersion}</version>
+    </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
@@ -105,4 +105,7 @@
     </dependency>
   </dependencies>
 
+  <properties>
+    <mavenVersion>2.0.6</mavenVersion>
+  </properties>
 </project>
