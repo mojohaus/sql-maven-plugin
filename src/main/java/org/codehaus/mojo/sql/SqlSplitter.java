@@ -82,13 +82,20 @@ public class SqlSplitter {
             {
                 String quoteChar = "" + line.charAt( pos );
                 String quoteEscape = "\\" + quoteChar;
+                pos++;
+                
+                if ( line.length() <= pos )
+                {
+                    return NO_END;
+                }
+                
                 do 
                 {
                     if ( line.startsWith( quoteEscape, pos ) )
                     {
                         pos += 2;
                     }
-                } while ( line.startsWith( quoteChar, pos++ ));
+                } while ( !line.startsWith( quoteChar, pos++ ));
                 
                 continue;
             }

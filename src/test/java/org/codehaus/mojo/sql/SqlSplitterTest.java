@@ -46,6 +46,9 @@ public class SqlSplitterTest extends TestCase
         // a ' inside a " quoted text
         contains( "INSERT INTO testTable (thevalue) VALUES (\"value '  !\");" );
 
+        contains( "INSERT INTO testTable (thevalue) VALUES (\"value --  \");" );
+        contains( "INSERT INTO testTable (thevalue) VALUES ('value --  ');" );
+
         containsNot( "SELECT * from myTable where value = ';' AND -- semicolon is quoted!" );
 
     }
