@@ -30,24 +30,24 @@ public class SqlSplitterTest extends TestCase
         containsNot( " " );
         containsNot( "  \t  " );
 
-        contains( ";" );
-        contains( "SELECT * from myTable;" );
+        contains( ";", 1 );
+        contains( "SELECT * from myTable;", 22 );
         
-        contains( "SELECT * from myTable; -- with sl comment" );
-        contains( "SELECT * from myTable; /* with part comment */" );
+        contains( "SELECT * from myTable; -- with sl comment", 22 );
+        contains( "SELECT * from myTable; /* with part comment */", 22 );
 
-        contains( "SELECT * from myTable /* with part comment inside*/  ; " );
+        contains( "SELECT * from myTable /* with part comment inside*/  ; ", 54 );
         
-        contains( "INSERT INTO testTable (thevalue) VALUES ('value  !'); -- comment at the end" );
+        contains( "INSERT INTO testTable (thevalue) VALUES ('value  !'); -- comment at the end", 53 );
 
         // a " inside a ' quoted text
-        contains( "INSERT INTO testTable (thevalue) VALUES ('value \"  !');" );
+        contains( "INSERT INTO testTable (thevalue) VALUES ('value \"  !');", 55 );
 
         // a ' inside a " quoted text
-        contains( "INSERT INTO testTable (thevalue) VALUES (\"value '  !\");" );
+        contains( "INSERT INTO testTable (thevalue) VALUES (\"value '  !\");", 55 );
 
-        contains( "INSERT INTO testTable (thevalue) VALUES (\"value --  \");" );
-        contains( "INSERT INTO testTable (thevalue) VALUES ('value --  ');" );
+        contains( "INSERT INTO testTable (thevalue) VALUES (\"value --  \");", 55 );
+        contains( "INSERT INTO testTable (thevalue) VALUES ('value --  ');", 55 );
 
         containsNot( "SELECT * from myTable where value = ';' AND -- semicolon is quoted!" );
 
@@ -59,13 +59,13 @@ public class SqlSplitterTest extends TestCase
         
         containsNot( "SELECT COUNT(*) FROM Logs", del );
         containsNot( "SELECT * FROM TPersons", del );
-        contains( "GO", del ); 
+        contains( "GO", del, 2 ); 
     }
     
     
-    private void contains( String sql ) throws Exception
+    private void contains( String sql, int expectedIndex ) throws Exception
     {
-        contains( sql, ";" );
+        contains( sql, ";", expectedIndex );
     }
 
     private void containsNot( String sql ) throws Exception
@@ -73,9 +73,9 @@ public class SqlSplitterTest extends TestCase
         containsNot( sql, ";" );
     }
 
-    private void contains( String sql, String delimiter ) throws Exception
+    private void contains( String sql, String delimiter, int expectedIndex ) throws Exception
     {
-        assertTrue( sql, SqlSplitter.containsSqlEnd( sql, delimiter ) > 0);
+        assertEquals( sql, SqlSplitter.containsSqlEnd( sql, delimiter ), expectedIndex);
     }
 
     private void containsNot( String sql, String delimiter ) throws Exception
