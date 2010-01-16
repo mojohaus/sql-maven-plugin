@@ -51,6 +51,8 @@ public class SqlSplitterTest extends TestCase
 
         containsNot( "SELECT * from myTable where value = ';' AND -- semicolon is quoted!" );
 
+        contains( "INSERT INTO testTable (thevalue) VALUES (' text '' other ');", 60 );
+
     }
 
     public void testMsSQLStrings() throws Exception
