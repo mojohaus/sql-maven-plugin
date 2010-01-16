@@ -437,11 +437,11 @@ public class SqlExecMojo
 
     /**
      * <p>Determine if the mojo execution should get skipped.</p>
-     * This is the case if {@link #forceMojoExecution} is <code>false</code>
-     * and one of the following conditions occur:
+     * This is the case if:
      * <ul>
-     *   <li>the skip flag is set</li>
-     *   <li>if the mojo gets executed on a project with packaging type 'pom'</li>
+     *   <li>{@link #skip} is <code>true</code></li>
+     *   <li>if the mojo gets executed on a project with packaging type 'pom' and
+     *       {@link #forceMojoExecution} is <code>false</code></li>
      * </ul>
      * 
      * @return <code>true</code> if the mojo execution should be skipped.
@@ -846,17 +846,17 @@ public class SqlExecMojo
             // so we cannot just remove it, instead we must end it
             if ( !keepFormat )
             {
-                if ( line.indexOf( "--" ) >= 0 )
+                if ( SqlSplitter.containsSqlEnd( line, delimiter ) == SqlSplitter.NO_END )
                 {
                     sql.append( "\n" );
                 }
             }
 
-            if ( ( delimiterType.equals( DelimiterType.NORMAL ) && sql.toString().endsWith( delimiter ) )
+            if ( ( delimiterType.equals( DelimiterType.NORMAL ) && SqlSplitter.containsSqlEnd( line, delimiter ) > 0 )
                 || ( delimiterType.equals( DelimiterType.ROW ) && line.trim().equals( delimiter ) ) )
             {
                 execSQL( sql.substring( 0, sql.length() - delimiter.length() ), out );
-                sql.replace( 0, sql.length(), "" );
+                sql.setLength( 0 ); // clean buffer
             }
         }
 
