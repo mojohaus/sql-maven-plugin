@@ -518,4 +518,5 @@ public class SqlExecMojoTest
         mojo.setTokens( tokens );
         assertEquals( "create user duke with password s3cr3t;\r\n", mojo.interpolateLine( command ) );
     }
+    
 }

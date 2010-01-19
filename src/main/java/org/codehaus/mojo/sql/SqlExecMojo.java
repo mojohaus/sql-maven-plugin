@@ -41,6 +41,7 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -49,7 +50,6 @@ import org.apache.maven.settings.Settings;
 import org.codehaus.plexus.interpolation.InterpolationException;
 import org.codehaus.plexus.interpolation.MapBasedValueSource;
 import org.codehaus.plexus.interpolation.RegexBasedInterpolator;
-import org.codehaus.plexus.interpolation.StringSearchInterpolator;
 import org.codehaus.plexus.interpolation.ValueSource;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
@@ -301,6 +301,14 @@ public class SqlExecMojo
      */
     private File outputFile;
 
+
+    /**
+     * @param default-value=","
+     * @since 1.4
+     */
+    private String outputDelimiter;
+    
+    
     /**
      * Encoding to use when reading SQL statements from a file.
      * @parameter expression="${encoding}" default-value= "${project.build.sourceEncoding}"
@@ -351,6 +359,7 @@ public class SqlExecMojo
     /**
     * Map of tokens -> value pairs for manipulating SQL statements.
     * @parameter
+    * @since 1.4
     */
     private Map tokens = new HashMap();
     
@@ -1015,12 +1024,31 @@ public class SqlExecMojo
             StringBuffer line = new StringBuffer();
             if ( showheaders )
             {
-                for ( int col = 1; col < columnCount; col++ )
+                boolean first = true;
+                for ( int col = 1; col <= columnCount; col++ )
                 {
-                    line.append( md.getColumnName( col ) );
-                    line.append( "," );
+                    String columnValue = md.getColumnName( col );
+                    
+                    if ( columnValue != null )
+                    {
+                        columnValue = columnValue.trim();
+                        
+                        if( ",".equals( outputDelimiter )) 
+                        {
+                            columnValue = StringEscapeUtils.escapeCsv( columnValue );
+                        }
+                    }
+
+                    if ( first )
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        line.append( outputDelimiter );
+                    }
+                    line.append( columnValue );
                 }
-                line.append( md.getColumnName( columnCount ) );
                 out.println( line );
                 line = new StringBuffer();
             }
@@ -1033,6 +1061,11 @@ public class SqlExecMojo
                     if ( columnValue != null )
                     {
                         columnValue = columnValue.trim();
+                        
+                        if( ",".equals( outputDelimiter )) 
+                        {
+                            columnValue = StringEscapeUtils.escapeCsv( columnValue );
+                        }
                     }
 
                     if ( first )
@@ -1041,7 +1074,7 @@ public class SqlExecMojo
                     }
                     else
                     {
-                        line.append( "," );
+                        line.append( outputDelimiter );
                     }
                     line.append( columnValue );
                 }
