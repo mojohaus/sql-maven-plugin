@@ -15,14 +15,6 @@ package org.codehaus.mojo.sql;
  *
  */
 
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.settings.Server;
-import org.apache.maven.settings.Settings;
-import org.codehaus.plexus.util.IOUtil;
-import org.codehaus.plexus.util.StringUtils;
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,9 +35,24 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
+
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Server;
+import org.apache.maven.settings.Settings;
+import org.codehaus.plexus.interpolation.InterpolationException;
+import org.codehaus.plexus.interpolation.MapBasedValueSource;
+import org.codehaus.plexus.interpolation.RegexBasedInterpolator;
+import org.codehaus.plexus.interpolation.StringSearchInterpolator;
+import org.codehaus.plexus.interpolation.ValueSource;
+import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.StringUtils;
 
 /**
  * Executes SQL against a database.
@@ -336,6 +343,18 @@ public class SqlExecMojo
      */
     private Vector transactions = new Vector();
 
+    /**
+     * Interpolator especially for braceless expressions  
+     */
+    private RegexBasedInterpolator interpolator = new RegexBasedInterpolator("\\$([^\\s;)]+?)", "(?=[\\s;)])");
+    
+    /**
+    * Map of tokens -> value pairs for manipulating SQL statements.
+    * @parameter
+    */
+    private Map tokens = new HashMap();
+    
+    
     /**
      * Add a SQL transaction to execute
      */
@@ -810,6 +829,11 @@ public class SqlExecMojo
             {
                 line = line.trim();
             }
+            
+            if(tokens != null && !tokens.isEmpty()) 
+            {
+                line = interpolateLine(line);
+            }
 
             if ( !keepFormat )
             {
@@ -851,7 +875,7 @@ public class SqlExecMojo
                     sql.append( "\n" );
                 }
             }
-
+            
             if ( ( delimiterType.equals( DelimiterType.NORMAL ) && SqlSplitter.containsSqlEnd( line, delimiter ) > 0 )
                 || ( delimiterType.equals( DelimiterType.ROW ) && line.trim().equals( delimiter ) ) )
             {
@@ -865,6 +889,28 @@ public class SqlExecMojo
         {
             execSQL( sql.toString(), out );
         }
+    }
+
+    /**
+     * Replace the tokens of line with the interpolator
+     * 
+     * @param line
+     * @return
+     */
+    protected String interpolateLine( String line )
+    {
+        String result = line;
+        try
+        {
+            ValueSource valueSource = new MapBasedValueSource( tokens );
+            interpolator.addValueSource( valueSource );
+            result = interpolator.interpolate( line );
+        }
+        catch ( InterpolationException e )
+        {
+            getLog().info( "Interpolation failed. Using query as is." );
+        }
+        return result;
     }
 
     /**
@@ -1282,6 +1328,11 @@ public class SqlExecMojo
     public void setSqlCommand( String sqlCommand )
     {
         this.sqlCommand = sqlCommand;
+    }
+    
+    public void setTokens( Map tokens )
+    {
+        this.tokens = tokens;
     }
 
     public Vector getTransactions()

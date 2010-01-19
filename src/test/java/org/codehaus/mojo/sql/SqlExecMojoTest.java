@@ -17,6 +17,8 @@ package org.codehaus.mojo.sql;
 import junit.framework.TestCase;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -506,4 +508,14 @@ public class SqlExecMojoTest
         
     }
 
+    // MSQL-9
+    public void testInterpolation() throws Exception 
+    {
+        String command = "create user $sql.create.username with password $sql.create.password;\r\n";
+        Map tokens = new HashMap();
+        tokens.put( "sql.create.username", "duke" );
+        tokens.put( "sql.create.password", "s3cr3t" );
+        mojo.setTokens( tokens );
+        assertEquals( "create user duke with password s3cr3t;\r\n", mojo.interpolateLine( command ) );
+    }
 }
