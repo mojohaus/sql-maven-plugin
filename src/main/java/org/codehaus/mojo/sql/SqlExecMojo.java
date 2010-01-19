@@ -303,7 +303,7 @@ public class SqlExecMojo
 
 
     /**
-     * @param default-value=","
+     * @parameter default-value=","
      * @since 1.4
      */
     private String outputDelimiter;
