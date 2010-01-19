@@ -38,6 +38,8 @@ public class SqlSplitterTest extends TestCase
 
         contains( "SELECT * from myTable /* with part comment inside*/  ; ", 54 );
         
+        contains( "SELECT * from myTable /* with ; semicolon*/  ; ", 46 );
+        
         contains( "INSERT INTO testTable (thevalue) VALUES ('value  !'); -- comment at the end", 53 );
 
         // a " inside a ' quoted text
