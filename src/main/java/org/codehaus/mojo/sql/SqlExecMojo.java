@@ -1,18 +1,22 @@
 package org.codehaus.mojo.sql;
 
 /*
- * Copyright 2000-2006 The Apache Software Foundation
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 import java.io.BufferedOutputStream;
@@ -332,8 +336,14 @@ public class SqlExecMojo
 
     ////////////////////////////////// Internal properties//////////////////////
 
+    /**
+     * number of successful executed statements 
+     */
     private int successfulStatements = 0;
 
+    /**
+     * number of total executed statements
+     */
     private int totalStatements = 0;
 
     /**
@@ -354,7 +364,7 @@ public class SqlExecMojo
     /**
      * Interpolator especially for braceless expressions  
      */
-    private RegexBasedInterpolator interpolator = new RegexBasedInterpolator("\\$([^\\s;)]+?)", "(?=[\\s;)])");
+    private RegexBasedInterpolator interpolator = new RegexBasedInterpolator( "\\$([^\\s;)]+?)", "(?=[\\s;)])" );
     
     /**
     * Map of tokens -> value pairs for manipulating SQL statements.
@@ -366,6 +376,7 @@ public class SqlExecMojo
     
     /**
      * Add a SQL transaction to execute
+     * @return a new SqlExecMojo.Transaction
      */
     public Transaction createTransaction()
     {
@@ -377,6 +388,8 @@ public class SqlExecMojo
     /**
      * Set an inline SQL command to execute.
      * NB: Properties are not expanded in this text.
+     * 
+     * @param sql the sql statement to add
      */
     public void addText( String sql )
     {
@@ -395,6 +408,8 @@ public class SqlExecMojo
 
     /**
      * Set the delimiter that separates SQL statements. Defaults to &quot;;&quot;;
+     * 
+     * @param delimiter the new delimiter
      */
     public void setDelimiter( String delimiter )
     {
@@ -403,6 +418,8 @@ public class SqlExecMojo
 
     /**
      * Set the delimiter type: "normal" or "row" (default "normal").
+     * 
+     * @param delimiterType the new delimiterType
      */
     public void setDelimiterType( String delimiterType )
     {
@@ -412,8 +429,22 @@ public class SqlExecMojo
     /**
      * Print result sets from the statements;
      * optional, default false
+     * 
+     * @param print <code>true</code> to print the resultset, otherwise <code>false</code>
+     * @deprecated typo, use setPrintResultSet()
      */
     public void setPrintResutlSet( boolean print )
+    {
+        setPrintResultSet( print );
+    }
+    
+    /**
+     * Print result sets from the statements;
+     * optional, default false
+     * 
+     * @param print <code>true</code> to print the resultset, otherwise <code>false</code>
+     */
+    public void setPrintResultSet( boolean print )
     {
         this.printResultSet = print;
     }
@@ -421,6 +452,8 @@ public class SqlExecMojo
     /**
      * Print headers for result sets from the
      * statements; optional, default true.
+     * 
+     * @param showheaders <code>true</code> to show the headers, otherwise <code>false</code>
      */
     public void setShowheaders( boolean showheaders )
     {
@@ -429,6 +462,8 @@ public class SqlExecMojo
 
     /**
      * Set the output file;
+     * 
+     * @param output the output file
      */
     public void setOutputFile( File output )
     {
@@ -438,6 +473,8 @@ public class SqlExecMojo
     /**
      * whether output should be appended to or overwrite
      * an existing file.  Defaults to false.
+     * 
+     * @param append <code>true</code> to append, otherwise <code>false</code> to overwrite 
      */
     public void setAppend( boolean append )
     {
@@ -457,6 +494,8 @@ public class SqlExecMojo
 
     /**
      * Set escape processing for statements.
+     * 
+     * @param enable <code>true</code> to escape, otherwiser <code>false</code>
      */
     public void setEscapeProcessing( boolean enable )
     {
@@ -474,7 +513,8 @@ public class SqlExecMojo
      * 
      * @return <code>true</code> if the mojo execution should be skipped.
      */
-    protected boolean skipMojo() {
+    protected boolean skipMojo() 
+    {
         if ( skip )
         {
             getLog().info( "Skip sql execution" );
@@ -493,6 +533,7 @@ public class SqlExecMojo
 
     /**
      * Load the sql file and then execute it
+     * @throws MojoExecutionException
      */
     public void execute()
         throws MojoExecutionException
@@ -689,6 +730,8 @@ public class SqlExecMojo
 
     /**
      * Load username password from settings if user has not set them in JVM properties
+     * 
+     * @throws MojoExecutionException
      */
     private void loadUserInfoFromSettings()
         throws MojoExecutionException
@@ -785,7 +828,7 @@ public class SqlExecMojo
 
     /**
      * parse driverProperties into Properties set
-     * @return
+     * @return the driver properties
      * @throws MojoExecutionException
      */
     protected Properties getDriverProperties()
@@ -814,6 +857,11 @@ public class SqlExecMojo
 
     /**
      * read in lines and execute them
+     * 
+     * @param reader the reader
+     * @param out the outputstream
+     * @throws SQLException
+     * @throws IOException
      */
     private void runStatements( Reader reader, PrintStream out )
         throws SQLException, IOException
@@ -839,9 +887,9 @@ public class SqlExecMojo
                 line = line.trim();
             }
             
-            if(tokens != null && !tokens.isEmpty()) 
+            if ( tokens != null && !tokens.isEmpty() ) 
             {
-                line = interpolateLine(line);
+                line = interpolateLine( line );
             }
 
             if ( !keepFormat )
@@ -903,8 +951,8 @@ public class SqlExecMojo
     /**
      * Replace the tokens of line with the interpolator
      * 
-     * @param line
-     * @return
+     * @param line sql with tokens
+     * @return the interpolated line if succeeded, otherwise the line itself
      */
     protected String interpolateLine( String line )
     {
@@ -924,6 +972,9 @@ public class SqlExecMojo
 
     /**
      * Exec the sql statement.
+     * 
+     * @param sql query to execute 
+     * @param out the outputstream
      */
     private void execSQL( String sql, PrintStream out )
         throws SQLException
@@ -1033,7 +1084,7 @@ public class SqlExecMojo
                     {
                         columnValue = columnValue.trim();
                         
-                        if( ",".equals( outputDelimiter )) 
+                        if ( ",".equals( outputDelimiter ) ) 
                         {
                             columnValue = StringEscapeUtils.escapeCsv( columnValue );
                         }
@@ -1062,7 +1113,7 @@ public class SqlExecMojo
                     {
                         columnValue = columnValue.trim();
                         
-                        if( ",".equals( outputDelimiter )) 
+                        if ( ",".equals( outputDelimiter ) ) 
                         {
                             columnValue = StringEscapeUtils.escapeCsv( columnValue );
                         }

@@ -1,7 +1,5 @@
 package org.codehaus.mojo.sql;
 
-import org.codehaus.plexus.util.StringUtils;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -21,12 +19,17 @@ import org.codehaus.plexus.util.StringUtils;
  * under the License.    
  */
 
+import org.codehaus.plexus.util.StringUtils;
+
 /**
  * Utility class to split a long sql batch script into single SQL commands.
  */
-public class SqlSplitter {
-    
-    public final static int NO_END = -1; 
+public class SqlSplitter 
+{
+    /**
+     * Value indicating the sql has no end-delimiter like i.e. semicolon
+     */
+    public static final  int NO_END = -1; 
     
     /**
      * Check if the given sql line contains an end of command ';'
@@ -38,7 +41,8 @@ public class SqlSplitter {
      * @return position after the end character if the given line contains the end of a SQL script, 
      *         {@value SqlSplitter#NO_END} } if it doesn't contain an end char.
      */
-    public static int containsSqlEnd(String line, String delimiter) {
+    public static int containsSqlEnd( String line, String delimiter ) 
+    {
         // / * * / comments
         boolean isComment = false;
         
@@ -95,7 +99,7 @@ public class SqlSplitter {
                     {
                         pos += 2;
                     }
-                } while ( !line.startsWith( quoteChar, pos++ ));
+                } while ( !line.startsWith( quoteChar, pos++ ) );
                 
                 continue;
             }
@@ -106,9 +110,9 @@ public class SqlSplitter {
                 {
                     // check if delimiter is at start or end of line, surrounded
                     // by non-alpha character
-                    if(  ( pos == 0 || !isAlpha( line.charAt( pos - 1 ) ) ) &&
-                         ( line.length() == pos + delimiter.length() ||
-                           !isAlpha( line.charAt( pos + delimiter.length() ) ) ) ) 
+                    if (  ( pos == 0 || !isAlpha( line.charAt( pos - 1 ) ) ) 
+                                    && ( line.length() == pos + delimiter.length() 
+                                    || !isAlpha( line.charAt( pos + delimiter.length() ) ) ) ) 
                     {
                         return pos + delimiter.length();
                     }
@@ -127,6 +131,7 @@ public class SqlSplitter {
     }
     
     /**
+     * @param c the char to check
      * @return <code>true</code> if the given character is either a lower or an upperchase alphanumerical character
      */
     private static boolean isAlpha( char c )
