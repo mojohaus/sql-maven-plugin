@@ -992,15 +992,14 @@ public class SqlExecMojo
             getLog().debug( "SQL: " + sql );
 
             boolean ret;
-            int updateCount, updateCountTotal = 0;
+            int updateCountTotal = 0;
 
             ret = statement.execute( sql );
-            updateCount = statement.getUpdateCount();
-            resultSet = statement.getResultSet();
             do
             {
                 if ( !ret )
                 {
+                    int updateCount = statement.getUpdateCount();
                     if ( updateCount != -1 )
                     {
                         updateCountTotal += updateCount;
@@ -1008,17 +1007,13 @@ public class SqlExecMojo
                 }
                 else
                 {
+                    resultSet = statement.getResultSet();
                     if ( printResultSet )
                     {
                         printResultSet( resultSet, out );
                     }
                 }
                 ret = statement.getMoreResults();
-                if ( ret )
-                {
-                    updateCount = statement.getUpdateCount();
-                    resultSet = statement.getResultSet();
-                }
             }
             while ( ret );
 
