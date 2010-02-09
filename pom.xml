@@ -47,6 +47,24 @@
         <role>Java Developer</role>
       </roles>
     </developer>
+    <developer>
+      <id>struberg</id>
+      <name>Mark Struberg</name>
+      <email>struberg@yahoo.de</email>
+      <roles>
+        <role>Java Developer</role>
+      </roles>  
+      <timezone>+1</timezone>
+    </developer>
+    <developer>
+      <id>rfscholte</id>
+      <name>Robert Scholte</name>
+      <email>rfscholte@codehaus.org</email>
+      <roles>
+        <role>Java Developer</role>
+      </roles>  
+      <timezone>+1</timezone>
+    </developer>
   </developers>
 
   <licenses>
