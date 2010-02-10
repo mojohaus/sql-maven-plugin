@@ -39,22 +39,23 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
-import org.codehaus.plexus.interpolation.InterpolationException;
-import org.codehaus.plexus.interpolation.MapBasedValueSource;
+import org.apache.maven.shared.filtering.MavenFileFilter;
+import org.apache.maven.shared.filtering.MavenFileFilterRequest;
+import org.apache.maven.shared.filtering.MavenFilteringException;
+import org.codehaus.plexus.interpolation.Interpolator;
 import org.codehaus.plexus.interpolation.RegexBasedInterpolator;
-import org.codehaus.plexus.interpolation.ValueSource;
+import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
 
@@ -172,6 +173,13 @@ public class SqlExecMojo
      * @readonly
      */
     protected MavenProject project;
+    
+    /**
+     * @parameter default-value="${session}"
+     * @required
+     * @readonly
+     */
+    private MavenSession mavenSession;
 
     //////////////////////////////// Source info /////////////////////////////
 
@@ -362,17 +370,21 @@ public class SqlExecMojo
     private Vector transactions = new Vector();
 
     /**
-     * Interpolator especially for braceless expressions  
+     * @component role="org.apache.maven.shared.filtering.MavenFileFilter"
+     * @since 1.4
      */
-    private RegexBasedInterpolator interpolator = new RegexBasedInterpolator( "\\$([^\\s;)]+?)", "(?=[\\s;)])" );
+    private MavenFileFilter fileFilter;
+
+    /**
+     * @parameter
+     * @since 1.4
+     */
+    private boolean enableFiltering;
     
     /**
-    * Map of tokens -> value pairs for manipulating SQL statements.
-    * @parameter
-    * @since 1.4
-    */
-    private Map tokens = new HashMap();
-    
+     * Interpolator especially for braceless expressions  
+     */
+    private Interpolator interpolator = new RegexBasedInterpolator( "\\$([^\\s;)]+?)", "(?=[\\s;)])" );
     
     /**
      * Add a SQL transaction to execute
@@ -702,6 +714,12 @@ public class SqlExecMojo
         throws MojoExecutionException
     {
         File[] files = getSrcFiles();
+        
+        MavenFileFilterRequest request = new MavenFileFilterRequest();
+        request.setEncoding( encoding );
+        request.setMavenSession( mavenSession );
+        request.setMavenProject( project );
+        request.setFiltering( enableFiltering );
         for ( int i = 0; files != null && i < files.length; ++i )
         {
             if ( files[i] != null && !files[i].exists() )
@@ -709,7 +727,28 @@ public class SqlExecMojo
                 throw new MojoExecutionException( files[i].getPath() + " not found." );
             }
 
-            createTransaction().setSrc( files[i] );
+            File sourceFile = files[i];
+            String basename = FileUtils.basename( sourceFile.getName() );
+            String extension = FileUtils.extension( sourceFile.getName() );
+            File targetFile = FileUtils.createTempFile( basename, extension, null );
+            if ( !getLog().isDebugEnabled() ) 
+            {
+                targetFile.deleteOnExit();
+            }
+            
+            request.setFrom( sourceFile );
+            request.setTo( targetFile );
+            
+            try
+            {
+                fileFilter.copyFile( request );
+            }
+            catch ( MavenFilteringException e )
+            {
+                throw new MojoExecutionException( e.getMessage() );
+            }
+            
+            createTransaction().setSrc( targetFile );
         }
     }
 
@@ -887,11 +926,6 @@ public class SqlExecMojo
                 line = line.trim();
             }
             
-            if ( tokens != null && !tokens.isEmpty() ) 
-            {
-                line = interpolateLine( line );
-            }
-
             if ( !keepFormat )
             {
                 if ( line.startsWith( "//" ) )
@@ -946,28 +980,6 @@ public class SqlExecMojo
         {
             execSQL( sql.toString(), out );
         }
-    }
-
-    /**
-     * Replace the tokens of line with the interpolator
-     * 
-     * @param line sql with tokens
-     * @return the interpolated line if succeeded, otherwise the line itself
-     */
-    protected String interpolateLine( String line )
-    {
-        String result = line;
-        try
-        {
-            ValueSource valueSource = new MapBasedValueSource( tokens );
-            interpolator.addValueSource( valueSource );
-            result = interpolator.interpolate( line );
-        }
-        catch ( InterpolationException e )
-        {
-            getLog().info( "Interpolation failed. Using query as is." );
-        }
-        return result;
     }
 
     /**
@@ -1409,11 +1421,6 @@ public class SqlExecMojo
         this.sqlCommand = sqlCommand;
     }
     
-    public void setTokens( Map tokens )
-    {
-        this.tokens = tokens;
-    }
-
     public Vector getTransactions()
     {
         return transactions;
@@ -1422,5 +1429,10 @@ public class SqlExecMojo
     public void setTransactions( Vector transactions )
     {
         this.transactions = transactions;
+    }
+
+    public void setFileFilter( MavenFileFilter filter )
+    {
+        this.fileFilter = filter;
     }
 }

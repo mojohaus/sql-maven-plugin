@@ -22,14 +22,16 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
+import org.apache.maven.shared.filtering.MavenFileFilter;
 
 /**
  * Unit test for simple SqlExecMojo.
  */
 public class SqlExecMojoTest
-    extends TestCase
+    extends AbstractMojoTestCase
 {
     private SqlExecMojo mojo;
 
@@ -50,6 +52,9 @@ public class SqlExecMojoTest
         mojo.setPassword( p.getProperty( "password" ) );
         mojo.setUrl( p.getProperty( "url" ) );
         mojo.setDriverProperties( p.getProperty( "driverProperties" ) );
+        
+        MavenFileFilter filter = (MavenFileFilter) lookup( "org.apache.maven.shared.filtering.MavenFileFilter", "default" );
+        mojo.setFileFilter(filter);
 
     }
 
@@ -507,16 +512,4 @@ public class SqlExecMojoTest
         //assertTrue( outputFile.delete() );
         
     }
-
-    // MSQL-9
-    public void testInterpolation() throws Exception 
-    {
-        String command = "create user $sql.create.username with password $sql.create.password;\r\n";
-        Map tokens = new HashMap();
-        tokens.put( "sql.create.username", "duke" );
-        tokens.put( "sql.create.password", "s3cr3t" );
-        mojo.setTokens( tokens );
-        assertEquals( "create user duke with password s3cr3t;\r\n", mojo.interpolateLine( command ) );
-    }
-    
 }
