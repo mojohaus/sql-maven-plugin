@@ -376,6 +376,8 @@ public class SqlExecMojo
     private MavenFileFilter fileFilter;
 
     /**
+     * Set to true if you want to filter the srcFiles using system-, user- and project properties
+     * 
      * @parameter
      * @since 1.4
      */
