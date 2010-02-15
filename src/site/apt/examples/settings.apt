@@ -4,14 +4,14 @@
  Dan T. Tran
  <dantran@gmail.com>
  ------
- July 16, 2006
+ 2010-02-15
  ------
 
 Settings
 
 
-  You can hide username/password in your <<<settings.xml>>>, ensure to configure "settingsKey" in your
-  POM's configuration, otherwise it will use your database's URL as lookup key.
+  You can hide the username/password in your <<<settings.xml>>>. Just ensure that you configure <<<settingsKey>>> in your
+  POM, otherwise it will use your database's URL as a lookup key.
 
 --------------------
 <settings>

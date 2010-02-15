@@ -4,13 +4,14 @@
  Dan T. Tran
  <dantran@gmail.com>
  ------
- January 05, 2007
+ 2010-02-15
  ------
 
 Usage
 
-  The execution of this plugin's mojo can be bound to a phase of build lifecycle.
-  Use the <<<\<dependencies\>>>> in <<<\<plugin\>>>> to specify the artifact that has your
+  The execution of this plugin's goal can be bound to a phase of the build lifecycle.
+
+  Use the <<<\<dependencies\>>>> element inside the <<<\<plugin\>>>> element to specify the artifact that has your
   JDBC driver.
 
 ---------------------------
@@ -26,7 +27,7 @@ Usage
         <version>1.1</version>
 
         <dependencies>
-          <!-- specify the dependent jdbc driver here -->
+          <!-- specify the dependent JDBC driver here -->
           <dependency>
             <groupId></groupId>
             <artifactId></artifactId>
@@ -47,7 +48,7 @@ Usage
           <execution>
             <phase></phase>
             <goals>
-              <goal></goal>
+              <goal>execute</goal>
             </goals>
             <!-- specific configuration for this execution -->
             <configuration>

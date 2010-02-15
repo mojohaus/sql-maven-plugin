@@ -4,13 +4,13 @@
  Dan T. Tran
  <dantran@gmail.com>
  ------
- January 05, 2007
+ 2010-02-15
  ------
 
 SQL Maven Plugin
 
   Use this plugin to execute SQL statements in a combination of strings,
-  a list files and/or a set of files through <<<sqlCommand>>>, <<<srcFiles>>>, and
+  a list of files and/or a set of files through <<<sqlCommand>>>, <<<srcFiles>>>, and
   <<<fileset>>> configurations respectively.
 
 
@@ -28,10 +28,8 @@ SQL Maven Plugin
 
 * Examples
 
-  * {{{examples/execute.html}  an comprehensive example.}}
+  * {{{examples/execute.html}Executions.}}
 
-  * {{{examples/settings.html}Hide username/password in settings.xml.}}
+  * {{{examples/settings.html}Hide username/password in <<<settings.xml>>>.}}
 
   []
-
-
