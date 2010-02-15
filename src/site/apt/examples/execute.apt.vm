@@ -87,7 +87,7 @@ Executions
             <configuration>
               <autocommit>true</autocommit>
               <srcFiles>
-                <srcFile>src/test/sql/your-schema.sql</srcFile>
+                <srcFile>src/main/sql/your-schema.sql</srcFile>
               </srcFiles>
             </configuration>
           </execution>
