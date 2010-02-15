@@ -4,7 +4,7 @@
  Dan T. Tran
  <dantran@gmail.com>
  ------
- July 16, 2006
+ 2010-02-15
  ------
 
 Executions
@@ -87,7 +87,7 @@ Executions
             <configuration>
               <autocommit>true</autocommit>
               <srcFiles>
-                <srcFile>src/main/resourced/your-schema.sql</srcFile>
+                <srcFile>src/test/sql/your-schema.sql</srcFile>
               </srcFiles>
             </configuration>
           </execution>
@@ -103,8 +103,8 @@ Executions
               <fileset>
                 <basedir>${basedir}</basedir>
                 <includes>
-                  <include>test/sql/test-data2.sql</include>
-                  <include>test/sql/test-data1.sql</include>
+                  <include>src/test/sql/test-data2.sql</include>
+                  <include>src/test/sql/test-data1.sql</include>
                 </includes>
               </fileset>
             </configuration>
