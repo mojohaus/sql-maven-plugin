@@ -24,7 +24,7 @@ Usage
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>sql-maven-plugin</artifactId>
-        <version>1.1</version>
+        <version>${project.version}</version>
 
         <dependencies>
           <!-- specify the dependent JDBC driver here -->
