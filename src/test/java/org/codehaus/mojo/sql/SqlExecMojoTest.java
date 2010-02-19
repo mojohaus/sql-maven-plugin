@@ -26,6 +26,7 @@ import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.shared.filtering.MavenFileFilter;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 
 /**
  * Unit test for simple SqlExecMojo.
@@ -55,7 +56,9 @@ public class SqlExecMojoTest
         
         MavenFileFilter filter = (MavenFileFilter) lookup( "org.apache.maven.shared.filtering.MavenFileFilter", "default" );
         mojo.setFileFilter(filter);
-
+        
+        SecDispatcher securityDispatcher = (SecDispatcher) lookup( "org.sonatype.plexus.components.sec.dispatcher.SecDispatcher", "default" );
+        mojo.setSecurityDispatcher( securityDispatcher );
     }
 
     /**

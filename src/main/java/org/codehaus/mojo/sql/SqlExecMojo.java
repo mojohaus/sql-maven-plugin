@@ -59,7 +59,6 @@ import org.codehaus.plexus.interpolation.RegexBasedInterpolator;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
-import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
@@ -152,8 +151,12 @@ public class SqlExecMojo
     
     /**
      * MNG-4384
+     * 
+     * @since 1.5
+     * @component role="org.sonatype.plexus.components.sec.dispatcher.SecDispatcher" hint="default"
+     * @required  
      */
-    private SecDispatcher securityDispatcher = new DefaultSecDispatcher();    
+    private SecDispatcher securityDispatcher;    
 
     /**
      * Skip execution when there is an error obtaining a connection.
@@ -1459,5 +1462,10 @@ public class SqlExecMojo
     public void setFileFilter( MavenFileFilter filter )
     {
         this.fileFilter = filter;
+    }
+    
+    public void setSecurityDispatcher( SecDispatcher securityDispatcher )
+    {
+        this.securityDispatcher = securityDispatcher;
     }
 }
