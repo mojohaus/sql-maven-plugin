@@ -108,9 +108,12 @@
                   <shadedPattern>hidden.org.sonatype.plexus.components</shadedPattern>
                 </relocation>
               </relocations>
+              <!-- Using manual components.xml to be able to set _configuration-file. Uncomment tags to regenerate file.  -->
+              <!--
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ComponentsXmlResourceTransformer"/>
               </transformers>
+              -->
             </configuration>
           </execution>
         </executions>
