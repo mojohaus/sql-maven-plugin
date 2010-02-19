@@ -59,6 +59,9 @@ import org.codehaus.plexus.interpolation.RegexBasedInterpolator;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
+import org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
+import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 /**
  * Executes SQL against a database.
@@ -146,6 +149,11 @@ public class SqlExecMojo
      * @parameter expression="${settingsKey}"
      */
     private String settingsKey;
+    
+    /**
+     * MNG-4384
+     */
+    private SecDispatcher securityDispatcher = new DefaultSecDispatcher();    
 
     /**
      * Skip execution when there is an error obtaining a connection.
@@ -785,7 +793,17 @@ public class SqlExecMojo
 
                 if ( getPassword() == null )
                 {
-                    setPassword( server.getPassword() );
+                    if ( server.getPassword() != null )
+                    {
+                      try
+                      {
+                        setPassword( securityDispatcher.decrypt( server.getPassword() ) );
+                      }
+                      catch ( SecDispatcherException e )
+                      {
+                        throw new MojoExecutionException( e.getMessage() );
+                      }  
+                    }
                 }
             }
         }

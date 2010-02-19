@@ -85,6 +85,33 @@
           <target>1.4</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>1.3.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>org.sonatype.plexus:plexus-sec-dispatcher</include>
+                  <include>org.sonatype.plexus:plexus-cipher</include>
+                </includes>
+              </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>org.sonatype.plexus.components</pattern>
+                  <shadedPattern>hidden.org.sonatype.plexus.components</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
@@ -137,6 +164,12 @@
     	<groupId>org.apache.maven.shared</groupId>
     	<artifactId>maven-filtering</artifactId>
     	<version>1.0-beta-3</version>
+    </dependency>
+    <dependency>
+        <groupId>org.sonatype.plexus</groupId>
+        <artifactId>plexus-sec-dispatcher</artifactId>
+        <version>1.4</version>
+        <scope>provided</scope>
     </dependency>
     <dependency>
         <groupId>org.apache.maven.shared</groupId>
