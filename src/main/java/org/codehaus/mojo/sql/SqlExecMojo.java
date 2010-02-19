@@ -153,7 +153,7 @@ public class SqlExecMojo
      * MNG-4384
      * 
      * @since 1.5
-     * @component role="org.sonatype.plexus.components.sec.dispatcher.SecDispatcher" hint="default"
+     * @component role="hidden.org.sonatype.plexus.components.sec.dispatcher.SecDispatcher"
      * @required  
      */
     private SecDispatcher securityDispatcher;    
