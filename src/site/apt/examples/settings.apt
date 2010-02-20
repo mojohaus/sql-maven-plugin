@@ -9,7 +9,6 @@
 
 Settings
 
-
   You can hide the username/password in your <<<settings.xml>>>. Just ensure that you configure <<<settingsKey>>> in your
   POM, otherwise it will use your database's URL as a lookup key.
 
@@ -27,3 +26,10 @@ Settings
   [...]
 </settings>
 --------------------
+
+* Encrypted passwords
+
+  Since 1.5 it's also possible to use encrypted passwords the way Maven does. Follow the instruction of the {{{http://maven.apache.org/guides/mini/guide-encryption.html}encryption mini guide}}.
+  Just like unencrypted passwords you have to be sure to set the <<<settingsKey>>>, the plugin will detect if the password is encrypted or not. 
+ 
+ 
