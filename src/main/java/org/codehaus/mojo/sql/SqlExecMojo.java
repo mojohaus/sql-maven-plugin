@@ -204,15 +204,21 @@ public class SqlExecMojo
 
     /**
      * List of files containing SQL statements to load.
+     * 
      * @since 1.0
      * @parameter
+     * @see #fileset
      */
     private File[] srcFiles;
 
     /**
      * File(s) containing SQL statements to load.
+     * Only use a Fileset if you want to use ant-like filepatterns, otherwise use srcFiles.
+     * The order is based on a matching occurrence while scanning the directory (not the order of includes!).
+     * 
      * @since 1.0
      * @parameter
+     * @see #srcFiles
      */
     private Fileset fileset;
 
@@ -282,6 +288,8 @@ public class SqlExecMojo
      * Set the order in which the SQL files will be executed.
      * Possible values are <code>ascending</code> and <code>descending</code>.
      * Any other value means that no sorting will be performed.
+     * Refers to {@link #fileset} and {@link #srcFiles}
+     * 
      * @since 1.1
      * @parameter expression="${orderFile}"
      */
