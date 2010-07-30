@@ -30,7 +30,6 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.ResultSet;
@@ -380,6 +379,11 @@ public class SqlExecMojo
     private Connection conn = null;
 
     /**
+     * SQL statement
+     */
+    private Statement statement = null;
+    
+    /**
      * SQL transactions to perform
      */
     private Vector transactions = new Vector();
@@ -606,6 +610,8 @@ public class SqlExecMojo
 
         try
         {
+            statement = conn.createStatement();
+            statement.setEscapeProcessing( escapeProcessing );
 
             PrintStream out = System.out;
             try
@@ -662,6 +668,10 @@ public class SqlExecMojo
         {
             try
             {
+                if ( statement != null )
+                {
+                    statement.close();
+                }
                 if ( conn != null )
                 {
                     conn.close();
@@ -1018,7 +1028,6 @@ public class SqlExecMojo
             return;
         }
 
-        Statement statement = null;
         ResultSet resultSet = null;
         try
         {
@@ -1029,16 +1038,7 @@ public class SqlExecMojo
             int updateCountTotal = 0;
 
             
-            if(ProcedureCallHelper.isProcedureCall(sql)){
-                CallableStatement callStatement = conn.prepareCall(ProcedureCallHelper.sqlProcedureCallToJDBCCallStatement(sql));
-                ret = callStatement.execute();
-                statement = callStatement;
-            }
-            else {
-                statement = conn.createStatement();
-                statement.setEscapeProcessing( escapeProcessing );
-                ret = statement.execute( sql );
-            }
+            ret = statement.execute( sql );
             do
             {
                 if ( !ret )
@@ -1090,10 +1090,6 @@ public class SqlExecMojo
         }
         finally
         {
-            if ( statement != null )
-            {
-                statement.close();
-            }
             if ( resultSet != null )
             {
                 resultSet.close();
