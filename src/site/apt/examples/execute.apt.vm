@@ -113,7 +113,7 @@ Executions
           <!-- drop db after test -->
           <execution>
             <id>drop-db-after-test</id>
-            <phase>test/phase>
+            <phase>test</phase>
             <goals>
               <goal>execute</goal>
             </goals>
