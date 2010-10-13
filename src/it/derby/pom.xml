@@ -76,7 +76,7 @@
           </execution>
           
           <execution>
-            <id>shutdown-database-sothat-test-can-run</id>
+            <id>shutdown-database-so-that-test-can-run</id>
             <phase>process-test-resources</phase>
             <goals>
               <goal>execute</goal>
