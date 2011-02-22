@@ -59,7 +59,8 @@ public class SqlSplitter
         {
             if ( isComment )
             {
-                if ( line.startsWith( "*/", pos ) )
+                // parse for a * / start of comment
+                if ( line.charAt( pos ) == '*' && line.charAt( pos + 1) == '/' )
                 {
                     isComment = false;
                 }
@@ -69,20 +70,21 @@ public class SqlSplitter
                     continue;
                 }
             }
-            
-            if ( line.startsWith( "/*", pos ) )
+
+            // parse for a / * end of comment
+            if ( line.charAt( pos ) == '/' && line.charAt( pos + 1) == '*' )
             {
                 isComment = true;
                 pos += 2;
                 continue;
             }
             
-            if ( line.startsWith( "--", pos ) )
+            if ( line.charAt( pos ) == '-' && line.charAt( pos + 1) == '-' )
             {
                 return NO_END;
             }
             
-            if (  line.startsWith( "'", pos ) || line.startsWith( "\"", pos ) )
+            if (  line.charAt( pos ) == '\'' || line.charAt( pos ) == '\"' )
             {
                 String quoteChar = "" + line.charAt( pos );
                 String quoteEscape = "\\" + quoteChar;
