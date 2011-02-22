@@ -64,7 +64,7 @@ public class SqlSplitterTest extends TestCase
      */
     public void testSplitterPerformance() throws Exception
     {
-        long startTime = System.nanoTime();
+        long startTime = System.currentTimeMillis();
         for ( int i = 0; i < 10000; i ++)
         {
             contains( "INSERT INTO testTable (thevalue1, thevalue2, anothervalue3, justmore, andevenmore) "
@@ -114,13 +114,13 @@ public class SqlSplitterTest extends TestCase
                       + "/*it might also contain lots of other really loooooong and useless comments...*/ "
                       + "/*it might also contain lots of other really loooooong and useless comments...*/ "
                       + "/*it might also contain lots of other really loooooong and useless comments...*/ "
-                      + "VALUES ('value !', 'else', 'more', 'hopefulyfast');"
-                    , 3860 );
+                      + "VALUES ('value !', 'else', 'more', 'hopefullyfast');"
+                    , 3861 );
         }
 
-        long duration = System.nanoTime() - startTime;
+        long duration = System.currentTimeMillis() - startTime;
         Logger log = Logger.getLogger( SqlSplitterTest.class.getName() );
-        log.info( "SqlPlitterTest performance took [ns]: " + duration );
+        log.info( "SqlPlitterTest performance took [ms]: " + duration );
     }
 
     public void testMsSQLStrings() throws Exception
