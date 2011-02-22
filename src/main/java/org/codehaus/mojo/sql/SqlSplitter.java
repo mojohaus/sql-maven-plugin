@@ -41,7 +41,7 @@ public class SqlSplitter
      * @return position after the end character if the given line contains the end of a SQL script, 
      *         {@value SqlSplitter#NO_END} } if it doesn't contain an end char.
      */
-    public static int containsSqlEnd( String line, String delimiter ) 
+    public static int containsSqlEnd( String line, String delimiter )
     {
         // / * * / comments
         boolean isComment = false;
@@ -54,13 +54,29 @@ public class SqlSplitter
         }
         
         int pos = 0;
-        
-        do 
+        int maxpos = line.length() - 1;
+
+        char c1;
+        char c2 = line.charAt( 0 );
+        do
         {
+            // use the nextchar from the previous iteration
+            c1 = c2;
+
+            if ( pos < maxpos )
+            {
+                // and set the following char
+                c2 = line.charAt( pos + 1 );
+            }
+            else {
+                // or reset to blank if the line has ended
+                c2 = ' ';
+            }
+
             if ( isComment )
             {
                 // parse for a * / start of comment
-                if ( line.charAt( pos ) == '*' && line.charAt( pos + 1) == '/' )
+                if ( c1 == '*' && c2 == '/' )
                 {
                     isComment = false;
                 }
@@ -72,21 +88,21 @@ public class SqlSplitter
             }
 
             // parse for a / * end of comment
-            if ( line.charAt( pos ) == '/' && line.charAt( pos + 1) == '*' )
+            if ( c1 == '/' && c2 == '*' )
             {
                 isComment = true;
                 pos += 2;
                 continue;
             }
             
-            if ( line.charAt( pos ) == '-' && line.charAt( pos + 1) == '-' )
+            if ( c1 == '-' && c2 == '-' )
             {
                 return NO_END;
             }
             
-            if (  line.charAt( pos ) == '\'' || line.charAt( pos ) == '\"' )
+            if (  c1 == '\'' || c2 == '\"' )
             {
-                String quoteChar = "" + line.charAt( pos );
+                String quoteChar = String.valueOf( c1 );
                 String quoteEscape = "\\" + quoteChar;
                 pos++;
                 
@@ -97,16 +113,20 @@ public class SqlSplitter
                 
                 do 
                 {
-                    if ( line.startsWith( quoteEscape, pos ) )
+                    if ( startsWith( line, quoteEscape, pos ) )
                     {
                         pos += 2;
                     }
-                } while ( !line.startsWith( quoteChar, pos++ ) );
+                    if ( pos >= maxpos )
+                    {
+                        return maxpos + 1;
+                    }
+                } while ( !startsWith( line, quoteChar, pos++ ) );
                 
                 continue;
             }
 
-            if ( line.startsWith( delimiter, pos ) )
+            if ( startsWith( line, delimiter, pos ) )
             {
                 if ( isAlphaDelimiter )
                 {
@@ -130,6 +150,24 @@ public class SqlSplitter
         } while ( line.length() >= pos );
             
         return NO_END;
+    }
+
+    /**
+     * small performance optimized replacement for {@link String#startsWith(String, int)}
+     * @param toParse the String to parse
+     * @param delimiter the delimiter to look for
+     * @param position the initial position to start the scan with
+     */
+    private static boolean startsWith( String toParse, String delimiter, int position )
+    {
+        if ( delimiter.length() == 1 )
+        {
+            return toParse.length() > position && toParse.charAt( position ) == delimiter.charAt( 0 );
+        }
+        else
+        {
+            return toParse.startsWith( delimiter, position );
+        }
     }
     
     /**
