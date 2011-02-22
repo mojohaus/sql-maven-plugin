@@ -21,6 +21,8 @@ package org.codehaus.mojo.sql;
 
 import junit.framework.TestCase;
 
+import java.util.logging.Logger;
+
 public class SqlSplitterTest extends TestCase 
 {
 
@@ -57,6 +59,70 @@ public class SqlSplitterTest extends TestCase
 
     }
 
+    /**
+     * This unit test is meant for checking the performance with a profiler
+     */
+    public void testSplitterPerformance() throws Exception
+    {
+        long startTime = System.nanoTime();
+        for ( int i = 0; i < 10000; i ++)
+        {
+            contains( "INSERT INTO testTable (thevalue1, thevalue2, anothervalue3, justmore, andevenmore) "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "/*it might also contain lots of other really loooooong and useless comments...*/ "
+                      + "VALUES ('value !', 'else', 'more', 'hopefulyfast');"
+                    , 3860 );
+        }
+
+        long duration = System.nanoTime() - startTime;
+        Logger log = Logger.getLogger( SqlSplitterTest.class.getName() );
+        log.info( "SqlPlitterTest performance took [ns]: " + duration );
+    }
+
     public void testMsSQLStrings() throws Exception
     {
         String del = "GO";
@@ -79,7 +145,7 @@ public class SqlSplitterTest extends TestCase
 
     private void contains( String sql, String delimiter, int expectedIndex ) throws Exception
     {
-        assertEquals( sql, SqlSplitter.containsSqlEnd( sql, delimiter ), expectedIndex);
+        assertEquals( sql, expectedIndex, SqlSplitter.containsSqlEnd( sql, delimiter ));
     }
 
     private void containsNot( String sql, String delimiter ) throws Exception
