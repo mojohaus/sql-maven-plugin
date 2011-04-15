@@ -396,7 +396,7 @@ public class SqlExecMojo
     /**
      * Set to true if you want to filter the srcFiles using system-, user- and project properties
      * 
-     * @parameter
+     * @parameter expression="${enableFiltering}" default-value="false"
      * @since 1.4
      */
     private boolean enableFiltering;
