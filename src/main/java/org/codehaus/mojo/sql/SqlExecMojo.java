@@ -103,6 +103,7 @@ public class SqlExecMojo
     /**
      * Database username.  If not given, it will be looked up through
      * <code>settings.xml</code>'s server with <code>${settingsKey}</code> as key.
+     *
      * @since 1.0
      * @parameter expression="${username}"
      */
@@ -111,6 +112,7 @@ public class SqlExecMojo
     /**
      * Database password. If not given, it will be looked up through <code>settings.xml</code>'s
      * server with <code>${settingsKey}</code> as key.
+     *
      * @since 1.0
      * @parameter expression="${password}"
      */
@@ -120,6 +122,7 @@ public class SqlExecMojo
       * Ignore the password and use anonymous access.
       * This may be useful for databases like MySQL which do not allow empty
       * password parameters in the connection initialization.
+      *
       * @since 1.4
       * @parameter default-value="false"
       */
@@ -127,6 +130,7 @@ public class SqlExecMojo
     
     /**
      * Additional key=value pairs separated by comma to be passed into JDBC driver.
+     *
      * @since 1.0
      * @parameter expression="${driverProperties}" default-value = ""
      */
@@ -143,6 +147,7 @@ public class SqlExecMojo
     /**
      * Server's <code>id</code> in <code>settings.xml</code> to look up username and password.
      * Defaults to <code>${url}</code> if not given.
+     *
      * @since 1.0
      * @parameter expression="${settingsKey}"
      */
@@ -161,6 +166,7 @@ public class SqlExecMojo
      * Skip execution when there is an error obtaining a connection.
      * This is a special case to support databases, such as embedded Derby,
      * that can shutdown the database via the URL (i.e. <code>shutdown=true</code>).
+     *
      * @since 1.1
      * @parameter expression="${skipOnConnectionError}" default-value="false"
      */
@@ -196,6 +202,7 @@ public class SqlExecMojo
 
     /**
      * SQL input commands separated by <code>${delimiter}</code>.
+     *
      * @since 1.0
      * @parameter expression="${sqlCommand}" default-value=""
      */
@@ -223,6 +230,7 @@ public class SqlExecMojo
 
     /**
      * When <code>true</code>, skip the execution.
+     *
      * @since 1.0
      * @parameter default-value="false"
      */
@@ -231,6 +239,7 @@ public class SqlExecMojo
     ////////////////////////////////// Database info /////////////////////////
     /**
      * Database URL.
+     *
      * @parameter expression="${url}"
      * @required
      * @since 1.0-beta-1
@@ -239,6 +248,7 @@ public class SqlExecMojo
 
     /**
      * Database driver classname.
+     *
      * @since 1.0
      * @parameter expression="${driver}"
      * @required
@@ -248,6 +258,7 @@ public class SqlExecMojo
     ////////////////////////////// Operation Configuration ////////////////////
     /**
      * Set to <code>true</code> to execute none-transactional SQL.
+     *
      * @since 1.0
      * @parameter expression="${autocommit}" default-value="false"
      */
@@ -256,6 +267,7 @@ public class SqlExecMojo
     /**
      * Action to perform if an error is found.
      * Possible values are <code>abort</code> and <code>continue</code>.
+     *
      * @since 1.0
      * @parameter expression="${onError}" default-value="abort"
      */
@@ -278,6 +290,7 @@ public class SqlExecMojo
      * delimiter is recognized as the end of the command.</p>
      * <p>For example, set this to "go" and delimiterType to "row" for
      * Sybase ASE or MS SQL Server.</p>
+     *
      * @since 1.2
      * @parameter expression="${delimiterType}" default-value="normal"
      */
@@ -298,6 +311,7 @@ public class SqlExecMojo
      * When <code>true</code>, the whole SQL content in <code>sqlCommand</code>, <code>srcFiles</code> and
      * <code>fileset</code> are sent directly to JDBC in one SQL statement. This option
      * is for executing database stored procedures/functions.
+     *
      * @deprecated Use {@link #delimiterType} instead.
      * @since 1.1
      * @parameter expression="${enableBlockMode}"
@@ -306,6 +320,7 @@ public class SqlExecMojo
 
     /**
      * Keep the format of an SQL block.
+     *
      * @since 1.1
      * @parameter expression="${keepFormat}" default-value="false"
      */
@@ -314,7 +329,7 @@ public class SqlExecMojo
     ///////////////////////////////////////////////////////////////////////////////////////
     /**
      * Print SQL results.
-     * @parameter 
+     *
      * @since 1.3
      */
     private boolean printResultSet = false;
@@ -325,7 +340,9 @@ public class SqlExecMojo
     private boolean showheaders = true;
 
     /**
-     * Dump the SQL exection's output to a file.  Default is stdout.
+     * Dump the SQL execution's output to a file.<br />
+     * <strong>Default value is</strong>: <code>System.out</code>.
+     *
      * @parameter 
      * @since 1.3
      */
@@ -333,6 +350,9 @@ public class SqlExecMojo
 
 
     /**
+     * The delimiter used to separate fields in the output when using
+     * <code>printResultSet</code>.
+     *
      * @parameter default-value=","
      * @since 1.4
      */
@@ -341,6 +361,7 @@ public class SqlExecMojo
     
     /**
      * Encoding to use when reading SQL statements from a file.
+     *
      * @parameter expression="${encoding}" default-value="${project.build.sourceEncoding}"
      * @since 1.1
      */
