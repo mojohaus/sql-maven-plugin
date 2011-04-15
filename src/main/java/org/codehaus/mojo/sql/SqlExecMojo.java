@@ -298,11 +298,10 @@ public class SqlExecMojo
      * When <code>true</code>, the whole SQL content in <code>sqlCommand</code>, <code>srcFiles</code> and
      * <code>fileset</code> are sent directly to JDBC in one SQL statement. This option
      * is for executing database stored procedures/functions.
-     * @deprecated used <i>delimiterType<i> instead.
+     * @deprecated Use {@link #delimiterType} instead.
      * @since 1.1
      * @parameter expression="${enableBlockMode}"
      */
-
     private boolean enableBlockMode = false;
 
     /**
@@ -342,7 +341,7 @@ public class SqlExecMojo
     
     /**
      * Encoding to use when reading SQL statements from a file.
-     * @parameter expression="${encoding}" default-value= "${project.build.sourceEncoding}"
+     * @parameter expression="${encoding}" default-value="${project.build.sourceEncoding}"
      * @since 1.1
      */
     private String encoding = "";
@@ -464,7 +463,7 @@ public class SqlExecMojo
      * optional, default false
      * 
      * @param print <code>true</code> to print the resultset, otherwise <code>false</code>
-     * @deprecated typo, use setPrintResultSet()
+     * @deprecated Typo, {@link #setPrintResultSet(boolean)} instead.
      */
     public void setPrintResutlSet( boolean print )
     {
@@ -1359,7 +1358,7 @@ public class SqlExecMojo
     }
 
     /**
-     * @deprecated use {@link #getSuccessfulStatements()}
+     * @deprecated Use {@link #getSuccessfulStatements()} instead.
      */
     int getGoodSqls()
     {
