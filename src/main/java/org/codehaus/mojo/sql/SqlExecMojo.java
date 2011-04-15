@@ -324,15 +324,16 @@ public class SqlExecMojo
      * @since 1.1
      * @parameter expression="${keepFormat}" default-value="false"
      */
-    private boolean keepFormat = false;
+    private boolean keepFormat;
 
     ///////////////////////////////////////////////////////////////////////////////////////
     /**
      * Print SQL results.
      *
+     * @parameter expression="${printResultSet}" default-value="false"
      * @since 1.3
      */
-    private boolean printResultSet = false;
+    private boolean printResultSet;
 
     /**
      * Print header columns.
