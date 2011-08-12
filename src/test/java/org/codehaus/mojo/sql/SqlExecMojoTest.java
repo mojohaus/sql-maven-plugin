@@ -14,11 +14,7 @@ package org.codehaus.mojo.sql;
  * the License.
  */
 
-import junit.framework.TestCase;
-
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -503,7 +499,7 @@ public class SqlExecMojoTest
         File outputFile = new File( basedir, "target/sql.out" );
         outputFile.delete();
         mojo.setOutputFile( outputFile );
-        mojo.setPrintResutlSet( true );
+        mojo.setPrintResultSet( true );
 
         mojo.execute();
         
