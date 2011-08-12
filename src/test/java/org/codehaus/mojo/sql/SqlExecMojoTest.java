@@ -511,4 +511,18 @@ public class SqlExecMojoTest
         //assertTrue( outputFile.delete() );
         
     }
+    
+    // MSQL-44
+    public void testAnonymousBlock()
+        throws MojoExecutionException
+    {
+        String command =
+            "--/ Anonymous SQL Block\n"
+                + "create table ANONBLOCKTABLE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)\n" + "/\n"
+                + "drop table ANONBLOCKTABLE";
+        mojo.setDelimiter( "/" );
+        mojo.addText( command );
+        mojo.execute();
+        assertEquals( 2, mojo.getSuccessfulStatements() );
+    }
 }
