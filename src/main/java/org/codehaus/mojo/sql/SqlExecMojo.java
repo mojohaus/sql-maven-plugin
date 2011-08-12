@@ -64,6 +64,7 @@ import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 /**
  * Executes SQL against a database.
  * @goal execute
+ * @threadSafe
  */
 public class SqlExecMojo
     extends AbstractMojo
