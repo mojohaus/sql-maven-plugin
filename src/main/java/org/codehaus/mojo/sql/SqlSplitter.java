@@ -27,19 +27,19 @@ import org.codehaus.plexus.util.StringUtils;
 public class SqlSplitter 
 {
     /**
-     * Value indicating the sql has no end-delimiter like i.e. semicolon
+     * Value indicating the sql has no end-delimiter like i.e. the semicolon.
      */
     public static final  int NO_END = -1; 
     
     /**
-     * Check if the given sql line contains an end of command ';'
+     * Check if the given sql line contains a delimiter representing the end of the command.
      * Please note that we do <em>not</em> fully parse the SQL, 
      * so if we get a malformed statement, we cannot detect it.
      * 
      * @param line to parse
      * @param delimiter which should be used to split SQL commands
      * @return position after the end character if the given line contains the end of a SQL script, 
-     *         {@value SqlSplitter#NO_END} } if it doesn't contain an end char.
+     *         {@link SqlSplitter#NO_END} if it doesn't contain an end char.
      */
     public static int containsSqlEnd( String line, String delimiter )
     {
@@ -153,7 +153,8 @@ public class SqlSplitter
     }
 
     /**
-     * small performance optimized replacement for {@link String#startsWith(String, int)}
+     * Small performance optimized replacement for {@link String#startsWith(String, int)}.
+     * 
      * @param toParse the String to parse
      * @param delimiter the delimiter to look for
      * @param position the initial position to start the scan with
