@@ -21,6 +21,8 @@ package org.codehaus.mojo.sql;
 
 import junit.framework.TestCase;
 
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.util.logging.Logger;
 
 public class SqlSplitterTest extends TestCase 
@@ -130,6 +132,32 @@ public class SqlSplitterTest extends TestCase
         containsNot( "SELECT COUNT(*) FROM Logs", del );
         containsNot( "SELECT * FROM TPersons", del );
         contains( "GO", del, 2 ); 
+    }
+    
+    // MSQL-48
+    public void testSQLContainingRegExp() throws Exception
+    {
+        String sql = "EXECUTE IMMEDIATE 'PROCEDURE my_sproc(' ||\r\n" + 
+        		"'    ...' ||\r\n" + 
+        		"'    ...' ||\r\n" + 
+        		"'  ...REGEXP_INSTR(v_foo, '''^[A-Za-z0-9]{2}[0-9]{3,4}$''') ...' ||\r\n" + 
+        		"'...' ||\r\n" + 
+        		"'EXCEPTION' ||\r\n" + 
+        		"'WHEN OTHERS THEN' ||\r\n" + 
+        		"'  DBMS_OUTPUT.put_line (''Error stack at top level:'');' ||\r\n" + 
+        		"'  putline (DBMS_UTILITY.format_error_backtrace);' ||\r\n" + 
+        		"'  bt.show_info (DBMS_UTILITY.format_error_backtrace);' ||\r\n" + 
+        		"'END my_sproc;'";
+        BufferedReader in = new BufferedReader( new StringReader( sql ) );
+        
+        //Only checking if this complex statement can be parsed
+        String line;
+        int lineNr = 0;
+        for( ;(line = in.readLine() ) != null ; lineNr++ )
+        {
+            SqlSplitter.containsSqlEnd( line, ";" ); 
+        }
+        assertEquals( "Not every line is parsed", 11, lineNr );
     }
     
     
