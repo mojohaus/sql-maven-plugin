@@ -1468,12 +1468,12 @@ public class SqlExecMojo
         this.sqlCommand = sqlCommand;
     }
     
-    public List getTransactions()
+    public List /* <Transaction> */getTransactions()
     {
         return transactions;
     }
 
-    public void setTransactions( Vector transactions )
+    public void setTransactions( List /* <Transaction> */transactions )
     {
         this.transactions = transactions;
     }

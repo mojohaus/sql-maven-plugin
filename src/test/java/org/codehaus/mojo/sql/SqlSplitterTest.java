@@ -207,6 +207,10 @@ public class SqlSplitterTest extends TestCase
                       , SqlSplitter.containsSqlEnd( "INSERT INTO topics VALUES( 'did you know: ", ";", SqlSplitter.NO_END ) );
         assertEquals( 33
                       , SqlSplitter.containsSqlEnd( "javadoc always starts with /**');", ";", SqlSplitter.OVERFLOW_SINGLE_QUOTE ) );
+        
+        //bare minimums
+        assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( "'", ";", SqlSplitter.OVERFLOW_SINGLE_QUOTE ) );
+        assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( "\"", ";", SqlSplitter.OVERFLOW_DOUBLE_QUOTE ) );
     }
     
     public void testAlphaDelimiter() throws Exception

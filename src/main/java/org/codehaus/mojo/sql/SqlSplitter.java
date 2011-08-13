@@ -24,7 +24,7 @@ import org.codehaus.plexus.util.StringUtils;
 /**
  * Utility class to split a long sql batch script into single SQL commands.
  */
-public class SqlSplitter 
+public final class SqlSplitter 
 {
     private SqlSplitter()
     {
@@ -66,7 +66,7 @@ public class SqlSplitter
      *         will be returned if a single quote didn't get closed, {@link SqlSplitter#OVERFLOW_DOUBLE_QUOTE} likewise
      *         for not closed double quotes.
      */
-    public static int containsSqlEnd( String line, String delimiter, int overflowValue )
+    public static int containsSqlEnd( String line, String delimiter, final int overflowValue )
     {
         int ret = overflowValue >= 0 ? NO_END : overflowValue;
 
@@ -137,13 +137,19 @@ public class SqlSplitter
             
             if (  quoteChar != null || c1 == '\'' || c1 == '\"' )
             {
-                if ( quoteChar == null )
+                if ( quoteChar == null ) // start quoted block
                 {
                     quoteChar = String.valueOf( c1 );
+                    ret = quoteChar.equals( "'" ) ? OVERFLOW_SINGLE_QUOTE : OVERFLOW_DOUBLE_QUOTE;
                 }
+                else if ( c1 == '\'' || c1 == '\"' ) // end quoted block
+                {
+                    ret = NO_END;
+                }
+                // else stay in quoted block
+                
                 String quoteEscape = "\\" + quoteChar;
                 String doubleQuote = quoteChar + quoteChar;
-                ret = quoteChar.equals( "'" ) ?  OVERFLOW_SINGLE_QUOTE : OVERFLOW_DOUBLE_QUOTE;
                 pos++;
                 
                 if ( line.length() <= pos )
