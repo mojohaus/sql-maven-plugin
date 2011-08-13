@@ -53,7 +53,7 @@ public class SqlSplitter
      * 
      * @param line to parse
      * @param delimiter which should be used to split SQL commands
-     * @param escapeOverflow 0=none, {@link SqlSplitter#OVERFLOW_COMMENT},
+     * @param overflowValue 0=none, {@link SqlSplitter#OVERFLOW_COMMENT},
      *        {@link SqlSplitter#OVERFLOW_SINGLE_QUOTE} or
      *        {@link SqlSplitter#OVERFLOW_DOUBLE_QUOTE}
      * @return position after the end character if the given line contains the end of a SQL script, 
@@ -61,18 +61,19 @@ public class SqlSplitter
      *         will be returned if a single quote didn't get closed, {@link SqlSplitter#OVERFLOW_DOUBLE_QUOTE} likewise
      *         for not closed double quotes.
      */
-    public static int containsSqlEnd( String line, String delimiter, int escapeOverflow )
+    public static int containsSqlEnd( String line, String delimiter, int overflowValue )
     {
+        int ret = overflowValue >= 0 ? NO_END : overflowValue;
+
         // / * * / comments
-        boolean isComment = (escapeOverflow * -1 & OVERFLOW_COMMENT *-1) != 0;
-        int ret = escapeOverflow >= 0 ? NO_END : escapeOverflow;
+        boolean isComment = ( overflowValue == OVERFLOW_COMMENT );
 
         String quoteChar = null;
-        if ( (escapeOverflow * -1 & OVERFLOW_SINGLE_QUOTE *-1) != 0 )
+        if ( overflowValue == OVERFLOW_SINGLE_QUOTE )
         {
             quoteChar = "'";
         }
-        else if ( (escapeOverflow * -1 & OVERFLOW_DOUBLE_QUOTE *-1) != 0 )
+        else if ( overflowValue == OVERFLOW_DOUBLE_QUOTE  )
         {
             quoteChar = "\"";
         }
