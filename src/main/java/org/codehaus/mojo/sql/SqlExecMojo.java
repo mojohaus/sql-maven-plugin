@@ -963,7 +963,7 @@ public class SqlExecMojo
 
         BufferedReader in = new BufferedReader( reader );
 
-        int overflow = SqlSplitter.OVERFLOW_NONE;
+        int overflow = SqlSplitter.NO_END;
 
         while ( ( line = in.readLine() ) != null )
         {
@@ -1017,7 +1017,7 @@ public class SqlExecMojo
             {
                 execSQL( sql.substring( 0, sql.length() - delimiter.length() ), out );
                 sql.setLength( 0 ); // clean buffer
-                overflow = SqlSplitter.OVERFLOW_NONE;
+                overflow = SqlSplitter.NO_END;
             }
         }
 

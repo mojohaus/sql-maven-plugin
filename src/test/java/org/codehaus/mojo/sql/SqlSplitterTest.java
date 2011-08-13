@@ -60,6 +60,8 @@ public class SqlSplitterTest extends TestCase
         contains( "INSERT INTO testTable (thevalue) VALUES (' text '' other ');", 60 );
 
     }
+    
+    
 
     /**
      * This unit test is meant for checking the performance with a profiler
@@ -155,7 +157,7 @@ public class SqlSplitterTest extends TestCase
         int lineNr = 0;
         for( ;(line = in.readLine() ) != null ; lineNr++ )
         {
-            SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.OVERFLOW_NONE );
+            SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.NO_END );
         }
         assertEquals( "Not every line is parsed", 11, lineNr );
     }
@@ -163,15 +165,15 @@ public class SqlSplitterTest extends TestCase
     public void testOverflows()
     {
         assertEquals( SqlSplitter.OVERFLOW_SINGLE_QUOTE
-                    , SqlSplitter.containsSqlEnd( "test 'with an open singlequote statics;", ";", SqlSplitter.OVERFLOW_NONE ) );
+                    , SqlSplitter.containsSqlEnd( "test 'with an open singlequote statics;", ";", SqlSplitter.NO_END ) );
         assertEquals( SqlSplitter.OVERFLOW_SINGLE_QUOTE
-                    , SqlSplitter.containsSqlEnd( "test 'with an open singlequote statics;lalala", ";", SqlSplitter.OVERFLOW_NONE ) );
+                    , SqlSplitter.containsSqlEnd( "test 'with an open singlequote statics;lalala", ";", SqlSplitter.NO_END ) );
 
 
         assertEquals( SqlSplitter.OVERFLOW_DOUBLE_QUOTE
-                    , SqlSplitter.containsSqlEnd( "test \"with an open doublequote statics;", ";", SqlSplitter.OVERFLOW_NONE ) );
+                    , SqlSplitter.containsSqlEnd( "test \"with an open doublequote statics;", ";", SqlSplitter.NO_END ) );
         assertEquals( SqlSplitter.OVERFLOW_DOUBLE_QUOTE
-                    , SqlSplitter.containsSqlEnd( "test \"with an open doublequote statics;lalala", ";", SqlSplitter.OVERFLOW_NONE ) );
+                    , SqlSplitter.containsSqlEnd( "test \"with an open doublequote statics;lalala", ";", SqlSplitter.NO_END ) );
 
         assertEquals( 39
                     , SqlSplitter.containsSqlEnd( "test \"with an open doublequote statics;", ";"
@@ -193,7 +195,7 @@ public class SqlSplitterTest extends TestCase
 
 
         assertEquals( SqlSplitter.OVERFLOW_COMMENT
-                    , SqlSplitter.containsSqlEnd( "test /* comment;", ";", SqlSplitter.OVERFLOW_NONE) );
+                    , SqlSplitter.containsSqlEnd( "test /* comment;", ";", SqlSplitter.NO_END) );
         assertEquals( SqlSplitter.OVERFLOW_COMMENT
                     , SqlSplitter.containsSqlEnd( "comment; continued", ";", SqlSplitter.OVERFLOW_COMMENT ) );
         assertEquals( 16
@@ -202,17 +204,17 @@ public class SqlSplitterTest extends TestCase
         
         // test value divided over 2 lines, second line hits a comment first
         assertEquals( SqlSplitter.OVERFLOW_SINGLE_QUOTE
-                      , SqlSplitter.containsSqlEnd( "INSERT INTO topics VALUES( 'did you know: ", ";", SqlSplitter.OVERFLOW_NONE ) );
+                      , SqlSplitter.containsSqlEnd( "INSERT INTO topics VALUES( 'did you know: ", ";", SqlSplitter.NO_END ) );
         assertEquals( 33
                       , SqlSplitter.containsSqlEnd( "javadoc always starts with /**');", ";", SqlSplitter.OVERFLOW_SINGLE_QUOTE ) );
     }
     
     public void testAlphaDelimiter() throws Exception
     {
-        assertEquals( 2, SqlSplitter.containsSqlEnd( "go", "go", SqlSplitter.OVERFLOW_NONE ) );
-        assertEquals( 2, SqlSplitter.containsSqlEnd( "Go", "Go", SqlSplitter.OVERFLOW_NONE ) );
-        assertEquals( 5, SqlSplitter.containsSqlEnd( "   GO", "GO", SqlSplitter.OVERFLOW_NONE ) );
-        assertEquals( 2, SqlSplitter.containsSqlEnd( "GO   ", "GO", SqlSplitter.OVERFLOW_NONE ) );
+        assertEquals( 2, SqlSplitter.containsSqlEnd( "go", "go", SqlSplitter.NO_END ) );
+        assertEquals( 2, SqlSplitter.containsSqlEnd( "Go", "Go", SqlSplitter.NO_END ) );
+        assertEquals( 5, SqlSplitter.containsSqlEnd( "   GO", "GO", SqlSplitter.NO_END ) );
+        assertEquals( 2, SqlSplitter.containsSqlEnd( "GO   ", "GO", SqlSplitter.NO_END ) );
     }
 
     /**
@@ -234,19 +236,19 @@ public class SqlSplitterTest extends TestCase
         String line;
 
         line = in.readLine();
-        assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.OVERFLOW_NONE ) );
+        assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.NO_END ) );
 
         line = in.readLine();
-        assertEquals( SqlSplitter.OVERFLOW_SINGLE_QUOTE, SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.OVERFLOW_NONE ) );
+        assertEquals( SqlSplitter.OVERFLOW_SINGLE_QUOTE, SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.NO_END ) );
 
         line = in.readLine();
         assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.OVERFLOW_SINGLE_QUOTE ) );
 
         line = in.readLine();
-        assertEquals( 35, SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.OVERFLOW_NONE ) );
+        assertEquals( 35, SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.NO_END ) );
 
         line = in.readLine();
-        assertEquals( 16, SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.OVERFLOW_NONE ) );
+        assertEquals( 16, SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.NO_END ) );
     }
     
     
@@ -262,11 +264,11 @@ public class SqlSplitterTest extends TestCase
 
     private void contains( String sql, String delimiter, int expectedIndex ) throws Exception
     {
-        assertEquals( sql, expectedIndex, SqlSplitter.containsSqlEnd( sql, delimiter, SqlSplitter.OVERFLOW_NONE ));
+        assertEquals( sql, expectedIndex, SqlSplitter.containsSqlEnd( sql, delimiter, SqlSplitter.NO_END ));
     }
 
     private void containsNot( String sql, String delimiter ) throws Exception
     {
-        assertTrue( sql, SqlSplitter.containsSqlEnd( sql, delimiter, SqlSplitter.OVERFLOW_NONE ) == SqlSplitter.NO_END);
+        assertTrue( sql, SqlSplitter.containsSqlEnd( sql, delimiter, SqlSplitter.NO_END ) == SqlSplitter.NO_END);
     }
 }

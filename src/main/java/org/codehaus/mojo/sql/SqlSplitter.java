@@ -37,11 +37,6 @@ public class SqlSplitter
     public static final int NO_END = -1;
     
     /**
-     * parsed sql did not overflow (yet)
-     */
-    public static final int OVERFLOW_NONE = 0; 
-
-    /**
      * parsed sql started a single quote static text which continues on the next line (did not end)
      */
     public static final int OVERFLOW_SINGLE_QUOTE = -2;
