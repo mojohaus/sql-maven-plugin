@@ -150,14 +150,8 @@ public final class SqlSplitter
                 
                 String quoteEscape = "\\" + quoteChar;
                 String doubleQuote = quoteChar + quoteChar;
-                pos++;
                 
-                if ( line.length() <= pos )
-                {
-                    return ret;
-                }
-                
-                do 
+                while ( !startsWith( line, quoteChar, ++pos ) )
                 {
                     if ( startsWith( line, quoteEscape, pos ) || startsWith( line, doubleQuote, pos ) )
                     {
@@ -167,7 +161,7 @@ public final class SqlSplitter
                     {
                         return ret;
                     }
-                } while ( !startsWith( line, quoteChar, pos++ ) );
+                }
 
                 ret = NO_END;
                 quoteChar = null;
