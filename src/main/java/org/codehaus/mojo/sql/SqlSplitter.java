@@ -26,6 +26,11 @@ import org.codehaus.plexus.util.StringUtils;
  */
 public class SqlSplitter 
 {
+    private SqlSplitter()
+    {
+        // hide utility class constructor
+    }
+    
     /**
      * Value indicating the sql has no end-delimiter like i.e. the semicolon.
      */

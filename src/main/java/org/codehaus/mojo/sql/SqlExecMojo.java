@@ -38,7 +38,8 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Collections;
-import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -53,8 +54,6 @@ import org.apache.maven.settings.Settings;
 import org.apache.maven.shared.filtering.MavenFileFilter;
 import org.apache.maven.shared.filtering.MavenFileFilterRequest;
 import org.apache.maven.shared.filtering.MavenFilteringException;
-import org.codehaus.plexus.interpolation.Interpolator;
-import org.codehaus.plexus.interpolation.RegexBasedInterpolator;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
@@ -190,7 +189,7 @@ public class SqlExecMojo
      * @required
      * @readonly
      */
-    protected MavenProject project;
+    private MavenProject project;
     
     /**
      * @parameter default-value="${session}"
@@ -408,7 +407,7 @@ public class SqlExecMojo
     /**
      * SQL transactions to perform
      */
-    private Vector transactions = new Vector();
+    private List transactions = new Vector();
 
     /**
      * @component role="org.apache.maven.shared.filtering.MavenFileFilter"
@@ -425,18 +424,13 @@ public class SqlExecMojo
     private boolean enableFiltering;
     
     /**
-     * Interpolator especially for braceless expressions  
-     */
-    private Interpolator interpolator = new RegexBasedInterpolator( "\\$([^\\s;)]+?)", "(?=[\\s;)])" );
-    
-    /**
      * Add a SQL transaction to execute
      * @return a new SqlExecMojo.Transaction
      */
     public Transaction createTransaction()
     {
         Transaction t = new Transaction();
-        transactions.addElement( t );
+        transactions.add( t );
         return t;
     }
 
@@ -646,9 +640,9 @@ public class SqlExecMojo
                 }
 
                 // Process all transactions
-                for ( Enumeration e = transactions.elements(); e.hasMoreElements(); )
+                for ( Iterator e = transactions.iterator(); e.hasNext(); )
                 {
-                    Transaction t = (Transaction) e.nextElement();
+                    Transaction t = (Transaction) e.next();
 
                     t.runTransaction( out );
 
@@ -834,18 +828,15 @@ public class SqlExecMojo
                     setUsername( server.getUsername() );
                 }
 
-                if ( getPassword() == null )
+                if ( getPassword() == null && server.getPassword() != null )
                 {
-                    if ( server.getPassword() != null )
+                    try
                     {
-                      try
-                      {
                         setPassword( securityDispatcher.decrypt( server.getPassword() ) );
-                      }
-                      catch ( SecDispatcherException e )
-                      {
+                    }
+                    catch ( SecDispatcherException e )
+                    {
                         throw new MojoExecutionException( e.getMessage() );
-                      }  
                     }
                 }
             }
@@ -906,16 +897,16 @@ public class SqlExecMojo
             throw new MojoExecutionException( "Failure loading driver: " + getDriver(), e );
         }
 
-        Connection conn = driverInstance.connect( getUrl(), info );
+        Connection connection = driverInstance.connect( getUrl(), info );
 
-        if ( conn == null )
+        if ( connection == null )
         {
             // Driver doesn't understand the URL
             throw new SQLException( "No suitable Driver for " + getUrl() );
         }
 
-        conn.setAutoCommit( autocommit );
-        return conn;
+        connection.setAutoCommit( autocommit );
+        return connection;
     }
 
     /**
@@ -1014,12 +1005,9 @@ public class SqlExecMojo
             // SQL defines "--" as a comment to EOL
             // and in Oracle it may contain a hint
             // so we cannot just remove it, instead we must end it
-            if ( !keepFormat )
+            if ( !keepFormat && SqlSplitter.containsSqlEnd( line, delimiter, overflow ) == SqlSplitter.NO_END )
             {
-                if ( SqlSplitter.containsSqlEnd( line, delimiter, overflow ) == SqlSplitter.NO_END )
-                {
-                    sql.append( "\n" );
-                }
+                sql.append( "\n" );
             }
 
             overflow = SqlSplitter.containsSqlEnd( line, delimiter, overflow );
@@ -1034,7 +1022,7 @@ public class SqlExecMojo
         }
 
         // Catch any statements not followed by ;
-        if ( !sql.toString().equals( "" ) )
+        if ( sql.length() > 0 )
         {
             execSQL( sql.toString(), out );
         }
@@ -1480,7 +1468,7 @@ public class SqlExecMojo
         this.sqlCommand = sqlCommand;
     }
     
-    public Vector getTransactions()
+    public List getTransactions()
     {
         return transactions;
     }
