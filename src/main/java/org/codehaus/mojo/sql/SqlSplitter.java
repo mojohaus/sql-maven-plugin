@@ -29,8 +29,23 @@ public class SqlSplitter
     /**
      * Value indicating the sql has no end-delimiter like i.e. the semicolon.
      */
-    public static final  int NO_END = -1; 
-    
+    public static final int NO_END = -1;
+
+    /**
+     * parsed sql started a single quote static text which continues on the next line (did not end)
+     */
+    public static final int OVERFLOW_SINGLE_QUOTE = -2;
+
+    /**
+     * parsed sql started a double quote static text which continues on the next line (did not end)
+     */
+    public static final int OVERFLOW_DOUBLE_QUOTE = -4;
+
+    /**
+     * parsed sql started a comment with /_* which continues on the next line (did not end)
+     */
+    public static final int OVERFLOW_COMMENT = -8;
+
     /**
      * Check if the given sql line contains a delimiter representing the end of the command.
      * Please note that we do <em>not</em> fully parse the SQL, 
@@ -38,19 +53,36 @@ public class SqlSplitter
      * 
      * @param line to parse
      * @param delimiter which should be used to split SQL commands
+     * @param escapeOverflow 0=none, {@link SqlSplitter#OVERFLOW_COMMENT},
+     *        {@link SqlSplitter#OVERFLOW_SINGLE_QUOTE} or
+     *        {@link SqlSplitter#OVERFLOW_DOUBLE_QUOTE}
      * @return position after the end character if the given line contains the end of a SQL script, 
-     *         {@link SqlSplitter#NO_END} if it doesn't contain an end char.
+     *         {@link SqlSplitter#NO_END} if it doesn't contain an end char. {@link SqlSplitter#OVERFLOW_SINGLE_QUOTE}
+     *         will be returned if a single quote didn't get closed, {@link SqlSplitter#OVERFLOW_DOUBLE_QUOTE} likewise
+     *         for not closed double quotes.
      */
-    public static int containsSqlEnd( String line, String delimiter )
+    public static int containsSqlEnd( String line, String delimiter, int escapeOverflow )
     {
         // / * * / comments
-        boolean isComment = false;
-        
+        boolean isComment = (escapeOverflow * -1 & OVERFLOW_COMMENT *-1) != 0;
+        int ret = escapeOverflow >= 0 ? NO_END : escapeOverflow;
+
+        String quoteChar = null;
+        if ( (escapeOverflow * -1 & OVERFLOW_SINGLE_QUOTE *-1) != 0 )
+        {
+            quoteChar = "'";
+        }
+        else if ( (escapeOverflow * -1 & OVERFLOW_DOUBLE_QUOTE *-1) != 0 )
+        {
+            quoteChar = "\"";
+        }
+
+
         boolean isAlphaDelimiter = StringUtils.isAlpha( delimiter );
         
         if ( line == null || line.length() == 0 )
         {
-            return NO_END;
+            return ret;
         }
         
         int pos = 0;
@@ -75,10 +107,11 @@ public class SqlSplitter
 
             if ( isComment )
             {
-                // parse for a * / start of comment
+                // parse for a *_/ end of comment
                 if ( c1 == '*' && c2 == '/' )
                 {
                     isComment = false;
+                    ret = NO_END;
                 }
                 else
                 {
@@ -87,43 +120,51 @@ public class SqlSplitter
                 }
             }
 
-            // parse for a / * end of comment
+            // parse for a / * start of comment
             if ( c1 == '/' && c2 == '*' )
             {
                 isComment = true;
                 pos += 2;
+                ret = OVERFLOW_COMMENT;
                 continue;
             }
             
-            if ( c1 == '-' && c2 == '-' )
+            if (  quoteChar != null || c1 == '\'' || c1 == '\"' )
             {
-                return NO_END;
-            }
-            
-            if (  c1 == '\'' || c2 == '\"' )
-            {
-                String quoteChar = String.valueOf( c1 );
+                if ( quoteChar == null )
+                {
+                    quoteChar = String.valueOf( c1 );
+                }
                 String quoteEscape = "\\" + quoteChar;
+                String doubleQuote = quoteChar + quoteChar;
+                ret = quoteChar.equals( "'" ) ?  OVERFLOW_SINGLE_QUOTE : OVERFLOW_DOUBLE_QUOTE;
                 pos++;
                 
                 if ( line.length() <= pos )
                 {
-                    return NO_END;
+                    return ret;
                 }
                 
                 do 
                 {
-                    if ( startsWith( line, quoteEscape, pos ) )
+                    if ( startsWith( line, quoteEscape, pos ) || startsWith( line, doubleQuote, pos ) )
                     {
                         pos += 2;
                     }
-                    if ( pos >= maxpos )
+                    if ( pos > maxpos )
                     {
-                        return maxpos + 1;
+                        return ret;
                     }
                 } while ( !startsWith( line, quoteChar, pos++ ) );
-                
+
+                ret = NO_END;
+                quoteChar = null;
                 continue;
+            }
+
+            if ( c1 == '-' && c2 == '-' )
+            {
+                return ret;
             }
 
             if ( startsWith( line, delimiter, pos ) )
@@ -149,7 +190,7 @@ public class SqlSplitter
             
         } while ( line.length() >= pos );
             
-        return NO_END;
+        return ret;
     }
 
     /**

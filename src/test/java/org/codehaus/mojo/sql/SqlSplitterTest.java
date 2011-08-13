@@ -138,16 +138,16 @@ public class SqlSplitterTest extends TestCase
     public void testSQLContainingRegExp() throws Exception
     {
         String sql = "EXECUTE IMMEDIATE 'PROCEDURE my_sproc(' ||\r\n" + 
-        		"'    ...' ||\r\n" + 
-        		"'    ...' ||\r\n" + 
-        		"'  ...REGEXP_INSTR(v_foo, '''^[A-Za-z0-9]{2}[0-9]{3,4}$''') ...' ||\r\n" + 
-        		"'...' ||\r\n" + 
-        		"'EXCEPTION' ||\r\n" + 
-        		"'WHEN OTHERS THEN' ||\r\n" + 
-        		"'  DBMS_OUTPUT.put_line (''Error stack at top level:'');' ||\r\n" + 
-        		"'  putline (DBMS_UTILITY.format_error_backtrace);' ||\r\n" + 
-        		"'  bt.show_info (DBMS_UTILITY.format_error_backtrace);' ||\r\n" + 
-        		"'END my_sproc;'";
+                     "'    ...' ||\r\n" +
+                     "'    ...' ||\r\n" +
+                     "'  ...REGEXP_INSTR(v_foo, '''^[A-Za-z0-9]{2}[0-9]{3,4}$''') ...' ||\r\n" +
+                     "'...' ||\r\n" +
+                     "'EXCEPTION' ||\r\n" +
+                     "'WHEN OTHERS THEN' ||\r\n" +
+                     "'  DBMS_OUTPUT.put_line (''Error stack at top level:'');' ||\r\n" +
+                     "'  putline (DBMS_UTILITY.format_error_backtrace);' ||\r\n" +
+                     "'  bt.show_info (DBMS_UTILITY.format_error_backtrace);' ||\r\n" +
+                     "'END my_sproc;'";
         BufferedReader in = new BufferedReader( new StringReader( sql ) );
         
         //Only checking if this complex statement can be parsed
@@ -155,9 +155,83 @@ public class SqlSplitterTest extends TestCase
         int lineNr = 0;
         for( ;(line = in.readLine() ) != null ; lineNr++ )
         {
-            SqlSplitter.containsSqlEnd( line, ";" ); 
+            SqlSplitter.containsSqlEnd( line, ";", 0 );
         }
         assertEquals( "Not every line is parsed", 11, lineNr );
+    }
+
+    public void testOverflows()
+    {
+        assertEquals( SqlSplitter.OVERFLOW_SINGLE_QUOTE
+                    , SqlSplitter.containsSqlEnd( "test 'with an open singlequote statics;", ";", 0 ) );
+        assertEquals( SqlSplitter.OVERFLOW_SINGLE_QUOTE
+                    , SqlSplitter.containsSqlEnd( "test 'with an open singlequote statics;lalala", ";", 0 ) );
+
+
+        assertEquals( SqlSplitter.OVERFLOW_DOUBLE_QUOTE
+                    , SqlSplitter.containsSqlEnd( "test \"with an open doublequote statics;", ";", 0 ) );
+        assertEquals( SqlSplitter.OVERFLOW_DOUBLE_QUOTE
+                    , SqlSplitter.containsSqlEnd( "test \"with an open doublequote statics;lalala", ";", 0 ) );
+
+        assertEquals( 39
+                    , SqlSplitter.containsSqlEnd( "test \"with an open doublequote statics;", ";"
+                                                , SqlSplitter.OVERFLOW_DOUBLE_QUOTE ) );
+
+        assertEquals( SqlSplitter.OVERFLOW_SINGLE_QUOTE
+                    , SqlSplitter.containsSqlEnd( "test \"with an open doublequote statics;", ";"
+                                                , SqlSplitter.OVERFLOW_SINGLE_QUOTE ) );
+        assertEquals( 40
+                    , SqlSplitter.containsSqlEnd( "test \"with an open doublequote statics';", ";"
+                                                , SqlSplitter.OVERFLOW_SINGLE_QUOTE ) );
+
+        assertEquals( SqlSplitter.OVERFLOW_DOUBLE_QUOTE
+                    , SqlSplitter.containsSqlEnd( "test 'with an open singlequote statics;", ";"
+                                                , SqlSplitter.OVERFLOW_DOUBLE_QUOTE ) );
+        assertEquals( 40
+                    , SqlSplitter.containsSqlEnd( "test 'with an open singlequote statics\";", ";"
+                                                , SqlSplitter.OVERFLOW_DOUBLE_QUOTE ) );
+
+
+        assertEquals( SqlSplitter.OVERFLOW_COMMENT
+                    , SqlSplitter.containsSqlEnd( "test /* comment;", ";", 0 ) );
+        assertEquals( SqlSplitter.OVERFLOW_COMMENT
+                    , SqlSplitter.containsSqlEnd( "comment; continued", ";", SqlSplitter.OVERFLOW_COMMENT ) );
+        assertEquals( 16
+                    , SqlSplitter.containsSqlEnd( "test */ comment;", ";", SqlSplitter.OVERFLOW_COMMENT ) );
+    }
+
+    /**
+     * Test a problem with single quotes split over multiple lines
+     *
+     * @throws Exception
+     */
+    public void testSqlSingleQuotesInDifferentLines() throws Exception
+    {
+        String sql = "BEGIN\n" +
+                     "requete='INSERT INTO rid_oid(rid,oids)\n" +
+                     "         VALUE('||quote_literal(rid)||',' \n" +
+                     "         ||quote_literal(Oid)||')';\n" +
+                     "EXECUTE requete;";
+
+        BufferedReader in = new BufferedReader( new StringReader( sql ) );
+
+        //Only checking if this complex statement can be parsed
+        String line;
+
+        line = in.readLine();
+        assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( line, ";", 0 ) );
+
+        line = in.readLine();
+        assertEquals( SqlSplitter.OVERFLOW_SINGLE_QUOTE, SqlSplitter.containsSqlEnd( line, ";", 0 ) );
+
+        line = in.readLine();
+        assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.OVERFLOW_SINGLE_QUOTE ) );
+
+        line = in.readLine();
+        assertEquals( 35, SqlSplitter.containsSqlEnd( line, ";", 0 ) );
+
+        line = in.readLine();
+        assertEquals( 16, SqlSplitter.containsSqlEnd( line, ";", 0 ) );
     }
     
     
@@ -173,11 +247,11 @@ public class SqlSplitterTest extends TestCase
 
     private void contains( String sql, String delimiter, int expectedIndex ) throws Exception
     {
-        assertEquals( sql, expectedIndex, SqlSplitter.containsSqlEnd( sql, delimiter ));
+        assertEquals( sql, expectedIndex, SqlSplitter.containsSqlEnd( sql, delimiter, 0 ));
     }
 
     private void containsNot( String sql, String delimiter ) throws Exception
     {
-        assertTrue( sql, SqlSplitter.containsSqlEnd( sql, delimiter ) == SqlSplitter.NO_END);
+        assertTrue( sql, SqlSplitter.containsSqlEnd( sql, delimiter, 0 ) == SqlSplitter.NO_END);
     }
 }

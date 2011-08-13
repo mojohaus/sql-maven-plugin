@@ -972,6 +972,8 @@ public class SqlExecMojo
 
         BufferedReader in = new BufferedReader( reader );
 
+        int overflow = 0;
+
         while ( ( line = in.readLine() ) != null )
         {
             if ( !keepFormat )
@@ -1014,17 +1016,20 @@ public class SqlExecMojo
             // so we cannot just remove it, instead we must end it
             if ( !keepFormat )
             {
-                if ( SqlSplitter.containsSqlEnd( line, delimiter ) == SqlSplitter.NO_END )
+                if ( SqlSplitter.containsSqlEnd( line, delimiter, overflow ) == SqlSplitter.NO_END )
                 {
                     sql.append( "\n" );
                 }
             }
-            
-            if ( ( delimiterType.equals( DelimiterType.NORMAL ) && SqlSplitter.containsSqlEnd( line, delimiter ) > 0 )
+
+            overflow = SqlSplitter.containsSqlEnd( line, delimiter, overflow );
+            if ( ( delimiterType.equals( DelimiterType.NORMAL ) &&
+                   overflow > 0 )
                 || ( delimiterType.equals( DelimiterType.ROW ) && line.trim().equals( delimiter ) ) )
             {
                 execSQL( sql.substring( 0, sql.length() - delimiter.length() ), out );
                 sql.setLength( 0 ); // clean buffer
+                overflow = 0;
             }
         }
 
