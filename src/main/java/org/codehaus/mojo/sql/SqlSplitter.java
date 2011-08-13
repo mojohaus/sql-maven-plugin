@@ -30,6 +30,11 @@ public class SqlSplitter
      * Value indicating the sql has no end-delimiter like i.e. the semicolon.
      */
     public static final int NO_END = -1;
+    
+    /**
+     * parsed sql did not overflow (yet)
+     */
+    public static final int OVERFLOW_NONE = 0; 
 
     /**
      * parsed sql started a single quote static text which continues on the next line (did not end)
