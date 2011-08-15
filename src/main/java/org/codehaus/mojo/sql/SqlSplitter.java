@@ -142,7 +142,7 @@ public final class SqlSplitter
                     quoteChar = String.valueOf( c1 );
                     ret = quoteChar.equals( "'" ) ? OVERFLOW_SINGLE_QUOTE : OVERFLOW_DOUBLE_QUOTE;
                 }
-                else if ( c1 == '\'' || c1 == '\"' ) // end quoted block
+                else if ( quoteChar.equals( String.valueOf( c1 ) ) ) // end quoted block
                 {
                     ret = NO_END;
                 }
