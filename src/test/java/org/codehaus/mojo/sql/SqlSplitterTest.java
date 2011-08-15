@@ -254,7 +254,32 @@ public class SqlSplitterTest extends TestCase
         line = in.readLine();
         assertEquals( 16, SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.NO_END ) );
     }
-    
+
+    /**
+     * Test if separators inside multi-line comments get ignored.
+     * See MSQL-67
+     * @throws Exception
+     */
+    public void testSemicolonInComment() throws Exception
+    {
+        String sql = "/* this is a commented-out statment:\n" +
+                     " SELECT * FROM TABLE;\n" +
+                     "and here the comment ends */ ";
+
+        BufferedReader in = new BufferedReader( new StringReader( sql ) );
+
+        //Only checking if this complex statement can be parsed
+        String line;
+
+        line = in.readLine();
+        assertEquals( SqlSplitter.OVERFLOW_COMMENT, SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.NO_END ) );
+
+        line = in.readLine();
+        assertEquals( SqlSplitter.OVERFLOW_COMMENT, SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.OVERFLOW_COMMENT ) );
+
+        line = in.readLine();
+        assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.OVERFLOW_COMMENT ) );
+    }
     
     private void contains( String sql, int expectedIndex ) throws Exception
     {
