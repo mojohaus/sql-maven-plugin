@@ -126,15 +126,6 @@ public final class SqlSplitter
                 }
             }
 
-            // parse for a / * start of comment
-            if ( c1 == '/' && c2 == '*' )
-            {
-                isComment = true;
-                pos += 2;
-                ret = OVERFLOW_COMMENT;
-                continue;
-            }
-            
             if (  quoteChar != null || c1 == '\'' || c1 == '\"' )
             {
                 if ( quoteChar == null ) // start quoted block
@@ -168,6 +159,15 @@ public final class SqlSplitter
                 continue;
             }
 
+            // parse for a / * start of comment
+            if ( c1 == '/' && c2 == '*' )
+            {
+                isComment = true;
+                pos += 2;
+                ret = OVERFLOW_COMMENT;
+                continue;
+            }
+            
             if ( c1 == '-' && c2 == '-' )
             {
                 return ret;

@@ -219,11 +219,11 @@ public class SqlSplitterTest extends TestCase
 
         assertEquals( SqlSplitter.OVERFLOW_SINGLE_QUOTE, SqlSplitter.containsSqlEnd( "", ";", SqlSplitter.OVERFLOW_SINGLE_QUOTE ) );
         assertEquals( SqlSplitter.OVERFLOW_SINGLE_QUOTE, SqlSplitter.containsSqlEnd( "\"", ";", SqlSplitter.OVERFLOW_SINGLE_QUOTE ) );
-//        assertEquals( SqlSplitter.OVERFLOW_SINGLE_QUOTE, SqlSplitter.containsSqlEnd( "/*", ";", SqlSplitter.OVERFLOW_SINGLE_QUOTE ) );
+        assertEquals( SqlSplitter.OVERFLOW_SINGLE_QUOTE, SqlSplitter.containsSqlEnd( "/*", ";", SqlSplitter.OVERFLOW_SINGLE_QUOTE ) );
         
         assertEquals( SqlSplitter.OVERFLOW_DOUBLE_QUOTE, SqlSplitter.containsSqlEnd( "", ";", SqlSplitter.OVERFLOW_DOUBLE_QUOTE ) );
         assertEquals( SqlSplitter.OVERFLOW_DOUBLE_QUOTE, SqlSplitter.containsSqlEnd( "'", ";", SqlSplitter.OVERFLOW_DOUBLE_QUOTE ) );
-//        assertEquals( SqlSplitter.OVERFLOW_DOUBLE_QUOTE, SqlSplitter.containsSqlEnd( "/*", ";", SqlSplitter.OVERFLOW_DOUBLE_QUOTE ) );
+        assertEquals( SqlSplitter.OVERFLOW_DOUBLE_QUOTE, SqlSplitter.containsSqlEnd( "/*", ";", SqlSplitter.OVERFLOW_DOUBLE_QUOTE ) );
 
         assertEquals( SqlSplitter.OVERFLOW_COMMENT, SqlSplitter.containsSqlEnd( "", ";", SqlSplitter.OVERFLOW_COMMENT ) );
         assertEquals( SqlSplitter.OVERFLOW_COMMENT, SqlSplitter.containsSqlEnd( "'", ";", SqlSplitter.OVERFLOW_COMMENT ) );
