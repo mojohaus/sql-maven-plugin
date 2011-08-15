@@ -211,6 +211,11 @@ public class SqlSplitterTest extends TestCase
         //bare minimums
         assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( "'", ";", SqlSplitter.OVERFLOW_SINGLE_QUOTE ) );
         assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( "\"", ";", SqlSplitter.OVERFLOW_DOUBLE_QUOTE ) );
+        assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( "*/", ";", SqlSplitter.OVERFLOW_COMMENT ) );
+        
+        assertEquals( SqlSplitter.OVERFLOW_SINGLE_QUOTE, SqlSplitter.containsSqlEnd( "'", ";", SqlSplitter.NO_END ) );
+        assertEquals( SqlSplitter.OVERFLOW_DOUBLE_QUOTE, SqlSplitter.containsSqlEnd( "\"", ";", SqlSplitter.NO_END ) );
+        assertEquals( SqlSplitter.OVERFLOW_COMMENT, SqlSplitter.containsSqlEnd( "/*", ";", SqlSplitter.NO_END ) );
     }
     
     public void testAlphaDelimiter() throws Exception
