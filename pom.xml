@@ -10,7 +10,7 @@
 
   <artifactId>sql-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
-  <version>1.5-SNAPSHOT</version>
+  <version>1.5</version>
   <name>SQL Maven Plugin</name>
   <inceptionYear>2006</inceptionYear>
   <description>Execute SQL Statements</description>
@@ -23,9 +23,9 @@
   </issueManagement>
 
   <scm>
-    <connection>scm:svn:http://svn.codehaus.org/mojo/trunk/mojo/sql-maven-plugin</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/mojo/trunk/mojo/sql-maven-plugin</developerConnection>
-    <url>http://svn.codehaus.org/mojo/trunk/mojo/sql-maven-plugin</url>
+    <connection>scm:svn:http://svn.codehaus.org/mojo/tags/sql-maven-plugin-1.5</connection>
+    <developerConnection>scm:svn:https://svn.codehaus.org/mojo/tags/sql-maven-plugin-1.5</developerConnection>
+    <url>http://svn.codehaus.org/mojo/tags/sql-maven-plugin-1.5</url>
   </scm>
 
   <developers>
@@ -121,7 +121,7 @@
               <!-- Using manual components.xml to be able to set _configuration-file. Uncomment tags to regenerate file.  -->
               <!--
               <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ComponentsXmlResourceTransformer"/>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ComponentsXmlResourceTransformer" />
               </transformers>
               -->
             </configuration>
