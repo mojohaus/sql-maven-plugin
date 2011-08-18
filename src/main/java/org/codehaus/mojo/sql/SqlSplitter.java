@@ -125,14 +125,9 @@ public final class SqlSplitter
                 }
             }
             
-            if (  quoteChar != null || c1 == '\'' || c1 == '\"' )
+            if (  quoteChar != null )
             {
-                if ( quoteChar == null ) // start quoted block
-                {
-                    quoteChar = String.valueOf( c1 );
-                    ret = quoteChar.equals( "'" ) ? OVERFLOW_SINGLE_QUOTE : OVERFLOW_DOUBLE_QUOTE;
-                }
-                else if ( quoteChar.equals( String.valueOf( c1 ) ) ) // end quoted block
+                if ( quoteChar.equals( String.valueOf( c1 ) ) ) // end quoted block
                 {
                     ret = NO_END;
                 }
@@ -167,6 +162,14 @@ public final class SqlSplitter
                 
                 ret = NO_END;
                 quoteChar = null;
+                continue;
+            }
+            
+            // verify if current char indicates start  of new quoted block 
+            if ( c1 == '\'' || c1 == '\"' )
+            {
+                quoteChar = String.valueOf( c1 );
+                ret = quoteChar.equals( "'" ) ? OVERFLOW_SINGLE_QUOTE : OVERFLOW_DOUBLE_QUOTE;
                 continue;
             }
 
