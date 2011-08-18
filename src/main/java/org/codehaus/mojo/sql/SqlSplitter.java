@@ -121,7 +121,6 @@ public final class SqlSplitter
                 }
                 else
                 {
-                    pos++;
                     continue;
                 }
             }
@@ -160,7 +159,12 @@ public final class SqlSplitter
                         return ret;
                     }
                 }
-
+                
+                if ( pos < maxpos )
+                {
+                    c2 = line.charAt( pos + 1 );
+                }
+                
                 ret = NO_END;
                 quoteChar = null;
                 continue;
@@ -170,7 +174,7 @@ public final class SqlSplitter
             if ( c1 == '/' && c2 == '*' )
             {
                 isComment = true;
-                pos += 2;
+                pos++;
                 ret = OVERFLOW_COMMENT;
                 continue;
             }
@@ -199,9 +203,7 @@ public final class SqlSplitter
                 }
             }
             
-            pos++;
-            
-        } while ( line.length() >= pos );
+        } while ( line.length() >= pos++ );
             
         return ret;
     }
