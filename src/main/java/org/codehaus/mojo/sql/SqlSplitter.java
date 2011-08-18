@@ -96,7 +96,7 @@ public final class SqlSplitter
 
         char c1;
         char c2 = line.charAt( 0 );
-        do
+        statement: do
         {
             // use the nextchar from the previous iteration
             c1 = c2;
@@ -121,48 +121,39 @@ public final class SqlSplitter
                 }
                 else
                 {
-                    continue;
+                    continue statement;
                 }
             }
-            
+
+            // if in quote-mode, search for end quote, respecting escaped characters
             if (  quoteChar != null )
             {
-                if ( quoteChar.equals( String.valueOf( c1 ) ) ) // end quoted block
-                {
-                    ret = NO_END;
-                }
-                else 
-                {
-                    //re-evaluate character at first position, could be an escape character
-                    pos--;
-                }
-                // else stay in quoted block
-                
                 String doubleQuote = quoteChar + quoteChar;
-                
-                // already discovered a quoteChar at 'pos'
-                while ( !startsWith( line, quoteChar, ++pos ) )
+                do
                 {
+                    // keep c2 in line
+                    if ( pos < maxpos )
+                    {
+                        c2 = line.charAt( pos + 1 );
+                    }
+                    
                     if ( startsWith( line, "\\", pos ) || startsWith( line, doubleQuote, pos ) )
                     {
                         //skip next character
                         pos++;
                     }
-                    
-                    if ( pos > maxpos )
+                    else if ( startsWith( line, quoteChar, pos ) )
                     {
-                        return ret;
+                        ret = NO_END;
+                        quoteChar = null;
+                        
+                        continue statement;
                     }
                 }
-                
-                if ( pos < maxpos )
-                {
-                    c2 = line.charAt( pos + 1 );
-                }
-                
-                ret = NO_END;
-                quoteChar = null;
-                continue;
+                while ( pos++ < maxpos );
+
+                // reach EOL
+                break statement;
             }
             
             // verify if current char indicates start  of new quoted block 
@@ -170,7 +161,7 @@ public final class SqlSplitter
             {
                 quoteChar = String.valueOf( c1 );
                 ret = quoteChar.equals( "'" ) ? OVERFLOW_SINGLE_QUOTE : OVERFLOW_DOUBLE_QUOTE;
-                continue;
+                continue statement;
             }
 
             // parse for a / * start of comment
@@ -179,7 +170,7 @@ public final class SqlSplitter
                 isComment = true;
                 pos++;
                 ret = OVERFLOW_COMMENT;
-                continue;
+                continue statement;
             }
             
             if ( c1 == '-' && c2 == '-' )
