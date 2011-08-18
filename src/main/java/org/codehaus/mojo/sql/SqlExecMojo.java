@@ -699,9 +699,8 @@ public class SqlExecMojo
             }
         }
 
-        getLog().info(
-                       getSuccessfulStatements() + " of " + getTotalStatements()
-                           + " SQL statements executed successfully" );
+        getLog().info( getSuccessfulStatements() + " of " + getTotalStatements()
+                       + " SQL statements executed successfully" );
         
         if ( ON_ERROR_ABORT_AFTER.equalsIgnoreCase( getOnError() ) 
              && totalStatements != successfulStatements )

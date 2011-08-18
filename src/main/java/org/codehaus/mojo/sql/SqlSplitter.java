@@ -125,7 +125,7 @@ public final class SqlSplitter
                     continue;
                 }
             }
-
+            
             if (  quoteChar != null || c1 == '\'' || c1 == '\"' )
             {
                 if ( quoteChar == null ) // start quoted block
@@ -137,17 +137,24 @@ public final class SqlSplitter
                 {
                     ret = NO_END;
                 }
+                else 
+                {
+                    //re-evaluate character at first position, could be an escape character
+                    pos--;
+                }
                 // else stay in quoted block
                 
-                String quoteEscape = "\\" + quoteChar;
                 String doubleQuote = quoteChar + quoteChar;
                 
+                // already discovered a quoteChar at 'pos'
                 while ( !startsWith( line, quoteChar, ++pos ) )
                 {
-                    if ( startsWith( line, quoteEscape, pos ) || startsWith( line, doubleQuote, pos ) )
+                    if ( startsWith( line, "\\", pos ) || startsWith( line, doubleQuote, pos ) )
                     {
-                        pos += 2;
+                        //skip next character
+                        pos++;
                     }
+                    
                     if ( pos > maxpos )
                     {
                         return ret;
