@@ -1001,15 +1001,17 @@ public class SqlExecMojo
                 sql.append( "\n" ).append( line );
             }
 
+
+            overflow = SqlSplitter.containsSqlEnd( line, delimiter, overflow );
+
             // SQL defines "--" as a comment to EOL
             // and in Oracle it may contain a hint
             // so we cannot just remove it, instead we must end it
-            if ( !keepFormat && SqlSplitter.containsSqlEnd( line, delimiter, overflow ) == SqlSplitter.NO_END )
+            if ( !keepFormat && overflow == SqlSplitter.NO_END )
             {
                 sql.append( "\n" );
             }
 
-            overflow = SqlSplitter.containsSqlEnd( line, delimiter, overflow );
             if ( ( delimiterType.equals( DelimiterType.NORMAL ) &&
                    overflow > 0 )
                 || ( delimiterType.equals( DelimiterType.ROW ) && line.trim().equals( delimiter ) ) )
