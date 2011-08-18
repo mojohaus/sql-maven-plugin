@@ -1012,8 +1012,7 @@ public class SqlExecMojo
                 sql.append( "\n" );
             }
 
-            if ( ( delimiterType.equals( DelimiterType.NORMAL ) &&
-                   overflow > 0 )
+            if ( ( delimiterType.equals( DelimiterType.NORMAL ) && overflow > 0 )
                 || ( delimiterType.equals( DelimiterType.ROW ) && line.trim().equals( delimiter ) ) )
             {
                 execSQL( sql.substring( 0, sql.length() - delimiter.length() ), out );
