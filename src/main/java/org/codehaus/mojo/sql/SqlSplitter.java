@@ -96,11 +96,65 @@ public final class SqlSplitter
 
         char c1;
         char c2 = line.charAt( 0 );
-        do
+        statement: do
         {
+            if ( isComment )
+            {
+                do
+                {
+                    // keep c2 in line
+                    if ( pos < maxpos )
+                    {
+                        c2 = line.charAt( pos + 1 );
+                    }
+                    
+                    if ( startsWith( line, '*', pos ) && startsWith( line, '/', pos + 1 ) )
+                    {
+                        ret = NO_END;
+                        isComment = false;
+                        
+                        continue statement;
+                    }
+                } 
+                while ( pos++ < maxpos );
+                
+                //reached EOL
+                break statement;
+            }
+
+            // if in quote-mode, search for end quote, respecting escaped characters
+            if (  quoteChar != null )
+            {
+                String doubleQuote = quoteChar + quoteChar;
+                do
+                {
+                    // keep c2 in line
+                    if ( pos < maxpos )
+                    {
+                        c2 = line.charAt( pos + 1 );
+                    }
+                    
+                    if ( startsWith( line, "\\", pos ) || startsWith( line, doubleQuote, pos ) )
+                    {
+                        //skip next character, but stay in quote-mode
+                        pos++;
+                    }
+                    else if ( startsWith( line, quoteChar, pos ) )
+                    {
+                        ret = NO_END;
+                        quoteChar = null;
+                        
+                        continue statement;
+                    }
+                }
+                while ( pos++ < maxpos );
+
+                // reach EOL
+                break statement;
+            }
+            
             // use the nextchar from the previous iteration
             c1 = c2;
-
             if ( pos < maxpos )
             {
                 // and set the following char
@@ -111,61 +165,21 @@ public final class SqlSplitter
                 c2 = ' ';
             }
 
-            if ( isComment )
+            // verify if current char indicates start  of new quoted block 
+            if ( c1 == '\'' || c1 == '"' )
             {
-                // parse for a *_/ end of comment
-                if ( c1 == '*' && c2 == '/' )
-                {
-                    isComment = false;
-                    ret = NO_END;
-                }
-                else
-                {
-                    pos++;
-                    continue;
-                }
-            }
-
-            if (  quoteChar != null || c1 == '\'' || c1 == '\"' )
-            {
-                if ( quoteChar == null ) // start quoted block
-                {
-                    quoteChar = String.valueOf( c1 );
-                    ret = quoteChar.equals( "'" ) ? OVERFLOW_SINGLE_QUOTE : OVERFLOW_DOUBLE_QUOTE;
-                }
-                else if ( quoteChar.equals( String.valueOf( c1 ) ) ) // end quoted block
-                {
-                    ret = NO_END;
-                }
-                // else stay in quoted block
-                
-                String quoteEscape = "\\" + quoteChar;
-                String doubleQuote = quoteChar + quoteChar;
-                
-                while ( !startsWith( line, quoteChar, ++pos ) )
-                {
-                    if ( startsWith( line, quoteEscape, pos ) || startsWith( line, doubleQuote, pos ) )
-                    {
-                        pos += 2;
-                    }
-                    if ( pos > maxpos )
-                    {
-                        return ret;
-                    }
-                }
-
-                ret = NO_END;
-                quoteChar = null;
-                continue;
+                quoteChar = String.valueOf( c1 );
+                ret = quoteChar.equals( "'" ) ? OVERFLOW_SINGLE_QUOTE : OVERFLOW_DOUBLE_QUOTE;
+                continue statement;
             }
 
             // parse for a / * start of comment
             if ( c1 == '/' && c2 == '*' )
             {
                 isComment = true;
-                pos += 2;
+                pos++;
                 ret = OVERFLOW_COMMENT;
-                continue;
+                continue statement;
             }
             
             if ( c1 == '-' && c2 == '-' )
@@ -192,9 +206,7 @@ public final class SqlSplitter
                 }
             }
             
-            pos++;
-            
-        } while ( line.length() >= pos );
+        } while ( maxpos > pos++ );
             
         return ret;
     }
@@ -216,6 +228,18 @@ public final class SqlSplitter
         {
             return toParse.startsWith( delimiter, position );
         }
+    }
+    
+    /**
+     * 
+     * @param toParse the String to parse
+     * @param delimiter the delimiter to look for
+     * @param position the initial position to start the scan with
+     * @return
+     */
+    private static boolean startsWith( String toParse, char delimiter, int position )
+    {
+        return toParse.length() > position && toParse.charAt( position ) == delimiter;
     }
     
     /**

@@ -699,9 +699,8 @@ public class SqlExecMojo
             }
         }
 
-        getLog().info(
-                       getSuccessfulStatements() + " of " + getTotalStatements()
-                           + " SQL statements executed successfully" );
+        getLog().info( getSuccessfulStatements() + " of " + getTotalStatements()
+                       + " SQL statements executed successfully" );
         
         if ( ON_ERROR_ABORT_AFTER.equalsIgnoreCase( getOnError() ) 
              && totalStatements != successfulStatements )
@@ -1002,17 +1001,18 @@ public class SqlExecMojo
                 sql.append( "\n" ).append( line );
             }
 
+
+            overflow = SqlSplitter.containsSqlEnd( line, delimiter, overflow );
+
             // SQL defines "--" as a comment to EOL
             // and in Oracle it may contain a hint
             // so we cannot just remove it, instead we must end it
-            if ( !keepFormat && SqlSplitter.containsSqlEnd( line, delimiter, overflow ) == SqlSplitter.NO_END )
+            if ( !keepFormat && overflow == SqlSplitter.NO_END )
             {
                 sql.append( "\n" );
             }
 
-            overflow = SqlSplitter.containsSqlEnd( line, delimiter, overflow );
-            if ( ( delimiterType.equals( DelimiterType.NORMAL ) &&
-                   overflow > 0 )
+            if ( ( delimiterType.equals( DelimiterType.NORMAL ) && overflow > 0 )
                 || ( delimiterType.equals( DelimiterType.ROW ) && line.trim().equals( delimiter ) ) )
             {
                 execSQL( sql.substring( 0, sql.length() - delimiter.length() ), out );
