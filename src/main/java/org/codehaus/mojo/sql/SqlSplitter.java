@@ -113,16 +113,26 @@ public final class SqlSplitter
 
             if ( isComment )
             {
-                // parse for a *_/ end of comment
-                if ( c1 == '*' && c2 == '/' )
+                do
                 {
-                    isComment = false;
-                    ret = NO_END;
-                }
-                else
-                {
-                    continue statement;
-                }
+                    // keep c2 in line
+                    if ( pos < maxpos )
+                    {
+                        c2 = line.charAt( pos + 1 );
+                    }
+                    
+                    if ( startsWith( line, '*', pos ) && startsWith( line, '/', pos + 1 ) )
+                    {
+                        ret = NO_END;
+                        isComment = false;
+                        
+                        continue statement;
+                    }
+                } 
+                while ( pos++ < maxpos );
+                
+                //reached EOL
+                break statement;
             }
 
             // if in quote-mode, search for end quote, respecting escaped characters
@@ -139,7 +149,7 @@ public final class SqlSplitter
                     
                     if ( startsWith( line, "\\", pos ) || startsWith( line, doubleQuote, pos ) )
                     {
-                        //skip next character
+                        //skip next character, but stay in quote-mode
                         pos++;
                     }
                     else if ( startsWith( line, quoteChar, pos ) )
@@ -157,7 +167,7 @@ public final class SqlSplitter
             }
             
             // verify if current char indicates start  of new quoted block 
-            if ( c1 == '\'' || c1 == '\"' )
+            if ( c1 == '\'' || c1 == '"' )
             {
                 quoteChar = String.valueOf( c1 );
                 ret = quoteChar.equals( "'" ) ? OVERFLOW_SINGLE_QUOTE : OVERFLOW_DOUBLE_QUOTE;
@@ -219,6 +229,18 @@ public final class SqlSplitter
         {
             return toParse.startsWith( delimiter, position );
         }
+    }
+    
+    /**
+     * 
+     * @param toParse the String to parse
+     * @param delimiter the delimiter to look for
+     * @param position the initial position to start the scan with
+     * @return
+     */
+    private static boolean startsWith( String toParse, char delimiter, int position )
+    {
+        return toParse.length() > position && toParse.charAt( position ) == delimiter;
     }
     
     /**
