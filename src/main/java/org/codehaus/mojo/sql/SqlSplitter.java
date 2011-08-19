@@ -98,19 +98,6 @@ public final class SqlSplitter
         char c2 = line.charAt( 0 );
         statement: do
         {
-            // use the nextchar from the previous iteration
-            c1 = c2;
-
-            if ( pos < maxpos )
-            {
-                // and set the following char
-                c2 = line.charAt( pos + 1 );
-            }
-            else {
-                // or reset to blank if the line has ended
-                c2 = ' ';
-            }
-
             if ( isComment )
             {
                 do
@@ -166,6 +153,18 @@ public final class SqlSplitter
                 break statement;
             }
             
+            // use the nextchar from the previous iteration
+            c1 = c2;
+            if ( pos < maxpos )
+            {
+                // and set the following char
+                c2 = line.charAt( pos + 1 );
+            }
+            else {
+                // or reset to blank if the line has ended
+                c2 = ' ';
+            }
+
             // verify if current char indicates start  of new quoted block 
             if ( c1 == '\'' || c1 == '"' )
             {
@@ -207,7 +206,7 @@ public final class SqlSplitter
                 }
             }
             
-        } while ( line.length() >= pos++ );
+        } while ( maxpos > pos++ );
             
         return ret;
     }
