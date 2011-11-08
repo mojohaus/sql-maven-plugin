@@ -19,6 +19,8 @@ import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
+import org.apache.maven.plugin.testing.stubs.MavenProjectStub;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.shared.filtering.MavenFileFilter;
@@ -55,6 +57,9 @@ public class SqlExecMojoTest
         
         SecDispatcher securityDispatcher = (SecDispatcher) lookup( "org.sonatype.plexus.components.sec.dispatcher.SecDispatcher", "default" );
         mojo.setSecurityDispatcher( securityDispatcher );
+        
+        MavenProject project = new MavenProjectStub();
+        setVariableValueToObject( mojo, "project", project );
     }
 
     /**

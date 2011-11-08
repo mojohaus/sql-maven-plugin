@@ -38,8 +38,10 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -54,6 +56,8 @@ import org.apache.maven.settings.Settings;
 import org.apache.maven.shared.filtering.MavenFileFilter;
 import org.apache.maven.shared.filtering.MavenFileFilterRequest;
 import org.apache.maven.shared.filtering.MavenFilteringException;
+import org.apache.maven.shared.scriptinterpreter.RunFailureException;
+import org.apache.maven.shared.scriptinterpreter.ScriptRunner;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
@@ -423,6 +427,18 @@ public class SqlExecMojo
      */
     private boolean enableFiltering;
     
+    private ScriptRunner scriptRunner;
+    
+    /**
+     * @parameter default-value="pre-execute"
+     */
+    private String preExecuteHookScript;
+    
+    /**
+     * @parameter default-value="post-execute"
+     */
+    private String postExecuteHookScript;
+    
     /**
      * Add a SQL transaction to execute
      * @return a new SqlExecMojo.Transaction
@@ -582,6 +598,7 @@ public class SqlExecMojo
 
     /**
      * Load the sql file and then execute it
+     * 
      * @throws MojoExecutionException
      */
     public void execute()
@@ -592,7 +609,41 @@ public class SqlExecMojo
         {
             return;
         }
+        
+        // prepare scriptrunner
+        scriptRunner = new ScriptRunner( getLog() );
+        scriptRunner.setScriptEncoding( encoding );
+//        scriptRunner.setGlobalVariable( "localRepositoryPath", localRepositoryPath );
+//        scriptRunner.setClassPath( scriptClassPath );
+        
+        Map/*<String, Object>*/ context = new HashMap/*<String, Object>*/();
+        
+        try
+        {
+            scriptRunner.run( "Sql-Maven-Plugin pre-execute script", project.getBasedir(), preExecuteHookScript, context, null,
+                              "pre-execute", false );
 
+            executeSqlCore();
+        }
+        catch ( RunFailureException e )
+        {
+           getLog().warn( e.getMessage() );
+        }
+        finally 
+        {
+            try
+            {
+                scriptRunner.run( "Sql-Maven-Plugin post-execute script", project.getBasedir(), postExecuteHookScript, context, null,
+                                  "post-execute", false );
+            }
+            catch ( RunFailureException e )
+            {
+                getLog().warn( e.getMessage() );
+            }
+        }
+    }
+    
+    protected void executeSqlCore() throws MojoExecutionException {
         successfulStatements = 0;
 
         totalStatements = 0;
@@ -707,7 +758,6 @@ public class SqlExecMojo
         {
             throw new MojoExecutionException( "Some SQL statements failed to execute" );
         }
-
     }
 
     /**
