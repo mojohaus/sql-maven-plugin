@@ -73,6 +73,19 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+  
+  <repositories> <!-- remove when maven-script-interpreter has been released -->
+    <repository>
+      <id>apache.snapshots</id>
+      <url>http://repository.apache.org/snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <build>
     <plugins>
