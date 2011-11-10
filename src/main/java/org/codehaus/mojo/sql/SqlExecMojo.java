@@ -627,7 +627,7 @@ public class SqlExecMojo
         }
         catch ( RunFailureException e )
         {
-           getLog().warn( e.getMessage() );
+           throw new MojoExecutionException( e.getMessage(), e );
         }
         finally 
         {
@@ -638,7 +638,7 @@ public class SqlExecMojo
             }
             catch ( RunFailureException e )
             {
-                getLog().warn( e.getMessage() );
+                throw new MojoExecutionException( e.getMessage(), e );
             }
         }
     }
