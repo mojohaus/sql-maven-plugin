@@ -629,6 +629,10 @@ public class SqlExecMojo
         {
            throw new MojoExecutionException( e.getMessage(), e );
         }
+        catch ( IOException e )
+        {
+            throw new MojoExecutionException( e.getMessage(), e );
+        }
         finally 
         {
             try
@@ -637,6 +641,10 @@ public class SqlExecMojo
                                   "post-execute", false );
             }
             catch ( RunFailureException e )
+            {
+                throw new MojoExecutionException( e.getMessage(), e );
+            }
+            catch ( IOException e )
             {
                 throw new MojoExecutionException( e.getMessage(), e );
             }
