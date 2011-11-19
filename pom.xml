@@ -73,19 +73,6 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-  
-  <repositories> <!-- remove when maven-script-interpreter has been released -->
-    <repository>
-      <id>apache.snapshots</id>
-      <url>http://repository.apache.org/snapshots/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
 
   <build>
     <plugins>
@@ -175,7 +162,7 @@
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-script-interpreter</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.0</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
