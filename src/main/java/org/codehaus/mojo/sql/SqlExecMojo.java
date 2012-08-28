@@ -694,6 +694,7 @@ public class SqlExecMojo
                 if ( outputFile != null )
                 {
                     getLog().debug( "Opening PrintStream to output file " + outputFile );
+                    outputFile.getParentFile().mkdirs();
                     out = new PrintStream( new BufferedOutputStream( new FileOutputStream( outputFile.getAbsolutePath(),
                                                                                            append ) ) );
                 }
