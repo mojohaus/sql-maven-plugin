@@ -58,10 +58,12 @@ public class SqlSplitterTest extends TestCase
         containsNot( "SELECT * from myTable where value = ';' AND -- semicolon is quoted!" );
 
         contains( "INSERT INTO testTable (thevalue) VALUES (' text '' other ');", 60 );
+        
+        // 
+        contains( "INSERT INTO testTable (thevalue) VALUES ('value  !'); -- comment with ' single quote", 53 );
+        contains( "SELECT * from myTable /* comment with ' single quote */  ; ", 58 );
 
     }
-    
-    
 
     /**
      * This unit test is meant for checking the performance with a profiler
