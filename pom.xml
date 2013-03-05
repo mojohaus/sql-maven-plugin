@@ -3,7 +3,7 @@
   <parent>
     <artifactId>mojo-parent</artifactId>
     <groupId>org.codehaus.mojo</groupId>
-    <version>30</version>
+    <version>31</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -62,7 +62,7 @@
       <roles>
         <role>Java Developer</role>
       </roles>  
-      <timezone>+1</timezone>
+      <timezone>Europe/Amsterdam</timezone>
     </developer>
   </developers>
 
@@ -90,7 +90,7 @@
         <configuration>
           <signature>
             <groupId>org.codehaus.mojo.signature</groupId>
-            <artifactId>java14</artifactId>
+            <artifactId>java15</artifactId>
             <version>1.0</version>
           </signature>
         </configuration>
@@ -211,8 +211,8 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-invoker-plugin</artifactId>
-            <version>1.5</version>
             <configuration>
               <debug>true</debug>
               <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
