@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.codehaus.mojo.sql.it</groupId>
-  <artifactId>sql-52</artifactId>
+  <artifactId>sql-76</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
   <build>
@@ -21,8 +21,10 @@
 
         <configuration>
           <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
-          <url>jdbc:derby:${project.build.directory}/sql64db;create=true</url>
-          <preExecuteHookScript>pre-execute.groovy</preExecuteHookScript>
+          <url>jdbc:derby:${project.build.directory}/sql76db;create=true</url>
+          <sqlCommand>select 1 FROM SYSIBM.SYSDUMMY1;</sqlCommand>
+          <preExecuteHookScript>src/main/sql/pre-execute.groovy</preExecuteHookScript>
+          <postExecuteHookScript>src/main/sql/post-execute.groovy</postExecuteHookScript>
         </configuration>
       </plugin>
     </plugins>

@@ -430,14 +430,16 @@ public class SqlExecMojo
     private ScriptRunner scriptRunner;
     
     /**
-     * @parameter default-value="pre-execute"
+     * @parameter
+     * @since 1.6
      */
-    private String preExecuteHookScript;
+    private File preExecuteHookScript;
     
     /**
-     * @parameter default-value="post-execute"
+     * @parameter
+     * @since 1.6
      */
-    private String postExecuteHookScript;
+    private File postExecuteHookScript;
     
     /**
      * Add a SQL transaction to execute
@@ -620,8 +622,11 @@ public class SqlExecMojo
         
         try
         {
-            scriptRunner.run( "Sql-Maven-Plugin pre-execute script", project.getBasedir(), preExecuteHookScript, context, null,
-                              "pre-execute", false );
+            if( preExecuteHookScript != null )
+            {
+                scriptRunner.run( "Sql-Maven-Plugin pre-execute script", preExecuteHookScript, context, null,
+                                  "pre-execute", false );
+            }
 
             executeSqlCore();
         }
@@ -637,8 +642,11 @@ public class SqlExecMojo
         {
             try
             {
-                scriptRunner.run( "Sql-Maven-Plugin post-execute script", project.getBasedir(), postExecuteHookScript, context, null,
-                                  "post-execute", false );
+                if ( postExecuteHookScript != null )
+                {
+                    scriptRunner.run( "Sql-Maven-Plugin post-execute script", postExecuteHookScript, context, null,
+                                      "post-execute", false );
+                }
             }
             catch ( RunFailureException e )
             {
