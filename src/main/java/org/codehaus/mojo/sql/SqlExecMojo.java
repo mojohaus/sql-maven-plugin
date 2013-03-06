@@ -39,7 +39,6 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -411,7 +410,7 @@ public class SqlExecMojo
     /**
      * SQL transactions to perform
      */
-    private List transactions = new Vector();
+    private List<Transaction> transactions = new Vector<Transaction>();
 
     /**
      * @component role="org.apache.maven.shared.filtering.MavenFileFilter"
@@ -618,7 +617,7 @@ public class SqlExecMojo
 //        scriptRunner.setGlobalVariable( "localRepositoryPath", localRepositoryPath );
 //        scriptRunner.setClassPath( scriptClassPath );
         
-        Map/*<String, Object>*/ context = new HashMap/*<String, Object>*/();
+        Map<String, Object> context = new HashMap<String, Object>();
         
         try
         {
@@ -708,10 +707,8 @@ public class SqlExecMojo
                 }
 
                 // Process all transactions
-                for ( Iterator e = transactions.iterator(); e.hasNext(); )
+                for ( Transaction t : transactions  )
                 {
-                    Transaction t = (Transaction) e.next();
-
                     t.runTransaction( out );
 
                     if ( !autocommit )
@@ -803,9 +800,9 @@ public class SqlExecMojo
             includedFiles = new String[0];
         }
 
-        for ( int j = 0; j < includedFiles.length; j++ )
+        for ( String includedFile : includedFiles )
         {
-            createTransaction().setSrc( new File( fileset.getBasedir(), includedFiles[j] ) );
+            createTransaction().setSrc( new File( fileset.getBasedir(), includedFile ) );
         }
     }
 
@@ -823,35 +820,37 @@ public class SqlExecMojo
         request.setMavenSession( mavenSession );
         request.setMavenProject( project );
         request.setFiltering( enableFiltering );
-        for ( int i = 0; files != null && i < files.length; ++i )
+        if ( files != null )
         {
-            if ( files[i] != null && !files[i].exists() )
+            for ( File sourceFile : files )
             {
-                throw new MojoExecutionException( files[i].getPath() + " not found." );
-            }
+                if ( sourceFile != null && !sourceFile.exists() )
+                {
+                    throw new MojoExecutionException( sourceFile.getPath() + " not found." );
+                }
 
-            File sourceFile = files[i];
-            String basename = FileUtils.basename( sourceFile.getName() );
-            String extension = FileUtils.extension( sourceFile.getName() );
-            File targetFile = FileUtils.createTempFile( basename, extension, null );
-            if ( !getLog().isDebugEnabled() ) 
-            {
-                targetFile.deleteOnExit();
+                String basename = FileUtils.basename( sourceFile.getName() );
+                String extension = FileUtils.extension( sourceFile.getName() );
+                File targetFile = FileUtils.createTempFile( basename, extension, null );
+                if ( !getLog().isDebugEnabled() ) 
+                {
+                    targetFile.deleteOnExit();
+                }
+                
+                request.setFrom( sourceFile );
+                request.setTo( targetFile );
+                
+                try
+                {
+                    fileFilter.copyFile( request );
+                }
+                catch ( MavenFilteringException e )
+                {
+                    throw new MojoExecutionException( e.getMessage() );
+                }
+                
+                createTransaction().setSrc( targetFile );
             }
-            
-            request.setFrom( sourceFile );
-            request.setTo( targetFile );
-            
-            try
-            {
-                fileFilter.copyFile( request );
-            }
-            catch ( MavenFilteringException e )
-            {
-                throw new MojoExecutionException( e.getMessage() );
-            }
-            
-            createTransaction().setSrc( targetFile );
         }
     }
 
@@ -951,7 +950,7 @@ public class SqlExecMojo
 
         try
         {
-            Class dc = Class.forName( getDriver() );
+            Class<?> dc = Class.forName( getDriver() );
             driverInstance = (Driver) dc.newInstance();
         }
         catch ( ClassNotFoundException e )
@@ -1264,7 +1263,7 @@ public class SqlExecMojo
      * operation in between.
      */
     private class Transaction
-        implements Comparable
+        implements Comparable<Transaction>
     {
         private File tSrcFile = null;
 
@@ -1325,10 +1324,8 @@ public class SqlExecMojo
             }
         }
 
-        public int compareTo( Object object )
+        public int compareTo( Transaction transaction )
         {
-            Transaction transaction = (Transaction) object;
-
             if ( transaction.tSrcFile == null )
             {
                 if ( this.tSrcFile == null )
@@ -1535,12 +1532,12 @@ public class SqlExecMojo
         this.sqlCommand = sqlCommand;
     }
     
-    public List /* <Transaction> */getTransactions()
+    public List<Transaction> getTransactions()
     {
         return transactions;
     }
 
-    public void setTransactions( List /* <Transaction> */transactions )
+    public void setTransactions( List<Transaction> transactions )
     {
         this.transactions = transactions;
     }
