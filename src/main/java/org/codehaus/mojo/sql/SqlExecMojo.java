@@ -65,6 +65,7 @@ import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 /**
  * Executes SQL against a database.
+ * 
  * @goal execute
  * @threadSafe
  */
@@ -73,21 +74,18 @@ public class SqlExecMojo
 {
 
     /**
-     * Call {@link #setOnError(String)} with this value to abort SQL command execution
-     * if an error is found.
+     * Call {@link #setOnError(String)} with this value to abort SQL command execution if an error is found.
      */
     public static final String ON_ERROR_ABORT = "abort";
 
     /**
-     * Call {@link #setOnError(String)} with this value to continue SQL command execution until 
-     * all commands have been attempted, then abort the build if an SQL error occurred in any 
-     * of the commands.
+     * Call {@link #setOnError(String)} with this value to continue SQL command execution until all commands have been
+     * attempted, then abort the build if an SQL error occurred in any of the commands.
      */
     public static final String ON_ERROR_ABORT_AFTER = "abortAfter";
-    
+
     /**
-     * Call {@link #setOnError(String)} with this value to continue SQL command execution
-     * if an error is found.
+     * Call {@link #setOnError(String)} with this value to continue SQL command execution if an error is found.
      */
     public static final String ON_ERROR_CONTINUE = "continue";
 
@@ -104,8 +102,8 @@ public class SqlExecMojo
     //////////////////////////// User Info ///////////////////////////////////
 
     /**
-     * Database username.  If not given, it will be looked up through
-     * <code>settings.xml</code>'s server with <code>${settingsKey}</code> as key.
+     * Database username. If not given, it will be looked up through <code>settings.xml</code>'s server with
+     * <code>${settingsKey}</code> as key.
      *
      * @since 1.0
      * @parameter expression="${username}"
@@ -113,8 +111,8 @@ public class SqlExecMojo
     private String username;
 
     /**
-     * Database password. If not given, it will be looked up through <code>settings.xml</code>'s
-     * server with <code>${settingsKey}</code> as key.
+     * Database password. If not given, it will be looked up through <code>settings.xml</code>'s server with
+     * <code>${settingsKey}</code> as key.
      *
      * @since 1.0
      * @parameter expression="${password}"
@@ -122,15 +120,14 @@ public class SqlExecMojo
     private String password;
 
     /**
-      * Ignore the password and use anonymous access.
-      * This may be useful for databases like MySQL which do not allow empty
-      * password parameters in the connection initialization.
-      *
-      * @since 1.4
-      * @parameter default-value="false"
-      */
+     * Ignore the password and use anonymous access. This may be useful for databases like MySQL which do not allow
+     * empty password parameters in the connection initialization.
+     *
+     * @since 1.4
+     * @parameter default-value="false"
+     */
     private boolean enableAnonymousPassword;
-    
+
     /**
      * Additional key=value pairs separated by comma to be passed into JDBC driver.
      *
@@ -148,27 +145,26 @@ public class SqlExecMojo
     private Settings settings;
 
     /**
-     * Server's <code>id</code> in <code>settings.xml</code> to look up username and password.
-     * Defaults to <code>${url}</code> if not given.
+     * Server's <code>id</code> in <code>settings.xml</code> to look up username and password. Defaults to
+     * <code>${url}</code> if not given.
      *
      * @since 1.0
      * @parameter expression="${settingsKey}"
      */
     private String settingsKey;
-    
+
     /**
      * MNG-4384
      * 
      * @since 1.5
      * @component role="hidden.org.sonatype.plexus.components.sec.dispatcher.SecDispatcher"
-     * @required  
+     * @required
      */
-    private SecDispatcher securityDispatcher;    
+    private SecDispatcher securityDispatcher;
 
     /**
-     * Skip execution when there is an error obtaining a connection.
-     * This is a special case to support databases, such as embedded Derby,
-     * that can shutdown the database via the URL (i.e. <code>shutdown=true</code>).
+     * Skip execution when there is an error obtaining a connection. This is a special case to support databases, such
+     * as embedded Derby, that can shutdown the database via the URL (i.e. <code>shutdown=true</code>).
      *
      * @since 1.1
      * @parameter expression="${skipOnConnectionError}" default-value="false"
@@ -176,14 +172,13 @@ public class SqlExecMojo
     private boolean skipOnConnectionError;
 
     /**
-     * Setting this parameter to <code>true</code> will force
-     * the execution of this mojo, even if it would get skipped usually.
-     *  
-     * @parameter expression="${forceOpenJpaExecution}"
-     *            default-value=false
+     * Setting this parameter to <code>true</code> will force the execution of this mojo, even if it would get skipped
+     * usually.
+     * 
+     * @parameter expression="${forceOpenJpaExecution}" default-value=false
      * @required
      */
-    private boolean forceMojoExecution; 
+    private boolean forceMojoExecution;
 
     /**
      * The Maven Project Object
@@ -193,7 +188,7 @@ public class SqlExecMojo
      * @readonly
      */
     private MavenProject project;
-    
+
     /**
      * @parameter default-value="${session}"
      * @required
@@ -221,9 +216,9 @@ public class SqlExecMojo
     private File[] srcFiles;
 
     /**
-     * File(s) containing SQL statements to load.
-     * Only use a Fileset if you want to use ant-like filepatterns, otherwise use srcFiles.
-     * The order is based on a matching occurrence while scanning the directory (not the order of includes!).
+     * File(s) containing SQL statements to load. Only use a Fileset if you want to use ant-like filepatterns, otherwise
+     * use srcFiles. The order is based on a matching occurrence while scanning the directory (not the order of
+     * includes!).
      * 
      * @since 1.0
      * @parameter
@@ -268,8 +263,7 @@ public class SqlExecMojo
     private boolean autocommit;
 
     /**
-     * Action to perform if an error is found.
-     * Possible values are <code>abort</code> and <code>continue</code>.
+     * Action to perform if an error is found. Possible values are <code>abort</code> and <code>continue</code>.
      *
      * @since 1.0
      * @parameter expression="${onError}" default-value="abort"
@@ -287,12 +281,14 @@ public class SqlExecMojo
     private String delimiter = ";";
 
     /**
-     * <p>The delimiter type takes two values - "normal" and "row". Normal
-     * means that any occurrence of the delimiter terminate the SQL
-     * command whereas with row, only a line containing just the
-     * delimiter is recognized as the end of the command.</p>
-     * <p>For example, set this to "go" and delimiterType to "row" for
-     * Sybase ASE or MS SQL Server.</p>
+     * <p>
+     * The delimiter type takes two values - "normal" and "row". Normal means that any occurrence of the delimiter
+     * terminate the SQL command whereas with row, only a line containing just the delimiter is recognized as the end of
+     * the command.
+     * </p>
+     * <p>
+     * For example, set this to "go" and delimiterType to "row" for Sybase ASE or MS SQL Server.
+     * </p>
      *
      * @since 1.2
      * @parameter expression="${delimiterType}" default-value="normal"
@@ -300,26 +296,14 @@ public class SqlExecMojo
     private String delimiterType = DelimiterType.NORMAL;
 
     /**
-     * Set the order in which the SQL files will be executed.
-     * Possible values are <code>ascending</code> and <code>descending</code>.
-     * Any other value means that no sorting will be performed.
-     * Refers to {@link #fileset} and {@link #srcFiles}
+     * Set the order in which the SQL files will be executed. Possible values are <code>ascending</code> and
+     * <code>descending</code>. Any other value means that no sorting will be performed. Refers to {@link #fileset} and
+     * {@link #srcFiles}
      * 
      * @since 1.1
      * @parameter expression="${orderFile}"
      */
     private String orderFile = null;
-
-    /**
-     * When <code>true</code>, the whole SQL content in <code>sqlCommand</code>, <code>srcFiles</code> and
-     * <code>fileset</code> are sent directly to JDBC in one SQL statement. This option
-     * is for executing database stored procedures/functions.
-     *
-     * @deprecated Use {@link #delimiterType} instead.
-     * @since 1.1
-     * @parameter expression="${enableBlockMode}"
-     */
-    private boolean enableBlockMode = false;
 
     /**
      * Keep the format of an SQL block.
@@ -347,22 +331,19 @@ public class SqlExecMojo
      * Dump the SQL execution's output to a file.<br />
      * <strong>Default value is</strong>: <code>System.out</code>.
      *
-     * @parameter 
+     * @parameter
      * @since 1.3
      */
     private File outputFile;
 
-
     /**
-     * The delimiter used to separate fields in the output when using
-     * <code>printResultSet</code>.
+     * The delimiter used to separate fields in the output when using <code>printResultSet</code>.
      *
      * @parameter default-value=","
      * @since 1.4
      */
     private String outputDelimiter;
-    
-    
+
     /**
      * Encoding to use when reading SQL statements from a file.
      *
@@ -377,8 +358,8 @@ public class SqlExecMojo
     private boolean append = false;
 
     /**
-     * Argument to Statement.setEscapeProcessing
-     * If you want the driver to use regular SQL syntax then set this to false.
+     * Argument to Statement.setEscapeProcessing If you want the driver to use regular SQL syntax then set this to
+     * false.
      * 
      * @since 1.4
      * @parameter expression="${escapeProcessing}" default-value="true"
@@ -388,7 +369,7 @@ public class SqlExecMojo
     ////////////////////////////////// Internal properties//////////////////////
 
     /**
-     * number of successful executed statements 
+     * number of successful executed statements
      */
     private int successfulStatements = 0;
 
@@ -406,7 +387,7 @@ public class SqlExecMojo
      * SQL statement
      */
     private Statement statement = null;
-    
+
     /**
      * SQL transactions to perform
      */
@@ -425,23 +406,24 @@ public class SqlExecMojo
      * @since 1.4
      */
     private boolean enableFiltering;
-    
+
     private ScriptRunner scriptRunner;
-    
+
     /**
      * @parameter
      * @since 1.6
      */
     private File preExecuteHookScript;
-    
+
     /**
      * @parameter
      * @since 1.6
      */
     private File postExecuteHookScript;
-    
+
     /**
      * Add a SQL transaction to execute
+     * 
      * @return a new SqlExecMojo.Transaction
      */
     public Transaction createTransaction()
@@ -452,8 +434,7 @@ public class SqlExecMojo
     }
 
     /**
-     * Set an inline SQL command to execute.
-     * NB: Properties are not expanded in this text.
+     * Set an inline SQL command to execute. NB: Properties are not expanded in this text.
      * 
      * @param sql the sql statement to add
      */
@@ -493,8 +474,7 @@ public class SqlExecMojo
     }
 
     /**
-     * Print result sets from the statements;
-     * optional, default false
+     * Print result sets from the statements; optional, default false
      * 
      * @param print <code>true</code> to print the resultset, otherwise <code>false</code>
      * @deprecated Typo, {@link #setPrintResultSet(boolean)} instead.
@@ -503,10 +483,9 @@ public class SqlExecMojo
     {
         setPrintResultSet( print );
     }
-    
+
     /**
-     * Print result sets from the statements;
-     * optional, default false
+     * Print result sets from the statements; optional, default false
      * 
      * @param print <code>true</code> to print the resultset, otherwise <code>false</code>
      */
@@ -516,8 +495,7 @@ public class SqlExecMojo
     }
 
     /**
-     * Print headers for result sets from the
-     * statements; optional, default true.
+     * Print headers for result sets from the statements; optional, default true.
      * 
      * @param showheaders <code>true</code> to show the headers, otherwise <code>false</code>
      */
@@ -537,10 +515,9 @@ public class SqlExecMojo
     }
 
     /**
-     * whether output should be appended to or overwrite
-     * an existing file.  Defaults to false.
+     * whether output should be appended to or overwrite an existing file. Defaults to false.
      * 
-     * @param append <code>true</code> to append, otherwise <code>false</code> to overwrite 
+     * @param append <code>true</code> to append, otherwise <code>false</code> to overwrite
      */
     public void setAppend( boolean append )
     {
@@ -548,8 +525,7 @@ public class SqlExecMojo
     }
 
     /**
-     * whether or not format should be preserved.
-     * Defaults to false.
+     * whether or not format should be preserved. Defaults to false.
      *
      * @param keepformat The keepformat to set
      */
@@ -569,33 +545,34 @@ public class SqlExecMojo
     }
 
     /**
-     * <p>Determine if the mojo execution should get skipped.</p>
+     * <p>
+     * Determine if the mojo execution should get skipped.
+     * </p>
      * This is the case if:
      * <ul>
-     *   <li>{@link #skip} is <code>true</code></li>
-     *   <li>if the mojo gets executed on a project with packaging type 'pom' and
-     *       {@link #forceMojoExecution} is <code>false</code></li>
+     * <li>{@link #skip} is <code>true</code></li>
+     * <li>if the mojo gets executed on a project with packaging type 'pom' and {@link #forceMojoExecution} is
+     * <code>false</code></li>
      * </ul>
      * 
      * @return <code>true</code> if the mojo execution should be skipped.
      */
-    protected boolean skipMojo() 
+    protected boolean skipMojo()
     {
         if ( skip )
         {
             getLog().info( "Skip sql execution" );
             return true;
         }
-        
+
         if ( !forceMojoExecution && project != null && "pom".equals( project.getPackaging() ) )
         {
             getLog().info( "Skipping sql execution for project with packaging type 'pom'" );
             return true;
         }
-        
+
         return false;
     }
-    
 
     /**
      * Load the sql file and then execute it
@@ -610,18 +587,18 @@ public class SqlExecMojo
         {
             return;
         }
-        
+
         // prepare scriptrunner
         scriptRunner = new ScriptRunner( getLog() );
         scriptRunner.setScriptEncoding( encoding );
 //        scriptRunner.setGlobalVariable( "localRepositoryPath", localRepositoryPath );
 //        scriptRunner.setClassPath( scriptClassPath );
-        
+
         Map<String, Object> context = new HashMap<String, Object>();
-        
+
         try
         {
-            if( preExecuteHookScript != null )
+            if ( preExecuteHookScript != null )
             {
                 scriptRunner.run( "Sql-Maven-Plugin pre-execute script", preExecuteHookScript, context, null,
                                   "pre-execute", false );
@@ -631,13 +608,13 @@ public class SqlExecMojo
         }
         catch ( RunFailureException e )
         {
-           throw new MojoExecutionException( e.getMessage(), e );
+            throw new MojoExecutionException( e.getMessage(), e );
         }
         catch ( IOException e )
         {
             throw new MojoExecutionException( e.getMessage(), e );
         }
-        finally 
+        finally
         {
             try
             {
@@ -657,8 +634,10 @@ public class SqlExecMojo
             }
         }
     }
-    
-    protected void executeSqlCore() throws MojoExecutionException {
+
+    protected void executeSqlCore()
+        throws MojoExecutionException
+    {
         successfulStatements = 0;
 
         totalStatements = 0;
@@ -702,12 +681,13 @@ public class SqlExecMojo
                 {
                     getLog().debug( "Opening PrintStream to output file " + outputFile );
                     outputFile.getParentFile().mkdirs();
-                    out = new PrintStream( new BufferedOutputStream( new FileOutputStream( outputFile.getAbsolutePath(),
-                                                                                           append ) ) );
+                    out =
+                        new PrintStream( new BufferedOutputStream( new FileOutputStream( outputFile.getAbsolutePath(),
+                                                                                         append ) ) );
                 }
 
                 // Process all transactions
-                for ( Transaction t : transactions  )
+                for ( Transaction t : transactions )
                 {
                     t.runTransaction( out );
 
@@ -765,10 +745,9 @@ public class SqlExecMojo
         }
 
         getLog().info( getSuccessfulStatements() + " of " + getTotalStatements()
-                       + " SQL statements executed successfully" );
-        
-        if ( ON_ERROR_ABORT_AFTER.equalsIgnoreCase( getOnError() ) 
-             && totalStatements != successfulStatements )
+                           + " SQL statements executed successfully" );
+
+        if ( ON_ERROR_ABORT_AFTER.equalsIgnoreCase( getOnError() ) && totalStatements != successfulStatements )
         {
             throw new MojoExecutionException( "Some SQL statements failed to execute" );
         }
@@ -776,7 +755,6 @@ public class SqlExecMojo
 
     /**
      * Add sql command to transactions list.
-     *
      */
     private void addCommandToTransactions()
     {
@@ -785,7 +763,6 @@ public class SqlExecMojo
 
     /**
      * Add user sql fileset to transation list
-     *
      */
     private void addFileSetToTransactions()
     {
@@ -808,13 +785,14 @@ public class SqlExecMojo
 
     /**
      * Add user input of srcFiles to transaction list.
+     * 
      * @throws MojoExecutionException
      */
     private void addFilesToTransactions()
         throws MojoExecutionException
     {
         File[] files = getSrcFiles();
-        
+
         MavenFileFilterRequest request = new MavenFileFilterRequest();
         request.setEncoding( encoding );
         request.setMavenSession( mavenSession );
@@ -832,14 +810,14 @@ public class SqlExecMojo
                 String basename = FileUtils.basename( sourceFile.getName() );
                 String extension = FileUtils.extension( sourceFile.getName() );
                 File targetFile = FileUtils.createTempFile( basename, extension, null );
-                if ( !getLog().isDebugEnabled() ) 
+                if ( !getLog().isDebugEnabled() )
                 {
                     targetFile.deleteOnExit();
                 }
-                
+
                 request.setFrom( sourceFile );
                 request.setTo( targetFile );
-                
+
                 try
                 {
                     fileFilter.copyFile( request );
@@ -848,7 +826,7 @@ public class SqlExecMojo
                 {
                     throw new MojoExecutionException( e.getMessage() );
                 }
-                
+
                 createTransaction().setSrc( targetFile );
             }
         }
@@ -921,16 +899,13 @@ public class SqlExecMojo
     }
 
     /**
-     * Creates a new Connection as using the driver, url, userid and password
-     * specified.
-     *
-     * The calling method is responsible for closing the connection.
+     * Creates a new Connection as using the driver, url, userid and password specified. The calling method is
+     * responsible for closing the connection.
      *
      * @return Connection the newly created connection.
-     * @throws MojoExecutionException if the UserId/Password/Url is not set or there
-     *    is no suitable driver or the driver fails to load.
+     * @throws MojoExecutionException if the UserId/Password/Url is not set or there is no suitable driver or the driver
+     *             fails to load.
      * @throws SQLException if there is problem getting connection with valid url
-     *
      */
     private Connection getConnection()
         throws MojoExecutionException, SQLException
@@ -938,8 +913,8 @@ public class SqlExecMojo
         getLog().debug( "connecting to " + getUrl() );
         Properties info = new Properties();
         info.put( "user", getUsername() );
-        
-        if ( ! enableAnonymousPassword )
+
+        if ( !enableAnonymousPassword )
         {
             info.put( "password", getPassword() );
         }
@@ -976,6 +951,7 @@ public class SqlExecMojo
 
     /**
      * parse driverProperties into Properties set
+     * 
      * @return the driver properties
      * @throws MojoExecutionException
      */
@@ -1016,7 +992,8 @@ public class SqlExecMojo
     {
         String line;
 
-        if ( enableBlockMode )
+        //TODO: Check if this equivalent with if (enableBlockMode) {..
+        if ( delimiterType.equals( DelimiterType.ROW ) )
         {
             //no need to parse the content, ship it directly to jdbc in one sql statement
             line = IOUtil.toString( reader );
@@ -1036,7 +1013,7 @@ public class SqlExecMojo
             {
                 line = line.trim();
             }
-            
+
             if ( !keepFormat )
             {
                 if ( line.startsWith( "//" ) )
@@ -1067,7 +1044,6 @@ public class SqlExecMojo
                 sql.append( "\n" ).append( line );
             }
 
-
             overflow = SqlSplitter.containsSqlEnd( line, delimiter, overflow );
 
             // SQL defines "--" as a comment to EOL
@@ -1097,7 +1073,7 @@ public class SqlExecMojo
     /**
      * Exec the sql statement.
      * 
-     * @param sql query to execute 
+     * @param sql query to execute
      * @param out the outputstream
      */
     private void execSQL( String sql, PrintStream out )
@@ -1118,7 +1094,6 @@ public class SqlExecMojo
             boolean ret;
             int updateCountTotal = 0;
 
-            
             ret = statement.execute( sql );
             do
             {
@@ -1180,6 +1155,7 @@ public class SqlExecMojo
 
     /**
      * print any results in the result set.
+     * 
      * @param rs the resultset to print information about
      * @param out the place to print results
      * @throws SQLException on SQL problems.
@@ -1199,12 +1175,12 @@ public class SqlExecMojo
                 for ( int col = 1; col <= columnCount; col++ )
                 {
                     String columnValue = md.getColumnName( col );
-                    
+
                     if ( columnValue != null )
                     {
                         columnValue = columnValue.trim();
-                        
-                        if ( ",".equals( outputDelimiter ) ) 
+
+                        if ( ",".equals( outputDelimiter ) )
                         {
                             columnValue = StringEscapeUtils.escapeCsv( columnValue );
                         }
@@ -1232,8 +1208,8 @@ public class SqlExecMojo
                     if ( columnValue != null )
                     {
                         columnValue = columnValue.trim();
-                        
-                        if ( ",".equals( outputDelimiter ) ) 
+
+                        if ( ",".equals( outputDelimiter ) )
                         {
                             columnValue = StringEscapeUtils.escapeCsv( columnValue );
                         }
@@ -1257,10 +1233,8 @@ public class SqlExecMojo
     }
 
     /**
-     * Contains the definition of a new transaction element.
-     * Transactions allow several files or blocks of statements
-     * to be executed using the same JDBC connection and commit
-     * operation in between.
+     * Contains the definition of a new transaction element. Transactions allow several files or blocks of statements to
+     * be executed using the same JDBC connection and commit operation in between.
      */
     private class Transaction
         implements Comparable<Transaction>
@@ -1486,8 +1460,7 @@ public class SqlExecMojo
         }
         else
         {
-            throw new IllegalArgumentException( action 
-                + " is not a valid value for onError, only '" + ON_ERROR_ABORT
+            throw new IllegalArgumentException( action + " is not a valid value for onError, only '" + ON_ERROR_ABORT
                 + "', '" + ON_ERROR_ABORT_AFTER + "', or '" + ON_ERROR_CONTINUE + "'." );
         }
     }
@@ -1512,16 +1485,6 @@ public class SqlExecMojo
         this.driverProperties = driverProperties;
     }
 
-    public boolean isEnableBlockMode()
-    {
-        return enableBlockMode;
-    }
-
-    public void setEnableBlockMode( boolean enableBlockMode )
-    {
-        this.enableBlockMode = enableBlockMode;
-    }
-
     public String getSqlCommand()
     {
         return sqlCommand;
@@ -1531,7 +1494,7 @@ public class SqlExecMojo
     {
         this.sqlCommand = sqlCommand;
     }
-    
+
     public List<Transaction> getTransactions()
     {
         return transactions;
@@ -1546,7 +1509,7 @@ public class SqlExecMojo
     {
         this.fileFilter = filter;
     }
-    
+
     public void setSecurityDispatcher( SecDispatcher securityDispatcher )
     {
         this.securityDispatcher = securityDispatcher;

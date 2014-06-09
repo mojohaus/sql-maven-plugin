@@ -51,13 +51,15 @@ public class SqlExecMojoTest
         mojo.setPassword( p.getProperty( "password" ) );
         mojo.setUrl( p.getProperty( "url" ) );
         mojo.setDriverProperties( p.getProperty( "driverProperties" ) );
-        
-        MavenFileFilter filter = (MavenFileFilter) lookup( "org.apache.maven.shared.filtering.MavenFileFilter", "default" );
-        mojo.setFileFilter(filter);
-        
-        SecDispatcher securityDispatcher = (SecDispatcher) lookup( "org.sonatype.plexus.components.sec.dispatcher.SecDispatcher", "default" );
+
+        MavenFileFilter filter =
+            (MavenFileFilter) lookup( "org.apache.maven.shared.filtering.MavenFileFilter", "default" );
+        mojo.setFileFilter( filter );
+
+        SecDispatcher securityDispatcher =
+            (SecDispatcher) lookup( "org.sonatype.plexus.components.sec.dispatcher.SecDispatcher", "default" );
         mojo.setSecurityDispatcher( securityDispatcher );
-        
+
         MavenProject project = new MavenProjectStub();
         setVariableValueToObject( mojo, "project", project );
     }
@@ -125,7 +127,6 @@ public class SqlExecMojoTest
 
     /**
      * Ensure srcFiles always execute first
-     * 
      */
     public void testAllMojo()
         throws MojoExecutionException
@@ -202,33 +203,33 @@ public class SqlExecMojoTest
 
         assertEquals( 0, mojo.getSuccessfulStatements() );
     }
-    
+
     public void testOnErrorAbortAfterMojo()
         throws MojoExecutionException
     {
         String commands = "create table BOGUS"; //bad syntax
-    
+
         mojo.addText( commands );
-    
+
         File[] srcFiles = new File[1];
         srcFiles[0] = new File( "src/test/data/invalid-syntax.sql" );
-        
+
         assertTrue( srcFiles[0].exists() );
-        
-        mojo.setSrcFiles( srcFiles );    
+
+        mojo.setSrcFiles( srcFiles );
         mojo.setOnError( "abortAfter" );
-    
+
         try
         {
             mojo.execute();
             fail( "Execution is not aborted on error." );
-    
+
         }
         catch ( MojoExecutionException e )
         {
             //expected
         }
-    
+
         assertEquals( 0, mojo.getSuccessfulStatements() );
         assertEquals( 2, mojo.getTotalStatements() );
     }
@@ -389,7 +390,9 @@ public class SqlExecMojoTest
     {
         String command = "create table BLOCKTABLE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
         mojo.addText( command );
-        mojo.setEnableBlockMode( true );
+        //TODO: Check if this is equal mojo.setEnableBlockMode( true );
+        //to the following:
+        mojo.setDelimiter( DelimiterType.ROW );
         mojo.execute();
         assertEquals( 1, mojo.getSuccessfulStatements() );
 
@@ -426,8 +429,9 @@ public class SqlExecMojoTest
     public void testBadDelimiter()
         throws Exception
     {
-        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar):"
-            + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command =
+            "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar):"
+                + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
 
         mojo.addText( command );
         mojo.setDelimiter( ":" );
@@ -445,8 +449,9 @@ public class SqlExecMojoTest
     public void testGoodDelimiter()
         throws Exception
     {
-        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)\n:\n"
-            + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command =
+            "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)\n:\n"
+                + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
 
         mojo.addText( command );
         mojo.setDelimiter( ":" );
@@ -459,8 +464,9 @@ public class SqlExecMojoTest
     public void testBadDelimiterType()
         throws Exception
     {
-        String command = "create table BADDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)" + "\n:"
-            + "create table BADDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command =
+            "create table BADDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)" + "\n:"
+                + "create table BADDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
 
         mojo.addText( command );
         mojo.setDelimiter( ":" );
@@ -479,12 +485,13 @@ public class SqlExecMojoTest
     public void testGoodDelimiterType()
         throws Exception
     {
-        String command = "create table GOODDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)"
-            + "\n:  \n" + "create table GOODDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command =
+            "create table GOODDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)" + "\n:  \n"
+                + "create table GOODDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
 
         mojo.addText( command );
         mojo.setDelimiter( ":" );
-        mojo.setDelimiterType( DelimiterType.ROW );
+        mojo.setDelimiterType( DelimiterType.NORMAL );
 
         mojo.execute();
         assertEquals( 2, mojo.getSuccessfulStatements() );
@@ -493,13 +500,14 @@ public class SqlExecMojoTest
     public void testOutputFile()
         throws Exception
     {
-        String command = "create table GOODDELIMTYPE3 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)"
-            + "\n:  \n" + "create table GOODDELIMTYPE4 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command =
+            "create table GOODDELIMTYPE3 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)" + "\n:  \n"
+                + "create table GOODDELIMTYPE4 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
 
         mojo.addText( command );
         mojo.setDelimiter( ":" );
-        mojo.setDelimiterType( DelimiterType.ROW );
-        
+        mojo.setDelimiterType( DelimiterType.NORMAL );
+
         String basedir = System.getProperty( "basedir", "." );
         File outputFile = new File( basedir, "target/sql.out" );
         outputFile.delete();
@@ -507,16 +515,16 @@ public class SqlExecMojoTest
         mojo.setPrintResultSet( true );
 
         mojo.execute();
-        
+
         assertTrue( "Output file: " + outputFile + " not found.", outputFile.exists() );
-        
-        assertTrue(  "Unexpected empty output file. ", outputFile.length() > 0 );
-        
+
+        assertTrue( "Unexpected empty output file. ", outputFile.length() > 0 );
+
         //makesure we can remote the file, it is not locked
         //assertTrue( outputFile.delete() );
-        
+
     }
-    
+
     // MSQL-44
     public void testAnonymousBlock()
         throws MojoExecutionException
