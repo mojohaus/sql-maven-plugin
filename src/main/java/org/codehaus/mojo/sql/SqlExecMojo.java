@@ -49,6 +49,9 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
@@ -65,10 +68,8 @@ import org.sonatype.plexus.components.sec.dispatcher.SecDispatcherException;
 
 /**
  * Executes SQL against a database.
- * 
- * @goal execute
- * @threadSafe
  */
+@Mojo( name = "execute", requiresProject = true, threadSafe = true )
 public class SqlExecMojo
     extends AbstractMojo
 {
@@ -106,8 +107,8 @@ public class SqlExecMojo
      * <code>${settingsKey}</code> as key.
      *
      * @since 1.0
-     * @parameter expression="${username}"
      */
+    @Parameter( property = "username" )
     private String username;
 
     /**
@@ -115,8 +116,8 @@ public class SqlExecMojo
      * <code>${settingsKey}</code> as key.
      *
      * @since 1.0
-     * @parameter expression="${password}"
      */
+    @Parameter( property = "password" )
     private String password;
 
     /**
@@ -124,24 +125,22 @@ public class SqlExecMojo
      * empty password parameters in the connection initialization.
      *
      * @since 1.4
-     * @parameter default-value="false"
      */
+    @Parameter( defaultValue = "false" )
     private boolean enableAnonymousPassword;
 
     /**
      * Additional key=value pairs separated by comma to be passed into JDBC driver.
      *
      * @since 1.0
-     * @parameter expression="${driverProperties}" default-value = ""
      */
+    @Parameter( defaultValue = "", property = "driverProperties" )
     private String driverProperties;
 
     /**
-     * @parameter expression="${settings}"
-     * @required
      * @since 1.0
-     * @readonly
      */
+    @Parameter( defaultValue = "${settings}", readonly = true, required = true )
     private Settings settings;
 
     /**
@@ -149,17 +148,16 @@ public class SqlExecMojo
      * <code>${url}</code> if not given.
      *
      * @since 1.0
-     * @parameter expression="${settingsKey}"
      */
+    @Parameter( property = "settingsKey" )
     private String settingsKey;
 
     /**
      * MNG-4384
      * 
      * @since 1.5
-     * @component role="hidden.org.sonatype.plexus.components.sec.dispatcher.SecDispatcher"
-     * @required
      */
+    @Component( role = org.sonatype.plexus.components.sec.dispatcher.SecDispatcher.class, hint = "default" )
     private SecDispatcher securityDispatcher;
 
     /**
@@ -167,33 +165,26 @@ public class SqlExecMojo
      * as embedded Derby, that can shutdown the database via the URL (i.e. <code>shutdown=true</code>).
      *
      * @since 1.1
-     * @parameter expression="${skipOnConnectionError}" default-value="false"
      */
+    @Parameter( defaultValue = "false", property = "skipOnConnectionError" )
     private boolean skipOnConnectionError;
 
     /**
      * Setting this parameter to <code>true</code> will force the execution of this mojo, even if it would get skipped
      * usually.
-     * 
-     * @parameter expression="${forceOpenJpaExecution}" default-value=false
-     * @required
      */
+    @Parameter( defaultValue = "false", property = "forceOpenJpaExecution", required = true )
     private boolean forceMojoExecution;
 
     /**
      * The Maven Project Object
-     *
-     * @parameter default-value="${project}"
-     * @required
-     * @readonly
      */
+    @Parameter( defaultValue = "${project}", readonly = true, required = true )
     private MavenProject project;
 
     /**
-     * @parameter default-value="${session}"
-     * @required
-     * @readonly
      */
+    @Parameter( defaultValue = "${session}", readonly = true, required = true )
     private MavenSession mavenSession;
 
     //////////////////////////////// Source info /////////////////////////////
@@ -202,17 +193,18 @@ public class SqlExecMojo
      * SQL input commands separated by <code>${delimiter}</code>.
      *
      * @since 1.0
-     * @parameter expression="${sqlCommand}" default-value=""
      */
+    @Parameter( defaultValue = "${session}", property = "sqlCommand" )
+    //FIXME: The assignment here is necessary, cause the tests don't work correctly. They have to be fixed accordingly.
     private String sqlCommand = "";
 
     /**
      * List of files containing SQL statements to load.
      * 
      * @since 1.0
-     * @parameter
      * @see #fileset
      */
+    @Parameter
     private File[] srcFiles;
 
     /**
@@ -221,36 +213,34 @@ public class SqlExecMojo
      * includes!).
      * 
      * @since 1.0
-     * @parameter
      * @see #srcFiles
      */
+    @Parameter
     private Fileset fileset;
 
     /**
      * When <code>true</code>, skip the execution.
      *
      * @since 1.0
-     * @parameter default-value="false"
      */
+    @Parameter( defaultValue = "false" )
     private boolean skip;
 
     ////////////////////////////////// Database info /////////////////////////
     /**
      * Database URL.
      *
-     * @parameter expression="${url}"
-     * @required
      * @since 1.0-beta-1
      */
+    @Parameter( property = "url", required = true )
     private String url;
 
     /**
      * Database driver classname.
      *
      * @since 1.0
-     * @parameter expression="${driver}"
-     * @required
      */
+    @Parameter( property = "driver", required = true )
     private String driver;
 
     ////////////////////////////// Operation Configuration ////////////////////
@@ -258,16 +248,17 @@ public class SqlExecMojo
      * Set to <code>true</code> to execute none-transactional SQL.
      *
      * @since 1.0
-     * @parameter expression="${autocommit}" default-value="false"
      */
+    @Parameter( defaultValue = "false", property = "autocommit" )
     private boolean autocommit;
 
     /**
      * Action to perform if an error is found. Possible values are <code>abort</code> and <code>continue</code>.
      *
      * @since 1.0
-     * @parameter expression="${onError}" default-value="abort"
      */
+    @Parameter( defaultValue = "abort", property = "onError" )
+    //FIXME: The assignment here is necessary, cause the tests don't work correctly. They have to be fixed accordingly.
     private String onError = ON_ERROR_ABORT;
 
     ////////////////////////////// Parser Configuration ////////////////////
@@ -276,8 +267,9 @@ public class SqlExecMojo
      * Set the delimiter that separates SQL statements.
      *
      * @since 1.0
-     * @parameter expression="${delimiter}" default-value=";"
      */
+    @Parameter( defaultValue = ";", property = "delimiter" )
+    //FIXME: The assignment here is necessary, cause the tests don't work correctly. They have to be fixed accordingly.
     private String delimiter = ";";
 
     /**
@@ -291,8 +283,9 @@ public class SqlExecMojo
      * </p>
      *
      * @since 1.2
-     * @parameter expression="${delimiterType}" default-value="normal"
      */
+    @Parameter( defaultValue = DelimiterType.NORMAL, property = "delimiterType" )
+    //FIXME: The assignment here is necessary, cause the tests don't work correctly. They have to be fixed accordingly.
     private String delimiterType = DelimiterType.NORMAL;
 
     /**
@@ -301,25 +294,25 @@ public class SqlExecMojo
      * {@link #srcFiles}
      * 
      * @since 1.1
-     * @parameter expression="${orderFile}"
      */
+    @Parameter( property = "orderFile" )
     private String orderFile = null;
 
     /**
      * Keep the format of an SQL block.
      *
      * @since 1.1
-     * @parameter expression="${keepFormat}" default-value="false"
      */
+    @Parameter( defaultValue = "false", property = "keepFormat" )
     private boolean keepFormat;
 
     ///////////////////////////////////////////////////////////////////////////////////////
     /**
      * Print SQL results.
      *
-     * @parameter expression="${printResultSet}" default-value="false"
      * @since 1.3
      */
+    @Parameter( defaultValue = "false", property = "printResultSet" )
     private boolean printResultSet;
 
     /**
@@ -331,26 +324,26 @@ public class SqlExecMojo
      * Dump the SQL execution's output to a file.<br />
      * <strong>Default value is</strong>: <code>System.out</code>.
      *
-     * @parameter
      * @since 1.3
      */
+    @Parameter
     private File outputFile;
 
     /**
      * The delimiter used to separate fields in the output when using <code>printResultSet</code>.
      *
-     * @parameter default-value=","
      * @since 1.4
      */
+    @Parameter( defaultValue = "," )
     private String outputDelimiter;
 
     /**
      * Encoding to use when reading SQL statements from a file.
      *
-     * @parameter expression="${encoding}" default-value="${project.build.sourceEncoding}"
      * @since 1.1
      */
-    private String encoding = "";
+    @Parameter( defaultValue = "${project.build.sourceEncoding}", property = "encoding" )
+    private String encoding;
 
     /**
      * Append to an existing file or overwrite it?
@@ -362,8 +355,9 @@ public class SqlExecMojo
      * false.
      * 
      * @since 1.4
-     * @parameter expression="${escapeProcessing}" default-value="true"
      */
+    @Parameter( defaultValue = "true", property = "escapeProcessing" )
+    //FIXME: The assignment here is necessary, cause the tests don't work correctly. They have to be fixed accordingly.
     private boolean escapeProcessing = true;
 
     ////////////////////////////////// Internal properties//////////////////////
@@ -394,31 +388,31 @@ public class SqlExecMojo
     private List<Transaction> transactions = new Vector<Transaction>();
 
     /**
-     * @component role="org.apache.maven.shared.filtering.MavenFileFilter"
      * @since 1.4
      */
+    @Component( role = org.apache.maven.shared.filtering.MavenFileFilter.class )
     private MavenFileFilter fileFilter;
 
     /**
      * Set to true if you want to filter the srcFiles using system-, user- and project properties
      * 
-     * @parameter expression="${enableFiltering}" default-value="false"
      * @since 1.4
      */
+    @Parameter( defaultValue = "false", property = "enableFiltering" )
     private boolean enableFiltering;
 
     private ScriptRunner scriptRunner;
 
     /**
-     * @parameter
      * @since 1.6
      */
+    @Parameter
     private File preExecuteHookScript;
 
     /**
-     * @parameter
      * @since 1.6
      */
+    @Parameter
     private File postExecuteHookScript;
 
     /**

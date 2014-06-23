@@ -1,4 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <artifactId>mojo-parent</artifactId>
@@ -6,17 +11,17 @@
     <version>33</version>
   </parent>
 
-  <modelVersion>4.0.0</modelVersion>
-
   <artifactId>sql-maven-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <version>1.6-SNAPSHOT</version>
   <name>SQL Maven Plugin</name>
   <inceptionYear>2006</inceptionYear>
   <description>Execute SQL Statements</description>
+
   <prerequisites>
     <maven>${mavenVersion}</maven>
   </prerequisites>
+
   <issueManagement>
     <system>JIRA</system>
     <url>http://jira.codehaus.org/browse/MSQL</url>
@@ -52,7 +57,7 @@
       <email>struberg@yahoo.de</email>
       <roles>
         <role>Java Developer</role>
-      </roles>  
+      </roles>
       <timezone>+1</timezone>
     </developer>
     <developer>
@@ -61,8 +66,17 @@
       <email>rfscholte@codehaus.org</email>
       <roles>
         <role>Java Developer</role>
-      </roles>  
+      </roles>
       <timezone>Europe/Amsterdam</timezone>
+    </developer>
+    <developer>
+      <id>khmarbaise</id>
+      <name>Karl-Heinz Marbaise</name>
+      <email>khmarbaise@codehaus.org</email>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+      <timezone>Europe/Berlin</timezone>
     </developer>
   </developers>
 
@@ -76,6 +90,44 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <configuration>
+          <goalPrefix>sql</goalPrefix>
+          <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+        </configuration>
+        <executions>
+          <execution>
+            <id>mojo-descriptor</id>
+            <goals>
+              <goal>descriptor</goal>
+            </goals>
+            <phase>process-classes</phase>
+          </execution>
+          <execution>
+            <id>generated-helpmojo</id>
+            <goals>
+              <goal>helpmojo</goal>
+            </goals>
+            <phase>generate-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <!--
+      <plugin>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-component-metadata</artifactId>
+        <version>1.5.5</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate-metadata</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+-->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -118,11 +170,11 @@
                   <shadedPattern>hidden.org.sonatype.plexus.components</shadedPattern>
                 </relocation>
               </relocations>
-              <!-- Using manual components.xml to be able to set _configuration-file. Uncomment tags to regenerate file.  -->
+              <!-- Using manual components.xml to be able to set _configuration-file. Uncomment tags to regenerate file. -->
               <!--
-              <transformers>
+                <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ComponentsXmlResourceTransformer" />
-              </transformers>
+                </transformers>
               -->
             </configuration>
           </execution>
@@ -145,6 +197,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.maven.plugin-tools</groupId>
+      <artifactId>maven-plugin-annotations</artifactId>
+      <version>3.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
       <version>${mavenVersion}</version>
@@ -160,6 +218,11 @@
       <version>${mavenVersion}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-artifact</artifactId>
+      <version>${mavenVersion}</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-script-interpreter</artifactId>
       <version>1.0</version>
@@ -169,36 +232,36 @@
       <artifactId>plexus-utils</artifactId>
       <version>1.5.8</version>
     </dependency>
-<!--     
-    <dependency>
-    	<groupId>org.codehaus.plexus</groupId>
-    	<artifactId>plexus-interpolation</artifactId>
-    	<version>1.13</version>
-    </dependency>
- -->    
-    <dependency>
-        <groupId>commons-lang</groupId>
-        <artifactId>commons-lang</artifactId>
-        <version>2.4</version>
-    </dependency>
-    <dependency>
-    	<groupId>org.apache.maven.shared</groupId>
-    	<artifactId>maven-filtering</artifactId>
-    	<version>1.0-beta-3</version>
-    </dependency>
-    <dependency>
-        <groupId>org.sonatype.plexus</groupId>
-        <artifactId>plexus-sec-dispatcher</artifactId>
-        <version>1.4</version>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.maven.shared</groupId>
-        <artifactId>maven-plugin-testing-harness</artifactId>
-        <version>1.1</version>
-        <scope>test</scope>
+    <!--
+      <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-interpolation</artifactId>
+      <version>1.13</version>
       </dependency>
+    -->
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.shared</groupId>
+      <artifactId>maven-filtering</artifactId>
+      <version>1.0-beta-3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.plexus</groupId>
+      <artifactId>plexus-sec-dispatcher</artifactId>
+      <version>1.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.shared</groupId>
+      <artifactId>maven-plugin-testing-harness</artifactId>
+      <version>1.1</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
-  
+
   <profiles>
     <profile>
       <id>run-its</id>
@@ -216,7 +279,7 @@
             <configuration>
               <debug>true</debug>
               <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
-              <!--<preBuildHookScript>setup</preBuildHookScript>-->
+              <!--<preBuildHookScript>setup</preBuildHookScript> -->
               <postBuildHookScript>verify</postBuildHookScript>
               <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
               <settingsFile>src/it/settings.xml</settingsFile>
@@ -225,6 +288,7 @@
                 <goal>sql:execute</goal>
               </goals>
             </configuration>
+            <!-- extracArtifact: org.apache.derby:derby:jar:10.2.2.0: must be installed -->
             <executions>
               <execution>
                 <id>integration-test</id>
