@@ -110,11 +110,12 @@
             <goals>
               <goal>helpmojo</goal>
             </goals>
-            <phase>generate-sources</phase>
+            <phase>process-classes</phase>
           </execution>
         </executions>
       </plugin>
-      <!--
+
+<!--
       <plugin>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-component-metadata</artifactId>
@@ -164,12 +165,14 @@
                   <include>org.sonatype.plexus:plexus-cipher</include>
                 </includes>
               </artifactSet>
+              <!--
               <relocations>
                 <relocation>
                   <pattern>org.sonatype.plexus.components</pattern>
-                  <shadedPattern>hidden.org.sonatype.plexus.components</shadedPattern>
+                  <shadedPattern>org.sonatype.plexus.components</shadedPattern>
                 </relocation>
               </relocations>
+              -->
               <!-- Using manual components.xml to be able to set _configuration-file. Uncomment tags to regenerate file. -->
               <!--
                 <transformers>
@@ -232,13 +235,12 @@
       <artifactId>plexus-utils</artifactId>
       <version>1.5.8</version>
     </dependency>
-    <!--
-      <dependency>
+    <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-interpolation</artifactId>
       <version>1.13</version>
-      </dependency>
-    -->
+    </dependency>
+
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
@@ -288,12 +290,21 @@
                 <goal>sql:execute</goal>
               </goals>
             </configuration>
-            <!-- extracArtifact: org.apache.derby:derby:jar:10.2.2.0: must be installed -->
             <executions>
+              <execution>
+                <id>integration-test-install</id>
+                <goals>
+                  <goal>install</goal>
+                </goals>
+                <configuration>
+                  <extracArtifacts>
+                    <extracArtifact>org.apache.derby:derby:jar:10.2.2.0</extracArtifact>
+                  </extracArtifacts>
+                </configuration>
+              </execution>
               <execution>
                 <id>integration-test</id>
                 <goals>
-                  <goal>install</goal>
                   <goal>run</goal>
                 </goals>
               </execution>
@@ -305,6 +316,6 @@
   </profiles>
 
   <properties>
-    <mavenVersion>2.0.6</mavenVersion>
+    <mavenVersion>2.2.1</mavenVersion>
   </properties>
 </project>
