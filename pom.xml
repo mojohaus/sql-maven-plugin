@@ -8,7 +8,7 @@
   <parent>
     <artifactId>mojo-parent</artifactId>
     <groupId>org.codehaus.mojo</groupId>
-    <version>33</version>
+    <version>34</version>
   </parent>
 
   <artifactId>sql-maven-plugin</artifactId>
