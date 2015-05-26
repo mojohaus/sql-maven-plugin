@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<rss version="0.91">
+  <channel>
+    <title>SQL Maven Plugin - Checkstyle report</title>
+    <link>http://mojo.codehaus.org/sql-maven-plugin</link>
+    <description>SQL Maven Plugin - Checkstyle report</description>
+    <language>en-us</language>
+    <copyright>&#169;2006 - 2015 Codehaus</copyright>
+    <item>
+      <title>File: 4,
+             Errors: 2,
+             Warnings: 5,
+             Infos: 2
+      </title>
+            <link>http://mojo.codehaus.org/sql-maven-plugin/checkstyle.html</link>
+      <description>
+        <p>Click <a href="http://mojo.codehaus.org/sql-maven-plugin/checkstyle.html">here</a> for the full Checkstyle report.</p>
+
+        <table summary="Files" boder="1">
+          <thead>
+            <tr>
+              <th>Files</th>
+              <th style="width:30px;"><abbr title="Info">I</abbr></th>
+              <th style="width:30px;"><abbr title="Warning">W</abbr></th>
+              <th style="width:30px;"><abbr title="Error">E</abbr></th>
+            </tr>
+          </thead>
+          <tbody>
+                          <tr>
+                <td>
+                  <a href="http://mojo.codehaus.org/sql-maven-plugin/checkstyle.html#org.codehaus.mojo.sql.DelimiterType.java">org/codehaus/mojo/sql/DelimiterType.java</a>
+                </td>
+                <td>
+                  2
+                </td>
+                <td>
+                  5
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://mojo.codehaus.org/sql-maven-plugin/checkstyle.html#org.codehaus.mojo.sql.SqlSplitter.java">org/codehaus/mojo/sql/SqlSplitter.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://mojo.codehaus.org/sql-maven-plugin/checkstyle.html#org.codehaus.mojo.sql.Fileset.java">org/codehaus/mojo/sql/Fileset.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="http://mojo.codehaus.org/sql-maven-plugin/checkstyle.html#org.codehaus.mojo.sql.SqlExecMojo.java">org/codehaus/mojo/sql/SqlExecMojo.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1
+                </td>
+              </tr>
+                      </tbody>
+        </table>
+        
+      </description>
+    </item>
+  </channel>
+</rss>
+
