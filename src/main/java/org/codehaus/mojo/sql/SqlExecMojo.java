@@ -74,6 +74,9 @@ public class SqlExecMojo
     extends AbstractMojo
 {
 
+    private static final String DELIMITER_STATEMENT = "DELIMITER ";
+    private static final int DELIMITER_STATEMENT_LENGTH = DELIMITER_STATEMENT.length();
+
     /**
      * Call {@link #setOnError(String)} with this value to abort SQL command execution if an error is found.
      */
@@ -1026,6 +1029,17 @@ public class SqlExecMojo
                     {
                         continue;
                     }
+                }
+            }
+
+            // Check for mysql delimiter statements
+            if (overflow >= SqlSplitter.NO_END)
+            {
+                String ucLine = line.toUpperCase();
+                if (ucLine.startsWith(DELIMITER_STATEMENT)) {
+                    String newDelimiter = line.substring(DELIMITER_STATEMENT_LENGTH).trim();
+                    setDelimiter(newDelimiter);
+                    continue;
                 }
             }
 
