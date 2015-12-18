@@ -22,6 +22,11 @@
     <maven>${mavenVersion}</maven>
   </prerequisites>
 
+  <properties>
+    <mavenVersion>2.2.1</mavenVersion>
+    <mojo.java.target>1.6</mojo.java.target>
+  </properties>
+
   <issueManagement>
     <system>GitHub</system>
     <url>https://github.com/mojohaus/sql-maven-plugin</url>
@@ -319,7 +324,4 @@
     </profile>
   </profiles>
 
-  <properties>
-    <mavenVersion>2.2.1</mavenVersion>
-  </properties>
 </project>
