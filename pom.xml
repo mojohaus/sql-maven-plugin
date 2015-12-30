@@ -8,7 +8,7 @@
   <parent>
     <artifactId>mojo-parent</artifactId>
     <groupId>org.codehaus.mojo</groupId>
-    <version>34</version>
+    <version>38</version>
   </parent>
 
   <artifactId>sql-maven-plugin</artifactId>
@@ -22,15 +22,24 @@
     <maven>${mavenVersion}</maven>
   </prerequisites>
 
+  <properties>
+    <mavenVersion>2.2.1</mavenVersion>
+    <mojo.java.target>1.6</mojo.java.target>
+  </properties>
+
   <issueManagement>
-    <system>JIRA</system>
-    <url>http://jira.codehaus.org/browse/MSQL</url>
+    <system>GitHub</system>
+    <url>https://github.com/mojohaus/sql-maven-plugin</url>
   </issueManagement>
+  <ciManagement>
+    <system>Travis-CI</system>
+    <url>https://travis-ci.org/mojohaus/sql-maven-plugin</url>
+  </ciManagement>
 
   <scm>
-    <connection>scm:svn:http://svn.codehaus.org/mojo/trunk/mojo/sql-maven-plugin</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/mojo/trunk/mojo/sql-maven-plugin</developerConnection>
-    <url>http://svn.codehaus.org/mojo/trunk/mojo/sql-maven-plugin</url>
+    <connection>scm:git:https://github.com/mojohaus/sql-maven-plugin.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/mojohaus/sql-maven-plugin.git</developerConnection>
+    <url>https://github.com/mojohaus/sql-maven-plugin</url>
   </scm>
 
   <developers>
@@ -72,7 +81,7 @@
     <developer>
       <id>khmarbaise</id>
       <name>Karl-Heinz Marbaise</name>
-      <email>khmarbaise@codehaus.org</email>
+      <email>khmarbaise@apache.org</email>
       <roles>
         <role>Java Developer</role>
       </roles>
@@ -315,7 +324,4 @@
     </profile>
   </profiles>
 
-  <properties>
-    <mavenVersion>2.2.1</mavenVersion>
-  </properties>
 </project>
