@@ -751,7 +751,10 @@ public class SqlExecMojo
      */
     private void addCommandToTransactions()
     {
-        createTransaction().addText( sqlCommand.trim() );
+        if ( sqlCommand != null )
+        {
+            createTransaction().addText( sqlCommand.trim() );
+        }
     }
 
     /**

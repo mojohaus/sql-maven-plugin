@@ -48,8 +48,7 @@ under the License.
         </repository>
         <repository>
           <id>apache.snapshots</id>
-          <name>Apache Snapshot Repository</name>
-          <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+          <url>@localRepositoryUrl@</url>
           <releases>
             <enabled>false</enabled>
           </releases>
