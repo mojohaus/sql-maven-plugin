@@ -51,6 +51,7 @@ public class SqlExecMojoTest
         mojo.setPassword( p.getProperty( "password" ) );
         mojo.setUrl( p.getProperty( "url" ) );
         mojo.setDriverProperties( p.getProperty( "driverProperties" ) );
+        mojo.setSqlCommand( "" ); //This will simulate the defaultValue of @Parameter (...)
 
         MavenFileFilter filter =
             (MavenFileFilter) lookup( "org.apache.maven.shared.filtering.MavenFileFilter", "default" );

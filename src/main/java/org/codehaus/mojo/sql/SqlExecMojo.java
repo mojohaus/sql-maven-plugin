@@ -194,9 +194,8 @@ public class SqlExecMojo
      *
      * @since 1.0
      */
-    @Parameter( defaultValue = "${session}", property = "sqlCommand" )
-    //FIXME: The assignment here is necessary, cause the tests don't work correctly. They have to be fixed accordingly.
-    private String sqlCommand = "";
+    @Parameter( defaultValue = "", property = "sqlCommand" )
+    private String sqlCommand;
 
     /**
      * List of files containing SQL statements to load.
