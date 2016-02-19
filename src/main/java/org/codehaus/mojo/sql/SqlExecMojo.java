@@ -100,6 +100,11 @@ public class SqlExecMojo
      */
     public static final String FILE_SORTING_DSC = "descending";
 
+    /**
+     * The default SQL delimiter which is used to separate statements.
+     */
+    public static final String DEFAULT_DELIMITER = ";";
+    
     //////////////////////////// User Info ///////////////////////////////////
 
     /**
@@ -256,9 +261,8 @@ public class SqlExecMojo
      *
      * @since 1.0
      */
-    @Parameter( defaultValue = "abort", property = "onError" )
-    //FIXME: The assignment here is necessary, cause the tests don't work correctly. They have to be fixed accordingly.
-    private String onError = ON_ERROR_ABORT;
+    @Parameter( defaultValue = ON_ERROR_ABORT, property = "onError" )
+    private String onError;
 
     ////////////////////////////// Parser Configuration ////////////////////
 
@@ -267,9 +271,8 @@ public class SqlExecMojo
      *
      * @since 1.0
      */
-    @Parameter( defaultValue = ";", property = "delimiter" )
-    //FIXME: The assignment here is necessary, cause the tests don't work correctly. They have to be fixed accordingly.
-    private String delimiter = ";";
+    @Parameter( defaultValue = DEFAULT_DELIMITER, property = "delimiter" )
+    private String delimiter;
 
     /**
      * <p>
@@ -284,8 +287,7 @@ public class SqlExecMojo
      * @since 1.2
      */
     @Parameter( defaultValue = DelimiterType.NORMAL, property = "delimiterType" )
-    //FIXME: The assignment here is necessary, cause the tests don't work correctly. They have to be fixed accordingly.
-    private String delimiterType = DelimiterType.NORMAL;
+    private String delimiterType;
 
     /**
      * Set the order in which the SQL files will be executed. Possible values are <code>ascending</code> and
@@ -295,7 +297,7 @@ public class SqlExecMojo
      * @since 1.1
      */
     @Parameter( property = "orderFile" )
-    private String orderFile = null;
+    private String orderFile;
 
     /**
      * Keep the format of an SQL block.
@@ -356,8 +358,7 @@ public class SqlExecMojo
      * @since 1.4
      */
     @Parameter( defaultValue = "true", property = "escapeProcessing" )
-    //FIXME: The assignment here is necessary, cause the tests don't work correctly. They have to be fixed accordingly.
-    private boolean escapeProcessing = true;
+    private boolean escapeProcessing;
 
     ////////////////////////////////// Internal properties//////////////////////
 

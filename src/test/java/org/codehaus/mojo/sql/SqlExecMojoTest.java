@@ -59,7 +59,11 @@ public class SqlExecMojoTest
         mojo.setPassword( p.getProperty( "password" ) );
         mojo.setUrl( p.getProperty( "url" ) );
         mojo.setDriverProperties( p.getProperty( "driverProperties" ) );
-        mojo.setSqlCommand( "" ); //This will simulate the defaultValue of @Parameter (...)
+        mojo.setSqlCommand( "" ); // This will simulate the defaultValue of @Parameter (...)
+        mojo.setDelimiter( SqlExecMojo.DEFAULT_DELIMITER );// This will simulate the defaultValue of @Parameter (...)
+        mojo.setOnError( SqlExecMojo.ON_ERROR_ABORT );
+        mojo.setDelimiterType( DelimiterType.NORMAL );
+        mojo.setEscapeProcessing( true );
 
         MavenFileFilter filter =
             (MavenFileFilter) lookup( "org.apache.maven.shared.filtering.MavenFileFilter", "default" );
@@ -111,7 +115,7 @@ public class SqlExecMojoTest
         ds.setBasedir( "src/test" );
         ds.setIncludes( new String[] { "**/create*.sql" } );
         ds.scan();
-        assert ( ds.getIncludedFiles().length == 1 );
+        assert( ds.getIncludedFiles().length == 1 );
 
         mojo.setFileset( ds );
 
@@ -186,7 +190,7 @@ public class SqlExecMojoTest
     public void test024OnErrorContinueMojo()
         throws MojoExecutionException
     {
-        String command = "create table BOGUS"; //bad syntax
+        String command = "create table BOGUS"; // bad syntax
         mojo.addText( command );
         mojo.setOnError( "continue" );
         mojo.execute();
@@ -196,7 +200,7 @@ public class SqlExecMojoTest
     public void test025OnErrorAbortMojo()
         throws MojoExecutionException
     {
-        String command = "create table BOGUS"; //bad syntax
+        String command = "create table BOGUS"; // bad syntax
         mojo.addText( command );
 
         try
@@ -216,7 +220,7 @@ public class SqlExecMojoTest
     public void test026OnErrorAbortAfterMojo()
         throws MojoExecutionException
     {
-        String commands = "create table BOGUS"; //bad syntax
+        String commands = "create table BOGUS"; // bad syntax
 
         mojo.addText( commands );
 
@@ -236,7 +240,7 @@ public class SqlExecMojoTest
         }
         catch ( MojoExecutionException e )
         {
-            //expected
+            // expected
         }
 
         assertEquals( 0, mojo.getSuccessfulStatements() );
@@ -253,7 +257,7 @@ public class SqlExecMojoTest
 
         mojo.setSettings( settings );
 
-        //force a lookup of username
+        // force a lookup of username
         mojo.setUsername( null );
         mojo.setPassword( null );
 
@@ -277,7 +281,7 @@ public class SqlExecMojoTest
 
         mojo.setSettings( settings );
 
-        //force a lookup of username
+        // force a lookup of username
         mojo.setSettingsKey( "somekey" );
         mojo.setUsername( null );
         mojo.setPassword( null );
@@ -350,7 +354,7 @@ public class SqlExecMojoTest
         }
         catch ( IllegalArgumentException e )
         {
-            //expected
+            // expected
         }
         try
         {
@@ -359,7 +363,7 @@ public class SqlExecMojoTest
         }
         catch ( IllegalArgumentException e )
         {
-            //expected
+            // expected
         }
     }
 
@@ -371,7 +375,7 @@ public class SqlExecMojoTest
         mojo.setSkip( true );
         mojo.execute();
 
-        //no command was executed due to skip is on
+        // no command was executed due to skip is on
         assertEquals( 0, mojo.getSuccessfulStatements() );
     }
 
@@ -399,8 +403,8 @@ public class SqlExecMojoTest
     {
         String command = "create table BLOCKTABLE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
         mojo.addText( command );
-        //TODO: Check if this is equal mojo.setEnableBlockMode( true );
-        //to the following:
+        // TODO: Check if this is equal mojo.setEnableBlockMode( true );
+        // to the following:
         mojo.setDelimiter( DelimiterType.ROW );
         mojo.execute();
         assertEquals( 1, mojo.getSuccessfulStatements() );
@@ -416,7 +420,7 @@ public class SqlExecMojoTest
     public void test011KeepFormat()
         throws MojoExecutionException
     {
-        // Normally a line starting in -- would be ignored, but with keepformat mode 
+        // Normally a line starting in -- would be ignored, but with keepformat mode
         // on it will not.
         String command = "--create table PERSON ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
         mojo.addText( command );
@@ -438,9 +442,8 @@ public class SqlExecMojoTest
     public void test012BadDelimiter()
         throws Exception
     {
-        String command =
-            "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar):"
-                + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar):"
+            + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
 
         mojo.addText( command );
         mojo.setDelimiter( ":" );
@@ -458,9 +461,8 @@ public class SqlExecMojoTest
     public void test013GoodDelimiter()
         throws Exception
     {
-        String command =
-            "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)\n:\n"
-                + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)\n:\n"
+            + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
 
         mojo.addText( command );
         mojo.setDelimiter( ":" );
@@ -473,9 +475,8 @@ public class SqlExecMojoTest
     public void test014BadDelimiterType()
         throws Exception
     {
-        String command =
-            "create table BADDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)" + "\n:"
-                + "create table BADDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command = "create table BADDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)" + "\n:"
+            + "create table BADDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
 
         mojo.addText( command );
         mojo.setDelimiter( ":" );
@@ -494,9 +495,8 @@ public class SqlExecMojoTest
     public void test015GoodDelimiterType()
         throws Exception
     {
-        String command =
-            "create table GOODDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)" + "\n:  \n"
-                + "create table GOODDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command = "create table GOODDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)"
+            + "\n:  \n" + "create table GOODDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
 
         mojo.addText( command );
         mojo.setDelimiter( ":" );
@@ -509,9 +509,8 @@ public class SqlExecMojoTest
     public void test016OutputFile()
         throws Exception
     {
-        String command =
-            "create table GOODDELIMTYPE3 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)" + "\n:  \n"
-                + "create table GOODDELIMTYPE4 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command = "create table GOODDELIMTYPE3 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)"
+            + "\n:  \n" + "create table GOODDELIMTYPE4 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
 
         mojo.addText( command );
         mojo.setDelimiter( ":" );
@@ -529,8 +528,8 @@ public class SqlExecMojoTest
 
         assertTrue( "Unexpected empty output file. ", outputFile.length() > 0 );
 
-        //makesure we can remote the file, it is not locked
-        //assertTrue( outputFile.delete() );
+        // makesure we can remote the file, it is not locked
+        // assertTrue( outputFile.delete() );
 
     }
 
@@ -538,10 +537,9 @@ public class SqlExecMojoTest
     public void test017AnonymousBlock()
         throws MojoExecutionException
     {
-        String command =
-            "--/ Anonymous SQL Block\n"
-                + "create table ANONBLOCKTABLE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)\n" + "/\n"
-                + "drop table ANONBLOCKTABLE";
+        String command = "--/ Anonymous SQL Block\n"
+            + "create table ANONBLOCKTABLE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)\n" + "/\n"
+            + "drop table ANONBLOCKTABLE";
         mojo.setDelimiter( "/" );
         mojo.addText( command );
         mojo.execute();
