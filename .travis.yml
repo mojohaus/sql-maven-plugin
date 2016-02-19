@@ -3,13 +3,7 @@ jdk:
   - openjdk6
   - oraclejdk7
   - oraclejdk8
-
-# The install can be skipped,
-# cause all tests etc. must
-# work without install before.
-install: true
-
-script: "mvn -Prun-its --show-version --errors --batch-mode clean verify"
+script: "mvn --show-version --errors --batch-mode clean verify"
 cache:
     directories:
     - $HOME/.m2
