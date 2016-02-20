@@ -3,6 +3,12 @@ jdk:
   - openjdk6
   - oraclejdk7
   - oraclejdk8
+
+# We can skip the install step,
+# cause everything must be running
+# fine without preliminary installation
+# into local cache.
+install: true
 script: "mvn --show-version --errors --batch-mode clean verify"
 cache:
     directories:
