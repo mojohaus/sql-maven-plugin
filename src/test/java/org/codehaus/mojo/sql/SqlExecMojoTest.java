@@ -31,10 +31,12 @@ import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 /**
  * Unit test for simple SqlExecMojo.
  * 
- * ATTENTION: These not unit tests, cause
+ * ATTENTION: These are no unit tests, cause
  * the are order dependent. This must be fixed.
+ * At the moment it is handled having appropriate 
+ * method names.
  */
-@FixMethodOrder(MethodSorters.JVM)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SqlExecMojoTest
     extends AbstractMojoTestCase
 {
@@ -74,7 +76,7 @@ public class SqlExecMojoTest
     /**
      * No error when there is no input
      */
-    public void testNoCommandMojo()
+    public void test018NoCommandMojo()
         throws MojoExecutionException
     {
         mojo.execute();
@@ -82,7 +84,7 @@ public class SqlExecMojoTest
         assertEquals( 0, mojo.getSuccessfulStatements() );
     }
 
-    public void testCreateCommandMojo()
+    public void test001CreateCommandMojo()
         throws MojoExecutionException
     {
         String command = "create table PERSON ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
@@ -92,7 +94,7 @@ public class SqlExecMojoTest
         assertEquals( 1, mojo.getSuccessfulStatements() );
     }
 
-    public void testDropCommandMojo()
+    public void test019DropCommandMojo()
         throws MojoExecutionException
     {
         String command = "drop table PERSON";
@@ -101,7 +103,7 @@ public class SqlExecMojoTest
         assertEquals( 1, mojo.getSuccessfulStatements() );
     }
 
-    public void testFileSetMojo()
+    public void test020FileSetMojo()
         throws MojoExecutionException
     {
 
@@ -119,7 +121,7 @@ public class SqlExecMojoTest
 
     }
 
-    public void testFileArrayMojo()
+    public void test021FileArrayMojo()
         throws MojoExecutionException
     {
         File[] srcFiles = new File[1];
@@ -135,7 +137,7 @@ public class SqlExecMojoTest
     /**
      * Ensure srcFiles always execute first
      */
-    public void testAllMojo()
+    public void test022AllMojo()
         throws MojoExecutionException
     {
 
@@ -156,7 +158,7 @@ public class SqlExecMojoTest
         assertEquals( 7, mojo.getSuccessfulStatements() );
     }
 
-    public void testOrderFile()
+    public void test023OrderFile()
         throws MojoExecutionException
     {
         Fileset ds = new Fileset();
@@ -181,7 +183,7 @@ public class SqlExecMojoTest
         }
     }
 
-    public void testOnErrorContinueMojo()
+    public void test024OnErrorContinueMojo()
         throws MojoExecutionException
     {
         String command = "create table BOGUS"; //bad syntax
@@ -191,7 +193,7 @@ public class SqlExecMojoTest
         assertEquals( 0, mojo.getSuccessfulStatements() );
     }
 
-    public void testOnErrorAbortMojo()
+    public void test025OnErrorAbortMojo()
         throws MojoExecutionException
     {
         String command = "create table BOGUS"; //bad syntax
@@ -211,7 +213,7 @@ public class SqlExecMojoTest
         assertEquals( 0, mojo.getSuccessfulStatements() );
     }
 
-    public void testOnErrorAbortAfterMojo()
+    public void test026OnErrorAbortAfterMojo()
         throws MojoExecutionException
     {
         String commands = "create table BOGUS"; //bad syntax
@@ -241,7 +243,7 @@ public class SqlExecMojoTest
         assertEquals( 2, mojo.getTotalStatements() );
     }
 
-    public void testDefaultUsernamePassword()
+    public void test002DefaultUsernamePassword()
         throws MojoExecutionException
     {
 
@@ -262,7 +264,7 @@ public class SqlExecMojoTest
 
     }
 
-    public void testUsernamePasswordLookup()
+    public void test003UsernamePasswordLookup()
         throws MojoExecutionException
     {
 
@@ -287,7 +289,7 @@ public class SqlExecMojoTest
 
     }
 
-    public void testBadDriver()
+    public void test004BadDriver()
     {
         mojo.setDriver( "bad-driver" );
         try
@@ -302,7 +304,7 @@ public class SqlExecMojoTest
         }
     }
 
-    public void testBadUrl()
+    public void test005BadUrl()
     {
         mojo.setUrl( "bad-url" );
         try
@@ -317,7 +319,7 @@ public class SqlExecMojoTest
         }
     }
 
-    public void testBadFile()
+    public void test006BadFile()
     {
         File[] srcFiles = new File[1];
         srcFiles[0] = new File( "a-every-bogus-file-that-does-not-exist" );
@@ -335,7 +337,7 @@ public class SqlExecMojoTest
         }
     }
 
-    public void testOnError()
+    public void test007OnError()
     {
         mojo.setOnError( "AbOrT" );
         assertEquals( SqlExecMojo.ON_ERROR_ABORT, mojo.getOnError() );
@@ -361,7 +363,7 @@ public class SqlExecMojoTest
         }
     }
 
-    public void testSkip()
+    public void test008Skip()
         throws MojoExecutionException
     {
         String command = "create table PERSON ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
@@ -373,7 +375,7 @@ public class SqlExecMojoTest
         assertEquals( 0, mojo.getSuccessfulStatements() );
     }
 
-    public void testDriverProperties()
+    public void test009DriverProperties()
         throws MojoExecutionException
     {
         Properties driverProperties = this.mojo.getDriverProperties();
@@ -392,7 +394,7 @@ public class SqlExecMojoTest
 
     }
 
-    public void testBlockMode()
+    public void test010BlockMode()
         throws MojoExecutionException
     {
         String command = "create table BLOCKTABLE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
@@ -411,7 +413,7 @@ public class SqlExecMojoTest
         assertEquals( 1, mojo.getSuccessfulStatements() );
     }
 
-    public void testKeepFormat()
+    public void test011KeepFormat()
         throws MojoExecutionException
     {
         // Normally a line starting in -- would be ignored, but with keepformat mode 
@@ -433,7 +435,7 @@ public class SqlExecMojoTest
 
     }
 
-    public void testBadDelimiter()
+    public void test012BadDelimiter()
         throws Exception
     {
         String command =
@@ -453,7 +455,7 @@ public class SqlExecMojoTest
         }
     }
 
-    public void testGoodDelimiter()
+    public void test013GoodDelimiter()
         throws Exception
     {
         String command =
@@ -468,7 +470,7 @@ public class SqlExecMojoTest
         assertEquals( 2, mojo.getSuccessfulStatements() );
     }
 
-    public void testBadDelimiterType()
+    public void test014BadDelimiterType()
         throws Exception
     {
         String command =
@@ -489,7 +491,7 @@ public class SqlExecMojoTest
         }
     }
 
-    public void testGoodDelimiterType()
+    public void test015GoodDelimiterType()
         throws Exception
     {
         String command =
@@ -504,7 +506,7 @@ public class SqlExecMojoTest
         assertEquals( 2, mojo.getSuccessfulStatements() );
     }
 
-    public void testOutputFile()
+    public void test016OutputFile()
         throws Exception
     {
         String command =
@@ -533,7 +535,7 @@ public class SqlExecMojoTest
     }
 
     // MSQL-44
-    public void testAnonymousBlock()
+    public void test017AnonymousBlock()
         throws MojoExecutionException
     {
         String command =
