@@ -199,7 +199,6 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -307,7 +306,7 @@
                 </goals>
                 <configuration>
                   <extracArtifacts>
-                    <extracArtifact>org.apache.derby:derby:jar:10.2.2.0</extracArtifact>
+                    <extracArtifact>org.apache.derby:derby:jar:10.11.1.1</extracArtifact>
                   </extracArtifacts>
                 </configuration>
               </execution>

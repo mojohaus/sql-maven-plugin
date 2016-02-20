@@ -24,11 +24,17 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.shared.filtering.MavenFileFilter;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 
 /**
  * Unit test for simple SqlExecMojo.
+ * 
+ * ATTENTION: These not unit tests, cause
+ * the are order dependent. This must be fixed.
  */
+@FixMethodOrder(MethodSorters.JVM)
 public class SqlExecMojoTest
     extends AbstractMojoTestCase
 {
