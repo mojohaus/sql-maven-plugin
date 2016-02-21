@@ -575,6 +575,7 @@ public class SqlExecMojo
 
         if ( skipMojo() )
         {
+            getLog().info( "User has requested to skip execution." );
             return;
         }
 
