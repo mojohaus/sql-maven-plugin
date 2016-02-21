@@ -517,7 +517,7 @@ public class SqlExecMojo
     /**
      * whether or not format should be preserved. Defaults to false.
      *
-     * @param keepformat The keepformat to set
+     * @param keepformat {@code true} to keep the format {@code false} otherwise.
      */
     public void setKeepFormat( boolean keepformat )
     {
@@ -527,7 +527,7 @@ public class SqlExecMojo
     /**
      * Set escape processing for statements.
      * 
-     * @param enable <code>true</code> to escape, otherwiser <code>false</code>
+     * @param enable <code>true</code> to escape, otherwise <code>false</code>
      */
     public void setEscapeProcessing( boolean enable )
     {
@@ -551,7 +551,7 @@ public class SqlExecMojo
     {
         if ( skip )
         {
-            getLog().info( "Skip sql execution" );
+            getLog().info( "User has requested to skip execution." );
             return true;
         }
 
@@ -575,10 +575,15 @@ public class SqlExecMojo
 
         if ( skipMojo() )
         {
-            getLog().info( "User has requested to skip execution." );
             return;
         }
 
+        executeScriptPlusSql();
+    }
+
+    private void executeScriptPlusSql()
+        throws MojoExecutionException
+    {
         // prepare scriptrunner
         scriptRunner = new ScriptRunner( getLog() );
         scriptRunner.setScriptEncoding( encoding );
