@@ -434,7 +434,14 @@ public class SqlExecMojo
      */
     public void addText( String sql )
     {
-        this.sqlCommand += sql;
+        if ( this.sqlCommand == null )
+        {
+            this.sqlCommand = sql;
+        }
+        else
+        {
+            this.sqlCommand += sql;
+        }
     }
 
     /**

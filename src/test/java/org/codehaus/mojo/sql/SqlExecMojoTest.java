@@ -59,7 +59,7 @@ public class SqlExecMojoTest
         mojo.setPassword( p.getProperty( "password" ) );
         mojo.setUrl( p.getProperty( "url" ) );
         mojo.setDriverProperties( p.getProperty( "driverProperties" ) );
-        mojo.setSqlCommand( "" ); // This will simulate the defaultValue of @Parameter (...)
+        mojo.setSqlCommand( null );
         mojo.setDelimiter( SqlExecMojo.DEFAULT_DELIMITER );// This will simulate the defaultValue of @Parameter (...)
         mojo.setOnError( SqlExecMojo.ON_ERROR_ABORT );
         mojo.setDelimiterType( DelimiterType.NORMAL );
