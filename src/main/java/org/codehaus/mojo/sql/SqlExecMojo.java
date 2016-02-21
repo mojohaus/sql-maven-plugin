@@ -199,7 +199,7 @@ public class SqlExecMojo
      *
      * @since 1.0
      */
-    @Parameter( defaultValue = "", property = "sqlCommand" )
+    @Parameter( property = "sqlCommand" )
     private String sqlCommand;
 
     /**
