@@ -890,13 +890,13 @@ public class SqlExecMojo
 
         if ( getUsername() == null )
         {
-            // allow emtpy username
+            // allow empty username
             setUsername( "" );
         }
 
         if ( getPassword() == null )
         {
-            // allow emtpy password
+            // allow empty password
             setPassword( "" );
         }
     }
