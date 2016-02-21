@@ -104,7 +104,7 @@ public class SqlExecMojo
      * The default SQL delimiter which is used to separate statements.
      */
     public static final String DEFAULT_DELIMITER = ";";
-    
+
     //////////////////////////// User Info ///////////////////////////////////
 
     /**
@@ -592,8 +592,8 @@ public class SqlExecMojo
         // prepare scriptrunner
         scriptRunner = new ScriptRunner( getLog() );
         scriptRunner.setScriptEncoding( encoding );
-//        scriptRunner.setGlobalVariable( "localRepositoryPath", localRepositoryPath );
-//        scriptRunner.setClassPath( scriptClassPath );
+        // scriptRunner.setGlobalVariable( "localRepositoryPath", localRepositoryPath );
+        // scriptRunner.setClassPath( scriptClassPath );
 
         Map<String, Object> context = new HashMap<String, Object>();
 
@@ -665,7 +665,7 @@ public class SqlExecMojo
             }
             else
             {
-                //error on get connection and user asked to skip the rest
+                // error on get connection and user asked to skip the rest
                 return;
             }
         }
@@ -682,9 +682,8 @@ public class SqlExecMojo
                 {
                     getLog().debug( "Opening PrintStream to output file " + outputFile );
                     outputFile.getParentFile().mkdirs();
-                    out =
-                        new PrintStream( new BufferedOutputStream( new FileOutputStream( outputFile.getAbsolutePath(),
-                                                                                         append ) ) );
+                    out = new PrintStream( new BufferedOutputStream( new FileOutputStream( outputFile.getAbsolutePath(),
+                                                                                           append ) ) );
                 }
 
                 // Process all transactions
@@ -746,7 +745,7 @@ public class SqlExecMojo
         }
 
         getLog().info( getSuccessfulStatements() + " of " + getTotalStatements()
-                           + " SQL statements executed successfully" );
+            + " SQL statements executed successfully" );
 
         if ( ON_ERROR_ABORT_AFTER.equalsIgnoreCase( getOnError() ) && totalStatements != successfulStatements )
         {
@@ -891,13 +890,13 @@ public class SqlExecMojo
 
         if ( getUsername() == null )
         {
-            //allow emtpy username
+            // allow emtpy username
             setUsername( "" );
         }
 
         if ( getPassword() == null )
         {
-            //allow emtpy password
+            // allow emtpy password
             setPassword( "" );
         }
     }
@@ -996,10 +995,10 @@ public class SqlExecMojo
     {
         String line;
 
-        //TODO: Check if this equivalent with if (enableBlockMode) {..
+        // TODO: Check if this equivalent with if (enableBlockMode) {..
         if ( delimiterType.equals( DelimiterType.ROW ) )
         {
-            //no need to parse the content, ship it directly to jdbc in one sql statement
+            // no need to parse the content, ship it directly to jdbc in one sql statement
             line = IOUtil.toString( reader );
             execSQL( line, out );
             return;

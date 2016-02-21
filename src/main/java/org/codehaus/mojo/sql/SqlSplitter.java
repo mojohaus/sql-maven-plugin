@@ -24,18 +24,18 @@ import org.codehaus.plexus.util.StringUtils;
 /**
  * Utility class to split a long sql batch script into single SQL commands.
  */
-public final class SqlSplitter 
+public final class SqlSplitter
 {
     private SqlSplitter()
     {
         // hide utility class constructor
     }
-    
+
     /**
      * Value indicating the sql has no end-delimiter like i.e. the semicolon.
      */
     public static final int NO_END = -1;
-    
+
     /**
      * parsed sql started a single quote static text which continues on the next line (did not end)
      */
@@ -52,16 +52,14 @@ public final class SqlSplitter
     public static final int OVERFLOW_COMMENT = -8;
 
     /**
-     * Check if the given sql line contains a delimiter representing the end of the command.
-     * Please note that we do <em>not</em> fully parse the SQL, 
-     * so if we get a malformed statement, we cannot detect it.
+     * Check if the given sql line contains a delimiter representing the end of the command. Please note that we do
+     * <em>not</em> fully parse the SQL, so if we get a malformed statement, we cannot detect it.
      * 
      * @param line to parse
      * @param delimiter which should be used to split SQL commands
-     * @param overflowValue 0=none, {@link SqlSplitter#OVERFLOW_COMMENT},
-     *        {@link SqlSplitter#OVERFLOW_SINGLE_QUOTE} or
-     *        {@link SqlSplitter#OVERFLOW_DOUBLE_QUOTE}
-     * @return position after the end character if the given line contains the end of a SQL script, 
+     * @param overflowValue 0=none, {@link SqlSplitter#OVERFLOW_COMMENT}, {@link SqlSplitter#OVERFLOW_SINGLE_QUOTE} or
+     *            {@link SqlSplitter#OVERFLOW_DOUBLE_QUOTE}
+     * @return position after the end character if the given line contains the end of a SQL script,
      *         {@link SqlSplitter#NO_END} if it doesn't contain an end char. {@link SqlSplitter#OVERFLOW_SINGLE_QUOTE}
      *         will be returned if a single quote didn't get closed, {@link SqlSplitter#OVERFLOW_DOUBLE_QUOTE} likewise
      *         for not closed double quotes.
@@ -78,19 +76,18 @@ public final class SqlSplitter
         {
             quoteChar = "'";
         }
-        else if ( overflowValue == OVERFLOW_DOUBLE_QUOTE  )
+        else if ( overflowValue == OVERFLOW_DOUBLE_QUOTE )
         {
             quoteChar = "\"";
         }
 
-
         boolean isAlphaDelimiter = StringUtils.isAlpha( delimiter );
-        
+
         if ( line == null || line.length() == 0 )
         {
             return ret;
         }
-        
+
         int pos = 0;
         int maxpos = line.length() - 1;
 
@@ -107,23 +104,23 @@ public final class SqlSplitter
                     {
                         c2 = line.charAt( pos + 1 );
                     }
-                    
+
                     if ( startsWith( line, '*', pos ) && startsWith( line, '/', pos + 1 ) )
                     {
                         ret = NO_END;
                         isComment = false;
-                        
+
                         continue statement;
                     }
-                } 
+                }
                 while ( pos++ < maxpos );
-                
-                //reached EOL
+
+                // reached EOL
                 break statement;
             }
 
             // if in quote-mode, search for end quote, respecting escaped characters
-            if (  quoteChar != null )
+            if ( quoteChar != null )
             {
                 String doubleQuote = quoteChar + quoteChar;
                 do
@@ -133,17 +130,17 @@ public final class SqlSplitter
                     {
                         c2 = line.charAt( pos + 1 );
                     }
-                    
+
                     if ( startsWith( line, "\\", pos ) || startsWith( line, doubleQuote, pos ) )
                     {
-                        //skip next character, but stay in quote-mode
+                        // skip next character, but stay in quote-mode
                         pos++;
                     }
                     else if ( startsWith( line, quoteChar, pos ) )
                     {
                         ret = NO_END;
                         quoteChar = null;
-                        
+
                         continue statement;
                     }
                 }
@@ -152,7 +149,7 @@ public final class SqlSplitter
                 // reach EOL
                 break statement;
             }
-            
+
             // use the nextchar from the previous iteration
             c1 = c2;
             if ( pos < maxpos )
@@ -160,12 +157,13 @@ public final class SqlSplitter
                 // and set the following char
                 c2 = line.charAt( pos + 1 );
             }
-            else {
+            else
+            {
                 // or reset to blank if the line has ended
                 c2 = ' ';
             }
 
-            // verify if current char indicates start  of new quoted block 
+            // verify if current char indicates start of new quoted block
             if ( c1 == '\'' || c1 == '"' )
             {
                 quoteChar = String.valueOf( c1 );
@@ -181,7 +179,7 @@ public final class SqlSplitter
                 ret = OVERFLOW_COMMENT;
                 continue statement;
             }
-            
+
             if ( c1 == '-' && c2 == '-' )
             {
                 return ret;
@@ -193,9 +191,9 @@ public final class SqlSplitter
                 {
                     // check if delimiter is at start or end of line, surrounded
                     // by non-alpha character
-                    if (  ( pos == 0 || !isAlpha( line.charAt( pos - 1 ) ) ) 
-                                    && ( line.length() == pos + delimiter.length() 
-                                    || !isAlpha( line.charAt( pos + delimiter.length() ) ) ) ) 
+                    if ( ( pos == 0 || !isAlpha( line.charAt( pos - 1 ) ) )
+                        && ( line.length() == pos + delimiter.length()
+                            || !isAlpha( line.charAt( pos + delimiter.length() ) ) ) )
                     {
                         return pos + delimiter.length();
                     }
@@ -205,9 +203,10 @@ public final class SqlSplitter
                     return pos + delimiter.length();
                 }
             }
-            
-        } while ( maxpos > pos++ );
-            
+
+        }
+        while ( maxpos > pos++ );
+
         return ret;
     }
 
@@ -229,9 +228,8 @@ public final class SqlSplitter
             return toParse.startsWith( delimiter, position );
         }
     }
-    
+
     /**
-     * 
      * @param toParse the String to parse
      * @param delimiter the delimiter to look for
      * @param position the initial position to start the scan with
@@ -241,7 +239,7 @@ public final class SqlSplitter
     {
         return toParse.length() > position && toParse.charAt( position ) == delimiter;
     }
-    
+
     /**
      * @param c the char to check
      * @return <code>true</code> if the given character is either a lower or an upperchase alphanumerical character
@@ -250,5 +248,5 @@ public final class SqlSplitter
     {
         return Character.isUpperCase( c ) || Character.isLowerCase( c );
     }
-    
+
 }

@@ -41,9 +41,8 @@ public class DelimiterType
     /**
      * This is the only method a subclass needs to implement.
      *
-     * @return an array holding all possible values of the enumeration.
-     * The order of elements must be fixed so that <tt>indexOfValue(String)</tt>
-     * always return the same index for the same value.
+     * @return an array holding all possible values of the enumeration. The order of elements must be fixed so that
+     *         <tt>indexOfValue(String)</tt> always return the same index for the same value.
      */
     public String[] getValues()
     {
@@ -73,6 +72,7 @@ public class DelimiterType
 
     /**
      * Is this value included in the enumeration?
+     * 
      * @param value
      * @return true if this value is supported
      */
@@ -83,9 +83,9 @@ public class DelimiterType
 
     /**
      * get the index of a value in this enumeration.
+     * 
      * @param value the string value to look for.
-     * @return the index of the value in the array of strings
-     * or -1 if it cannot be found.
+     * @return the index of the value in the array of strings or -1 if it cannot be found.
      * @see #getValues()
      */
     public final int indexOfValue( String value )
