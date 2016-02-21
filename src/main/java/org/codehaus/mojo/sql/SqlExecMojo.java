@@ -478,17 +478,6 @@ public class SqlExecMojo
      * Print result sets from the statements; optional, default false
      * 
      * @param print <code>true</code> to print the resultset, otherwise <code>false</code>
-     * @deprecated Typo, {@link #setPrintResultSet(boolean)} instead.
-     */
-    public void setPrintResutlSet( boolean print )
-    {
-        setPrintResultSet( print );
-    }
-
-    /**
-     * Print result sets from the statements; optional, default false
-     * 
-     * @param print <code>true</code> to print the resultset, otherwise <code>false</code>
      */
     public void setPrintResultSet( boolean print )
     {
@@ -1412,14 +1401,6 @@ public class SqlExecMojo
             throw new IllegalArgumentException( orderFile + " is not a valid value for orderFile, only '"
                 + FILE_SORTING_ASC + "' or '" + FILE_SORTING_DSC + "'." );
         }
-    }
-
-    /**
-     * @deprecated Use {@link #getSuccessfulStatements()} instead.
-     */
-    int getGoodSqls()
-    {
-        return this.getSuccessfulStatements();
     }
 
     /**
