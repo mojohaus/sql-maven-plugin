@@ -1,6 +1,4 @@
-<project
-  xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
@@ -23,7 +21,7 @@
   </prerequisites>
 
   <properties>
-    <mavenVersion>2.2.1</mavenVersion>
+    <mavenVersion>3.0</mavenVersion>
     <mojo.java.target>1.6</mojo.java.target>
   </properties>
 
@@ -128,7 +126,7 @@
       <plugin>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-component-metadata</artifactId>
-        <version>1.5.5</version>
+        <version>1.6</version>
         <executions>
           <execution>
             <goals>
@@ -174,12 +172,12 @@
                 </includes>
               </artifactSet>
               <!--
-              <relocations>
+                <relocations>
                 <relocation>
-                  <pattern>org.sonatype.plexus.components</pattern>
-                  <shadedPattern>org.sonatype.plexus.components</shadedPattern>
+                <pattern>org.sonatype.plexus.components</pattern>
+                <shadedPattern>org.sonatype.plexus.components</shadedPattern>
                 </relocation>
-              </relocations>
+                </relocations>
               -->
               <!-- Using manual components.xml to be able to set _configuration-file. Uncomment tags to regenerate file. -->
               <!--
@@ -214,20 +212,12 @@
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-settings</artifactId>
       <version>${mavenVersion}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
-      <artifactId>maven-project</artifactId>
-      <version>${mavenVersion}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.maven</groupId>
-      <artifactId>maven-artifact</artifactId>
+      <artifactId>maven-core</artifactId>
       <version>${mavenVersion}</version>
     </dependency>
     <dependency>
@@ -254,7 +244,7 @@
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-filtering</artifactId>
-      <version>1.0-beta-3</version>
+      <version>3.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.sonatype.plexus</groupId>
@@ -262,9 +252,15 @@
       <version>1.4</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.maven.shared</groupId>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-compat</artifactId>
+      <version>${mavenVersion}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven.plugin-testing</groupId>
       <artifactId>maven-plugin-testing-harness</artifactId>
-      <version>1.1</version>
+      <version>2.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
