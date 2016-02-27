@@ -29,8 +29,9 @@ import org.junit.runners.MethodSorters;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 
 /**
- * Unit test for simple SqlExecMojo. ATTENTION: These are no unit tests, cause the are order dependent. This must be
- * fixed. At the moment it is handled having appropriate method names.
+ * Unit test for simple SqlExecMojo.<br/>
+ * ATTENTION: These are no unit tests, cause the are order dependent.<br/>
+ * This must be fixed. At the moment it is handled having appropriate method names.
  */
 @FixMethodOrder( MethodSorters.NAME_ASCENDING )
 public class SqlExecMojoTest
