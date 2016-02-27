@@ -159,6 +159,17 @@
 
   <dependencies>
     <dependency>
+      <!--
+        ! Add explicit which is used during
+        ! integration tests.
+        ! https://issues.apache.org/jira/browse/MINVOKER-200
+      -->
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <version>10.11.1.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
@@ -233,17 +244,12 @@
   <profiles>
     <profile>
       <id>run-its</id>
-      <activation>
-        <property>
-          <name>skipTests</name>
-          <value>!true</value>
-        </property>
-      </activation>
       <build>
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-invoker-plugin</artifactId>
+            <version>2.0.0</version>
             <configuration>
               <debug>true</debug>
               <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
@@ -259,12 +265,14 @@
             <executions>
               <execution>
                 <id>integration-test-install</id>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>install</goal>
                 </goals>
                 <configuration>
                   <extracArtifacts>
-                    <extracArtifact>org.apache.derby:derby:jar:10.11.1.1</extracArtifact>
+                    <extracArtifact>org.apache.derby:derby:10.11.1.1:jar</extracArtifact>
+                    <extracArtifact>org.apache.maven.plugins:maven-install-plugin:2.5.2:maven-plugin</extracArtifact>
                   </extracArtifacts>
                 </configuration>
               </execution>

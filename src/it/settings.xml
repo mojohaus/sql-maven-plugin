@@ -21,6 +21,14 @@ under the License.
 
 <settings>
 
+  <mirrors>
+    <mirror>
+      <id>self-contained</id>
+      <name>JustUseLocal</name>
+      <url>@localRepositoryUrl@</url>
+      <mirrorOf>*</mirrorOf>
+    </mirror>
+  </mirrors>
   <servers>
     <server>
       <id>my.server</id>
