@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lifecycleMappingMetadata>
+  <pluginExecutions>
+    <pluginExecution>
+      <pluginExecutionFilter>
+        <goals>
+          <goal>execute</goal>
+        </goals>
+      </pluginExecutionFilter>
+      <action>
+        <execute>
+          <!--
+            ! We don't run on incremental
+            ! nor on import into Eclipse,
+            ! cause usually sql-maven-plugin
+            ! is related to integration tests.
+          -->
+          <runOnIncremental>false</runOnIncremental>
+          <runOnConfiguration>false</runOnConfiguration>
+        </execute>
+      </action>
+    </pluginExecution>
+  </pluginExecutions>
+</lifecycleMappingMetadata>
