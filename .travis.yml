@@ -4,11 +4,8 @@ jdk:
   - oraclejdk7
   - oraclejdk8
 
-# The install step is needed based
-# on a problem in maven-invoker-plugin
-# https://issues.apache.org/jira/browse/MINVOKER-200
-install: 
-  - "mvn -DskipTests install"
+# No need for preliminary install step.
+install: true
 #
 # Run all integration tests.
 script: 
