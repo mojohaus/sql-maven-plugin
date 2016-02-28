@@ -26,6 +26,10 @@
     <scmpublish.content>target/staging/${project.artifactId}</scmpublish.content>
   </properties>
 
+  <issueManagement>
+    <system>github</system>
+    <url>https://github.com/mojohaus/${project.artifactId}/issues</url>
+  </issueManagement>
   <ciManagement>
     <system>Travis-CI</system>
     <url>https://travis-ci.org/mojohaus/sql-maven-plugin</url>
