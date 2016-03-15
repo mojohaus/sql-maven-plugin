@@ -361,7 +361,14 @@ public class SqlExecMojo extends AbstractMojo {
     /**
      * Print header columns.
      */
-    private boolean showheaders = true;
+    @Parameter(property = "showheaders", defaultValue = "true")
+    private boolean showheaders;
+
+    /**
+     * Print footer value, informing on the number of rows
+     */
+    @Parameter(property = "showfooter", defaultValue = "true")
+    private boolean showfooter;
 
     /**
      * Dump the SQL execution's output to a file.<br />
@@ -535,7 +542,7 @@ public class SqlExecMojo extends AbstractMojo {
     /**
      * Print headers for result sets from the statements; optional, default true.
      *
-     * @param showheaders <code>true</code> to show the headers, otherwise <code>false</code>
+     * @param showHeaders <code>true</code> to show the headers, otherwise <code>false</code>
      */
     public void setShowheaders(boolean showheaders) {
         this.showheaders = showheaders;
@@ -1064,7 +1071,7 @@ public class SqlExecMojo extends AbstractMojo {
 
             getLog().debug(updateCountTotal + " rows affected");
 
-            if (printResultSet) {
+            if (printResultSet && showfooter) {
                 printResultSetCount(updateCountTotal, out);
             }
 
@@ -1470,5 +1477,9 @@ public class SqlExecMojo extends AbstractMojo {
 
     public void setOutputEncoding(String outputEncoding) {
         this.outputEncoding = outputEncoding;
+    }
+
+    public void setShowfooter(boolean showfooter) {
+        this.showfooter = showfooter;
     }
 }
