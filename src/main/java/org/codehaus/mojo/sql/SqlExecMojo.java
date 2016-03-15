@@ -357,7 +357,7 @@ public class SqlExecMojo extends AbstractMojo {
      * @since 1.0
      */
     @Parameter(property = "outputEncoding", defaultValue = "${project.build.sourceEncoding}")
-    private String outputEncoding;
+    private String outputEncoding = "UTF-8";
 
     /**
      * The delimiter used to separate fields in the output when using
@@ -446,8 +446,6 @@ public class SqlExecMojo extends AbstractMojo {
      */
     @Parameter
     private File postExecuteHookScript;
-
-
 
     /**
      * Add a SQL transaction to execute
@@ -1356,13 +1354,14 @@ public class SqlExecMojo extends AbstractMojo {
      * @return the showfooter
      */
     public boolean isShowfooter() {
-        return showfooter;
+	return showfooter;
     }
 
     /**
-     * @param showfooter the showfooter to set
+     * @param showfooter
+     *            the showfooter to set
      */
     public void setShowfooter(boolean showfooter) {
-        this.showfooter = showfooter;
+	this.showfooter = showfooter;
     }
 }
