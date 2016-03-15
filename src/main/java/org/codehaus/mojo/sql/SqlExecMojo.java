@@ -339,7 +339,7 @@ public class SqlExecMojo extends AbstractMojo {
      * Print footer value, informing on the number of rows
      */
     @Parameter(property = "showfooter", defaultValue = "true")
-    private boolean showfooter;
+    private boolean showfooter = true;
 
     /**
      * Dump the SQL execution's output to a file.<br />
