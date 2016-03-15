@@ -729,6 +729,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         mojoToSetup.setDelimiterType(DelimiterType.NORMAL);
         mojoToSetup.setEscapeProcessing(true);
         mojoToSetup.setOutputDelimiter(",");
+        mojoToSetup.setShowfooter(true);
+        mojoToSetup.setShowheaders(true);
 
         try {
             MavenFileFilter filter =
