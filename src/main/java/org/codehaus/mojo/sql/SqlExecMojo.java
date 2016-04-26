@@ -175,6 +175,14 @@ public class SqlExecMojo
     private boolean skipOnConnectionError;
 
     /**
+     * Skip missing files defined by {@link #setSrcFiles(File[])}. This behavior allows to define a full fledged list
+     * of all sql files in a single {@code pom.xml} without failing if used by modules for which some sql files are not
+     * available on the classpath.
+     */
+    @Parameter( defaultValue = "false", property = "skipMissingFiles")
+    private boolean skipMissingFiles;
+
+    /**
      * Setting this parameter to <code>true</code> will force the execution of this mojo, even if it would get skipped
      * usually.
      */
@@ -802,6 +810,10 @@ public class SqlExecMojo
             {
                 if ( sourceFile != null && !sourceFile.exists() )
                 {
+                    if (skipMissingFiles) {
+                        getLog().debug(String.format("ignoring non existing sql file [%s].", sourceFile.getPath()));
+                        continue;
+                    }
                     throw new MojoExecutionException( sourceFile.getPath() + " not found." );
                 }
 
@@ -1468,6 +1480,10 @@ public class SqlExecMojo
     void setSkip( boolean skip )
     {
         this.skip = skip;
+    }
+
+    public void setSkipMissingFiles(boolean skipMissingFiles) {
+        this.skipMissingFiles = skipMissingFiles;
     }
 
     public void setDriverProperties( String driverProperties )
