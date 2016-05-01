@@ -256,6 +256,15 @@ public class SqlExecMojo
     @Parameter( defaultValue = "false", property = "autocommit" )
     private boolean autocommit;
 
+    ////////////////////////////// Operation Configuration ////////////////////
+    /**
+     * Set to <code>true</code> to execute immediately rollback transactional SQL.
+     *
+     * @since 1.0
+     */
+    @Parameter( defaultValue = "false", property = "rollbackTransactions" )
+    private boolean rollbackTransactions;
+
     /**
      * Action to perform if an error is found. Possible values are <code>abort</code> and <code>continue</code>.
      *
@@ -688,8 +697,13 @@ public class SqlExecMojo
 
                     if ( !autocommit )
                     {
-                        getLog().debug( "Committing transaction" );
-                        conn.commit();
+                        if (rollbackTransactions) {
+                            getLog().debug( "Rollback transaction" );
+                            conn.rollback();
+                        } else {
+                            getLog().debug( "Committing transaction" );
+                            conn.commit();
+                        }
                     }
                 }
             }
@@ -1372,7 +1386,11 @@ public class SqlExecMojo
         this.autocommit = autocommit;
     }
 
-    void setFileset( Fileset fileset )
+    public void setRollbackTransactions(boolean rollbackTransactions) {
+        this.rollbackTransactions = rollbackTransactions;
+    }
+
+    void setFileset(Fileset fileset )
     {
         this.fileset = fileset;
     }
