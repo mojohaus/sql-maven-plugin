@@ -14,9 +14,6 @@ package org.codehaus.mojo.sql;
  * the License.
  */
 
-import java.io.File;
-import java.util.Properties;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.apache.maven.plugin.testing.stubs.MavenProjectStub;
@@ -27,6 +24,9 @@ import org.apache.maven.shared.filtering.MavenFileFilter;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
+
+import java.io.File;
+import java.util.Properties;
 
 /**
  * Unit test for simple SqlExecMojo.<br/>
@@ -541,5 +541,15 @@ public class SqlExecMojoTest
         mojo.addText( command );
         mojo.execute();
         assertEquals( 2, mojo.getSuccessfulStatements() );
+    }
+
+    public void test027SkipMissingFiles() throws MojoExecutionException {
+        mojo.setSkipMissingFiles(true);
+        mojo.setSrcFiles(new File[] {
+                new File("src/test/data/create-test-tables.sql"),
+                new File("non/existing/file/path.sql"),
+                new File("src/test/data/drop-test-tables.sql" )});
+        mojo.execute();
+        assertEquals(6, mojo.getSuccessfulStatements());
     }
 }
