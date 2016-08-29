@@ -6,7 +6,7 @@
   <parent>
     <artifactId>mojo-parent</artifactId>
     <groupId>org.codehaus.mojo</groupId>
-    <version>39</version>
+    <version>40</version>
   </parent>
 
   <artifactId>sql-maven-plugin</artifactId>
@@ -124,7 +124,7 @@
       <plugin>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-component-metadata</artifactId>
-        <version>1.6</version>
+        <version>1.7</version>
         <executions>
           <execution>
             <goals>
