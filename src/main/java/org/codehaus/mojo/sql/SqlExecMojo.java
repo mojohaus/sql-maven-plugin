@@ -267,7 +267,7 @@ public class SqlExecMojo
     /**
      * Set to <code>true</code> to execute immediately rollback transactional SQL.
      *
-     * @since 1.0
+     * @since 3.0.0
      */
     @Parameter( defaultValue = "false", property = "rollbackTransactions" )
     private boolean rollbackTransactions;
