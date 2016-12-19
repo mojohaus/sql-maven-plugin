@@ -264,6 +264,15 @@ public class SqlExecMojo
     @Parameter( defaultValue = "false", property = "autocommit" )
     private boolean autocommit;
 
+    ////////////////////////////// Operation Configuration ////////////////////
+    /**
+     * Set to <code>true</code> to execute immediately rollback transactional SQL.
+     *
+     * @since 1.0
+     */
+    @Parameter( defaultValue = "false", property = "rollbackTransactions" )
+    private boolean rollbackTransactions;
+
     /**
      * Set to <code>true</code> to execute immediately rollback transactional SQL.
      *
