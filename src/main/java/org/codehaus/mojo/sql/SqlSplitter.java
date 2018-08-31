@@ -109,6 +109,7 @@ public final class SqlSplitter
                     {
                         ret = NO_END;
                         isComment = false;
+                        pos++;
 
                         continue statement;
                     }
