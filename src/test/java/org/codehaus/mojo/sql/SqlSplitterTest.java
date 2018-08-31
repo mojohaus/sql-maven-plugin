@@ -343,6 +343,39 @@ public class SqlSplitterTest
         assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( line, ";", SqlSplitter.OVERFLOW_COMMENT ) );
     }
 
+	public void testSlashDelimiterWithComment()
+        throws Exception
+    {
+        //@formatter:off
+        String sql =
+              "begin\n"
+			+ "/* this is a comment */\n" 
+            + " SELECT * FROM TABLE;\n" 
+            + "end;\n"
+	        + "/\n";
+        //@formatter:on
+
+        BufferedReader in = new BufferedReader( new StringReader( sql ) );
+
+        // Only checking if this complex statement can be parsed
+        String line;
+
+        line = in.readLine();
+        assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( line, "/", SqlSplitter.NO_END ) );
+
+        line = in.readLine();
+        assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( line, "/", SqlSplitter.NO_END ) );
+
+        line = in.readLine();
+        assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( line, "/", SqlSplitter.NO_END ) );
+
+        line = in.readLine();
+        assertEquals( SqlSplitter.NO_END, SqlSplitter.containsSqlEnd( line, "/", SqlSplitter.NO_END ) );
+
+        line = in.readLine();
+        assertEquals( 1, SqlSplitter.containsSqlEnd( line, "/", SqlSplitter.NO_END ) );
+    }
+
     private void contains( String sql, int expectedIndex )
         throws Exception
     {
