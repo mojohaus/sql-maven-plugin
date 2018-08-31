@@ -98,6 +98,7 @@ public final class SqlSplitter {
                     if (startsWith(line, '*', pos) && startsWith(line, '/', pos + 1)) {
                         ret = NO_END;
                         isComment = false;
+                        pos++;
 
                         continue statement;
                     }
