@@ -69,6 +69,15 @@
       </roles>
       <timezone>Europe/Berlin</timezone>
     </developer>
+    <developer>
+      <id>Vaibhav</id>
+      <name>Vaibhav Singh</name>
+      <email>vbhav.singh@gmail.com</email>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+      <timezone>America/New_york</timezone>
+    </developer>
   </developers>
 
   <prerequisites>
@@ -158,18 +167,18 @@
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-interpolation</artifactId>
-      <version>1.27</version>
+      <version>1.22</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
-      <version>1.11.0</version>
+      <version>1.10.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-filtering</artifactId>
-      <version>3.3.1</version>
+      <version>3.1.1</version>
     </dependency>
     <dependency>
       <groupId>org.sonatype.plexus</groupId>
