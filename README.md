@@ -38,9 +38,9 @@ Use as following:
         </executions>
         <dependencies>
           <dependency>
-            <groupId>com.microsoft.sqlserver.jdbc</groupId>
-            <artifactId>sqljdbc4</artifactId>
-            <version>1.1</version>
+            <groupId>replace_me</groupId>
+            <artifactId>replace_me</artifactId>
+            <version>replace_me</version>
             <scope>compile</scope>
           </dependency>
         </dependencies>
