@@ -1080,7 +1080,7 @@ public class SqlExecMojo extends AbstractMojo {
      * @param out the place to print results
      * @throws SQLException on SQL problems.
      */
-    private void printResultSet(ResultSet rs, PrintStream out) throws SQLException {
+    protected void printResultSet(ResultSet rs, PrintStream out) throws SQLException {
         if (rs != null) {
             getLog().debug("Processing new result set.");
             ResultSetMetaData md = rs.getMetaData();
