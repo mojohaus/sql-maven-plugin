@@ -1142,13 +1142,6 @@ public class SqlExecMojo
 
             getLog().debug( updateCountTotal + " rows affected" );
 
-            if ( printResultSet )
-            {
-                StringBuffer line = new StringBuffer();
-                line.append( updateCountTotal ).append( " rows affected" );
-                out.println( line );
-            }
-
             SQLWarning warning = conn.getWarnings();
             while ( warning != null )
             {
@@ -1183,7 +1176,7 @@ public class SqlExecMojo
      * @param out the place to print results
      * @throws SQLException on SQL problems.
      */
-    private void printResultSet( ResultSet rs, PrintStream out )
+    protected void printResultSet( ResultSet rs, PrintStream out )
         throws SQLException
     {
         if ( rs != null )
