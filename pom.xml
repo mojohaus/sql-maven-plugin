@@ -21,7 +21,7 @@
   </prerequisites>
 
   <properties>
-    <mavenVersion>3.0</mavenVersion>
+    <mavenVersion>3.8.1</mavenVersion>
     <mojo.java.target>1.6</mojo.java.target>
     <scmpublish.content>target/staging/${project.artifactId}</scmpublish.content>
   </properties>
