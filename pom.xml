@@ -86,6 +86,8 @@
   </issueManagement>
 
   <properties>
+    <!-- Java 8 https://db.apache.org/derby/derby_downloads.html -->
+    <derby.version>10.14.2.0</derby.version>
     <scmpublish.content>target/staging/${project.artifactId}</scmpublish.content>
   </properties>
 
@@ -238,7 +240,7 @@
                 <phase>pre-integration-test</phase>
                 <configuration>
                   <extraArtifacts>
-                    <extraArtifact>org.apache.derby:derby:10.11.1.1:jar</extraArtifact>
+                    <extraArtifact>org.apache.derby:derby:${derby.version}:jar</extraArtifact>
                     <extraArtifact>org.apache.maven.plugins:maven-install-plugin:2.5.2:maven-plugin</extraArtifact>
                   </extraArtifacts>
                 </configuration>

@@ -22,10 +22,10 @@
           <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
-            <version>10.17.1.0</version>
+            <version>@derby.version@</version>
           </dependency>
         </dependencies>
-        
+
         <executions>
           <execution>
             <id>prepare</id>
@@ -39,7 +39,7 @@
               <password>mine</password>
               <sqlCommand>CREATE TABLE PEOPLE (PERSON_ID INT NOT NULL GENERATED ALWAYS AS IDENTITY CONSTRAINT PEOPLE_PK PRIMARY KEY, PERSON VARCHAR(26));</sqlCommand>
             </configuration>
-          </execution>                
+          </execution>
 
           <execution>
             <id>test</id>
@@ -52,7 +52,7 @@
               <settingsKey>my.server</settingsKey>
               <sqlCommand>SELECT * FROM PEOPLE;</sqlCommand>
             </configuration>
-          </execution>                
+          </execution>
         </executions>
         <configuration>
           <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>

@@ -22,7 +22,7 @@
           <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
-            <version>10.17.1.0</version>
+            <version>@derby.version@</version>
           </dependency>
         </dependencies>
 
@@ -31,7 +31,7 @@
           <url>jdbc:derby:${project.build.directory}/testdb;create=true</url>
           <skip>${maven.test.skip}</skip>
           <sqlCommand>select ${one} FROM SYSIBM.SYSDUMMY1;</sqlCommand>
-          <enableFiltering>true</enableFiltering>          
+          <enableFiltering>true</enableFiltering>
           <srcFiles>
             <srcFile>src/main/sql/filter.sql</srcFile>
           </srcFiles>
