@@ -6,7 +6,7 @@
   <parent>
     <artifactId>mojo-parent</artifactId>
     <groupId>org.codehaus.mojo</groupId>
-    <version>40</version>
+    <version>78</version>
   </parent>
 
   <artifactId>sql-maven-plugin</artifactId>
@@ -22,7 +22,6 @@
 
   <properties>
     <mavenVersion>3.0</mavenVersion>
-    <mojo.java.target>8</mojo.java.target>
     <scmpublish.content>target/staging/${project.artifactId}</scmpublish.content>
   </properties>
 
@@ -30,10 +29,6 @@
     <system>github</system>
     <url>https://github.com/mojohaus/${project.artifactId}/issues</url>
   </issueManagement>
-  <ciManagement>
-    <system>Travis-CI</system>
-    <url>https://travis-ci.org/mojohaus/sql-maven-plugin</url>
-  </ciManagement>
   <scm>
     <connection>scm:git:https://github.com/mojohaus/sql-maven-plugin.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/mojohaus/sql-maven-plugin.git</developerConnection>
@@ -124,7 +119,6 @@
       <plugin>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-component-metadata</artifactId>
-        <version>1.7</version>
         <executions>
           <execution>
             <goals>
@@ -132,25 +126,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>animal-sniffer-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <signature>
-            <groupId>org.codehaus.mojo.signature</groupId>
-            <artifactId>java16</artifactId>
-            <version>1.0</version>
-          </signature>
-        </configuration>
       </plugin>
     </plugins>
   </build>
