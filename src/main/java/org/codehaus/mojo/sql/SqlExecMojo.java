@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.ResultSet;
@@ -45,7 +46,7 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -160,7 +161,7 @@ public class SqlExecMojo extends AbstractMojo {
      *
      * @since 1.5
      */
-    @Component(role = org.sonatype.plexus.components.sec.dispatcher.SecDispatcher.class, hint = "default")
+    @Component(role = SecDispatcher.class, hint = "default")
     private SecDispatcher securityDispatcher;
 
     /**
@@ -404,7 +405,7 @@ public class SqlExecMojo extends AbstractMojo {
     /**
      * @since 1.4
      */
-    @Component(role = org.apache.maven.shared.filtering.MavenFileFilter.class)
+    @Component(role = MavenFileFilter.class)
     private MavenFileFilter fileFilter;
 
     /**
@@ -596,9 +597,7 @@ public class SqlExecMojo extends AbstractMojo {
             }
 
             executeSqlCore();
-        } catch (RunFailureException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
-        } catch (IOException e) {
+        } catch (RunFailureException | IOException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         } finally {
             try {
@@ -611,9 +610,7 @@ public class SqlExecMojo extends AbstractMojo {
                             "post-execute",
                             false);
                 }
-            } catch (RunFailureException e) {
-                throw new MojoExecutionException(e.getMessage(), e);
-            } catch (IOException e) {
+            } catch (RunFailureException | IOException e) {
                 throw new MojoExecutionException(e.getMessage(), e);
             }
         }
@@ -786,7 +783,7 @@ public class SqlExecMojo extends AbstractMojo {
         if (FILE_SORTING_ASC.equalsIgnoreCase(this.orderFile)) {
             Collections.sort(transactions);
         } else if (FILE_SORTING_DSC.equalsIgnoreCase(this.orderFile)) {
-            Collections.sort(transactions, Collections.reverseOrder());
+            transactions.sort(Collections.reverseOrder());
         }
     }
 
@@ -849,7 +846,7 @@ public class SqlExecMojo extends AbstractMojo {
 
         info.putAll(this.getDriverProperties());
 
-        Driver driverInstance = null;
+        Driver driverInstance;
 
         try {
             Class<?> dc = Class.forName(getDriver());
@@ -882,8 +879,8 @@ public class SqlExecMojo extends AbstractMojo {
 
         if (!StringUtils.isEmpty(this.driverProperties)) {
             String[] tokens = StringUtils.split(this.driverProperties, ",");
-            for (int i = 0; i < tokens.length; ++i) {
-                String[] keyValueTokens = StringUtils.split(tokens[i].trim(), "=");
+            for (String token : tokens) {
+                String[] keyValueTokens = StringUtils.split(token.trim(), "=");
                 if (keyValueTokens.length != 2) {
                     throw new MojoExecutionException("Invalid JDBC Driver properties: " + this.driverProperties);
                 }
@@ -914,7 +911,7 @@ public class SqlExecMojo extends AbstractMojo {
             return;
         }
 
-        StringBuffer sql = new StringBuffer();
+        StringBuilder sql = new StringBuilder();
 
         BufferedReader in = new BufferedReader(reader);
 
@@ -978,7 +975,7 @@ public class SqlExecMojo extends AbstractMojo {
      */
     private void execSQL(String sql, PrintStream out) throws SQLException {
         // Check and ignore empty statements
-        if ("".equals(sql.trim())) {
+        if (sql.trim().isEmpty()) {
             return;
         }
 
@@ -1009,9 +1006,7 @@ public class SqlExecMojo extends AbstractMojo {
             getLog().debug(updateCountTotal + " rows affected");
 
             if (printResultSet) {
-                StringBuffer line = new StringBuffer();
-                line.append(updateCountTotal).append(" rows affected");
-                out.println(line);
+                out.println(updateCountTotal + " rows affected");
             }
 
             SQLWarning warning = conn.getWarnings();
@@ -1123,7 +1118,7 @@ public class SqlExecMojo extends AbstractMojo {
          *
          */
         private void runTransaction(PrintStream out) throws IOException, SQLException {
-            if (tSqlCommand.length() != 0) {
+            if (!tSqlCommand.isEmpty()) {
                 getLog().info("Executing commands");
 
                 runStatements(new StringReader(tSqlCommand), out);
@@ -1137,7 +1132,7 @@ public class SqlExecMojo extends AbstractMojo {
                 if (StringUtils.isEmpty(encoding)) {
                     reader = new FileReader(tSrcFile);
                 } else {
-                    reader = new InputStreamReader(new FileInputStream(tSrcFile), encoding);
+                    reader = new InputStreamReader(Files.newInputStream(tSrcFile.toPath()), encoding);
                 }
 
                 try {
