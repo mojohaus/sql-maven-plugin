@@ -1,0 +1,2 @@
+_extends: .github
+tag-template: sql-maven-plugin-$NEXT_MINOR_VERSION

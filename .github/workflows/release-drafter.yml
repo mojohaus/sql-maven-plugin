@@ -1,0 +1,8 @@
+name: Release Drafter
+on:
+  push:
+    branches:
+      - master
+jobs:
+  update_release_draft:
+    uses: apache/maven-gh-actions-shared/.github/workflows/release-drafter.yml@v3
