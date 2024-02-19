@@ -22,7 +22,4 @@ package org.codehaus.mojo.sql;
 /**
  * @author Brian Topping
  */
-public class Fileset
-    extends org.codehaus.plexus.util.DirectoryScanner
-{
-}
+public class Fileset extends org.codehaus.plexus.util.DirectoryScanner {}

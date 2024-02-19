@@ -22,8 +22,7 @@ package org.codehaus.mojo.sql;
 /**
  * @author Brian Topping
  */
-public class DelimiterType
-{
+public class DelimiterType {
     public static final String NORMAL = "normal";
 
     public static final String ROW = "row";
@@ -44,27 +43,22 @@ public class DelimiterType
      * @return an array holding all possible values of the enumeration. The order of elements must be fixed so that
      *         <tt>indexOfValue(String)</tt> always return the same index for the same value.
      */
-    public String[] getValues()
-    {
-        return new String[] { NORMAL, ROW };
+    public String[] getValues() {
+        return new String[] {NORMAL, ROW};
     }
 
     /** bean constructor */
-    protected DelimiterType()
-    {
-    }
+    protected DelimiterType() {}
 
     /**
      * Set the delimiterValue. Use DelimiterType.NORMAL or DelimiterType.ROW
-     * 
+     *
      * @param value
      */
-    public final void setValue( String value )
-    {
-        int index = indexOfValue( value );
-        if ( index == -1 )
-        {
-            throw new IllegalArgumentException( value + " is not a legal value for this attribute" );
+    public final void setValue(String value) {
+        int index = indexOfValue(value);
+        if (index == -1) {
+            throw new IllegalArgumentException(value + " is not a legal value for this attribute");
         }
         this.index = index;
         this.value = value;
@@ -72,33 +66,28 @@ public class DelimiterType
 
     /**
      * Is this value included in the enumeration?
-     * 
+     *
      * @param value
      * @return true if this value is supported
      */
-    public final boolean containsValue( String value )
-    {
-        return ( indexOfValue( value ) != -1 );
+    public final boolean containsValue(String value) {
+        return (indexOfValue(value) != -1);
     }
 
     /**
      * get the index of a value in this enumeration.
-     * 
+     *
      * @param value the string value to look for.
      * @return the index of the value in the array of strings or -1 if it cannot be found.
      * @see #getValues()
      */
-    public final int indexOfValue( String value )
-    {
+    public final int indexOfValue(String value) {
         String[] values = getValues();
-        if ( values == null || value == null )
-        {
+        if (values == null || value == null) {
             return -1;
         }
-        for ( int i = 0; i < values.length; i++ )
-        {
-            if ( value.equals( values[i] ) )
-            {
+        for (int i = 0; i < values.length; i++) {
+            if (value.equals(values[i])) {
                 return i;
             }
         }
@@ -108,8 +97,7 @@ public class DelimiterType
     /**
      * @return the selected value.
      */
-    public final String getValue()
-    {
+    public final String getValue() {
         return value;
     }
 
@@ -117,8 +105,7 @@ public class DelimiterType
      * @return the index of the selected value in the array.
      * @see #getValues()
      */
-    public final int getIndex()
-    {
+    public final int getIndex() {
         return index;
     }
 
@@ -127,9 +114,7 @@ public class DelimiterType
      *
      * @return the string form of the value.
      */
-    public String toString()
-    {
+    public String toString() {
         return getValue();
     }
-
 }
