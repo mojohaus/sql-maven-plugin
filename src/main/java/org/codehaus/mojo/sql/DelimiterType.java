@@ -41,7 +41,7 @@ public class DelimiterType {
      * This is the only method a subclass needs to implement.
      *
      * @return an array holding all possible values of the enumeration. The order of elements must be fixed so that
-     *         <tt>indexOfValue(String)</tt> always return the same index for the same value.
+     *         <code>indexOfValue(String)</code> always return the same index for the same value.
      */
     public String[] getValues() {
         return new String[] {NORMAL, ROW};
