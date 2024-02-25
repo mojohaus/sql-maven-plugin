@@ -21,14 +21,6 @@ under the License.
 
 <settings>
 
-  <mirrors>
-    <mirror>
-      <id>self-contained</id>
-      <name>JustUseLocal</name>
-      <url>@localRepositoryUrl@</url>
-      <mirrorOf>*</mirrorOf>
-    </mirror>
-  </mirrors>
   <servers>
     <server>
       <id>my.server</id>
@@ -40,9 +32,6 @@ under the License.
   <profiles>
     <profile>
       <id>it-repo</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
       <repositories>
         <repository>
           <id>local.central</id>
@@ -69,4 +58,8 @@ under the License.
       </pluginRepositories>
     </profile>
   </profiles>
+
+  <activeProfiles>
+    <activeProfile>it-repo</activeProfile>
+  </activeProfiles>
 </settings>
