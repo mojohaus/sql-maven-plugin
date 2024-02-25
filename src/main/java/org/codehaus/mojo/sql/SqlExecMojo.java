@@ -22,7 +22,6 @@ package org.codehaus.mojo.sql;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -59,7 +58,7 @@ import org.apache.maven.settings.Settings;
 import org.apache.maven.shared.filtering.MavenFileFilter;
 import org.apache.maven.shared.filtering.MavenFileFilterRequest;
 import org.apache.maven.shared.filtering.MavenFilteringException;
-import org.apache.maven.shared.scriptinterpreter.RunFailureException;
+import org.apache.maven.shared.scriptinterpreter.ScriptException;
 import org.apache.maven.shared.scriptinterpreter.ScriptRunner;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
@@ -578,7 +577,7 @@ public class SqlExecMojo extends AbstractMojo {
 
     private void executeScriptPlusSql() throws MojoExecutionException {
         // prepare scriptrunner
-        scriptRunner = new ScriptRunner(getLog());
+        scriptRunner = new ScriptRunner();
         scriptRunner.setScriptEncoding(encoding);
         // scriptRunner.setGlobalVariable( "localRepositoryPath", localRepositoryPath );
         // scriptRunner.setClassPath( scriptClassPath );
@@ -587,30 +586,18 @@ public class SqlExecMojo extends AbstractMojo {
 
         try {
             if (preExecuteHookScript != null) {
-                scriptRunner.run(
-                        "Sql-Maven-Plugin pre-execute script",
-                        preExecuteHookScript,
-                        context,
-                        null,
-                        "pre-execute",
-                        false);
+                scriptRunner.run("pre-execute script", preExecuteHookScript, context, null);
             }
 
             executeSqlCore();
-        } catch (RunFailureException | IOException e) {
+        } catch (IOException | ScriptException e) {
             throw new MojoExecutionException(e.getMessage(), e);
         } finally {
             try {
                 if (postExecuteHookScript != null) {
-                    scriptRunner.run(
-                            "Sql-Maven-Plugin post-execute script",
-                            postExecuteHookScript,
-                            context,
-                            null,
-                            "post-execute",
-                            false);
+                    scriptRunner.run("post-execute script", postExecuteHookScript, context, null);
                 }
-            } catch (RunFailureException | IOException e) {
+            } catch (IOException | ScriptException e) {
                 throw new MojoExecutionException(e.getMessage(), e);
             }
         }

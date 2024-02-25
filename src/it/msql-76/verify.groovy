@@ -19,5 +19,7 @@
 
 File log = new File(basedir, 'build.log')
 assert log.exists()
-assert log.text.contains( '[INFO] run script ' + new File ( basedir, 'src/main/sql/pre-execute.groovy' ).path )
-assert log.text.contains( '[INFO] run script ' + new File ( basedir, 'src/main/sql/post-execute.groovy' ).path )
+assert log.text.contains( '[INFO] run pre-execute script' )
+assert log.text.contains( 'pre-execute.groovy' )
+assert log.text.contains( '[INFO] run post-execute script' )
+assert log.text.contains( 'post-execute.groovy' )
