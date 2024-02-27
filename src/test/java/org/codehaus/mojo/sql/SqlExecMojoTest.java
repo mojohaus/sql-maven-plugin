@@ -15,6 +15,10 @@ package org.codehaus.mojo.sql;
  */
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.Statement;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -458,5 +462,199 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         });
         mojo.execute();
         assertEquals(6, mojo.getSuccessfulStatements());
+    }
+
+    public void test028ValidationSql() {
+        mojo.setConnectionValidationSqls(Arrays.asList("select 1 from nowhere"));
+        try {
+            mojo.execute();
+
+            fail("Invalid connection is not detected");
+        } catch (MojoExecutionException e) {
+
+        }
+
+        assertTrue(mojo.isConnectionClosed());
+    }
+
+    public void test029ConnectionRetryCountOnValidationError() {
+        mojo.setConnectionValidationSqls(Arrays.asList("select 1 from nowhere"));
+        mojo.setConnectionRetryCount(5);
+        try {
+            mojo.execute();
+
+            fail("Invalid connection is not detected");
+        } catch (MojoExecutionException e) {
+
+        }
+
+        assertTrue(mojo.getConnectionRetryAttempts() >= 5);
+        assertTrue(mojo.isConnectionClosed());
+    }
+
+    public void test030ConnectionRetryCountOnConnectionError() {
+        mojo.setUrl("bad-url");
+        mojo.setConnectionRetryCount(5);
+        try {
+            mojo.execute();
+
+            fail("Invalid connection is not detected");
+        } catch (MojoExecutionException e) {
+
+        }
+
+        assertTrue(mojo.getConnectionRetryAttempts() >= 5);
+        assertTrue(mojo.isConnectionClosed());
+    }
+
+    public void test031ConnectionRetryIntervalC2I2() {
+        mojo.setUrl("no-db-here");
+        mojo.setConnectionRetryCount(2);
+        mojo.setConnectionRetryInterval(2);
+
+        long start = System.currentTimeMillis();
+
+        try {
+            mojo.execute();
+            fail("Invalid connection is not detected");
+        } catch (MojoExecutionException e) {
+            long end = System.currentTimeMillis();
+            assertTrue((end - start) >= 4000);
+        }
+    }
+
+    public void test031ConnectionRetryIntervalC1I3() {
+        mojo.setUrl("no-db-here");
+        mojo.setConnectionRetryCount(1);
+        mojo.setConnectionRetryInterval(3);
+
+        long start = System.currentTimeMillis();
+
+        try {
+            mojo.execute();
+            fail("Invalid connection is not detected");
+        } catch (MojoExecutionException e) {
+            long end = System.currentTimeMillis();
+            assertTrue((end - start) >= 3000);
+        }
+    }
+
+    public void test032ConnectionRetryOnConnectionError() {
+        final String url = mojo.getUrl();
+        mojo.setUrl("bad-url");
+        mojo.setConnectionRetryCount(5);
+        mojo.setConnectionRetryInterval(1);
+
+        new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            // Wait for three connection attempts
+                            Thread.sleep(3000);
+                        } catch (InterruptedException ex) {
+                            // ignore
+                        }
+                        mojo.setUrl(url); // Url fixed, next connection should be success
+                    }
+                })
+                .start();
+
+        try {
+            mojo.execute();
+
+        } catch (MojoExecutionException e) {
+            fail("Connection was not restored");
+        }
+
+        assertTrue(mojo.getConnectionRetryAttempts() >= 3);
+        assertTrue(mojo.isConnectionClosed());
+    }
+
+    public void test032ConnectionRetryOnValidationError() {
+        mojo.addText("select * from test32");
+        mojo.setConnectionValidationSqls(Arrays.asList("select 1 from test32"));
+        mojo.setConnectionRetryCount(5);
+        mojo.setConnectionRetryInterval(1);
+
+        runSqlAfter(3, Arrays.asList("create table test32 ( ID integer)"));
+
+        try {
+            mojo.execute();
+
+        } catch (MojoExecutionException e) {
+            fail("Connection was not restored");
+        }
+
+        assertTrue(mojo.getConnectionRetryAttempts() >= 3);
+        assertTrue(mojo.isConnectionClosed());
+    }
+
+    public void test033ConnectionRetryOnValidationErrorMultipleValidationSql() {
+        mojo.addText("select * from person");
+        mojo.setConnectionValidationSqls(Arrays.asList("select 1 from person", "select 1 from notperson"));
+        mojo.setConnectionRetryCount(5);
+        mojo.setConnectionRetryInterval(1);
+
+        runSqlAfter(1, Arrays.asList("create table PERSON ( ID integer)"));
+        runSqlAfter(3, Arrays.asList("create table NOTPERSON ( ID integer)"));
+
+        try {
+            mojo.execute();
+
+        } catch (MojoExecutionException e) {
+            fail("Connection not was restored");
+        }
+
+        assertTrue(mojo.getConnectionRetryAttempts() >= 3);
+        assertTrue(mojo.isConnectionClosed());
+    }
+
+    public void test032ValidationErrorMultipleValidationSql() {
+        mojo.addText("select * from person");
+        mojo.setConnectionValidationSqls(Arrays.asList("select 1 from person", "select 1 from notperson"));
+        mojo.setConnectionRetryCount(5);
+        mojo.setConnectionRetryInterval(1);
+
+        runSqlAfter(3, Arrays.asList("create table PERSON ( ID integer)"));
+
+        try {
+            mojo.execute();
+
+            fail("Connection was restored");
+        } catch (MojoExecutionException e) {
+        }
+
+        assertTrue(mojo.getConnectionRetryAttempts() >= 5);
+        assertTrue(mojo.isConnectionClosed());
+    }
+
+    private void runSqlAfter(int secs, final List<String> sqls) {
+        new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            // Wait for three connection attempts
+                            Thread.sleep(secs * 1000);
+                        } catch (InterruptedException ex) {
+                        }
+
+                        Connection conn = null;
+
+                        try {
+                            conn = mojo.getConnection();
+
+                            try (Statement stmt = conn.createStatement()) {
+                                for (String sql : sqls) {
+                                    stmt.execute(sql);
+                                }
+                            }
+                        } catch (Exception e) {
+                            fail(e.getMessage());
+                        } finally {
+                            mojo.closeConnection();
+                        }
+                    }
+                })
+                .start();
     }
 }

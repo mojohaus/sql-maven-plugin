@@ -278,6 +278,34 @@ public class SqlExecMojo extends AbstractMojo {
     @Parameter(defaultValue = ON_ERROR_ABORT, property = "onError")
     private String onError;
 
+    /**
+     * List of connection validation SQLs. If the value is given, the SQL files
+     * are processed after all validation have been executed successfully.
+     * The validation SQLs can be used to verify that required tables or data
+     * exists before the SQLs are processed.
+     *
+     * @since 3.0.0
+     */
+    @Parameter(defaultValue = "", property = "connectionValidationSqls")
+    private List<String> connectionValidationSqls;
+
+    /**
+     * Connection retry count. How many times connection is tried to be
+     * opened and validated after failure.
+     *
+     * @since 3.0.0
+     */
+    @Parameter(defaultValue = "0", property = "connectionRetryCount")
+    private int connectionRetryCount;
+
+    /**
+     * How many seconds are waited before next connection attempt.
+     *
+     * @since 3.0.0
+     */
+    @Parameter(defaultValue = "1", property = "connectionRetryInterval")
+    private int connectionRetryInterval = 1;
+
     ////////////////////////////// Parser Configuration ////////////////////
 
     /**
@@ -399,7 +427,7 @@ public class SqlExecMojo extends AbstractMojo {
     /**
      * SQL transactions to perform
      */
-    private List<Transaction> transactions = new Vector<Transaction>();
+    private List<Transaction> transactions = new Vector<>();
 
     /**
      * @since 1.4
@@ -428,6 +456,13 @@ public class SqlExecMojo extends AbstractMojo {
      */
     @Parameter
     private File postExecuteHookScript;
+
+    /**
+     * number of done connection retry attempts
+     *
+     * @since 3.0.0
+     */
+    private int connectionRetryAttempts;
 
     /**
      * Add a SQL transaction to execute
@@ -582,7 +617,7 @@ public class SqlExecMojo extends AbstractMojo {
         // scriptRunner.setGlobalVariable( "localRepositoryPath", localRepositoryPath );
         // scriptRunner.setClassPath( scriptClassPath );
 
-        Map<String, Object> context = new HashMap<String, Object>();
+        Map<String, Object> context = new HashMap<>();
 
         try {
             if (preExecuteHookScript != null) {
@@ -604,9 +639,12 @@ public class SqlExecMojo extends AbstractMojo {
     }
 
     protected void executeSqlCore() throws MojoExecutionException {
+        connectionRetryAttempts = 0;
         successfulStatements = 0;
-
         totalStatements = 0;
+
+        // Connection is not valid until it is proved to be
+        boolean connectionIsValid = false;
 
         loadUserInfoFromSettings();
 
@@ -618,14 +656,41 @@ public class SqlExecMojo extends AbstractMojo {
 
         sortTransactions();
 
-        try {
-            conn = getConnection();
-        } catch (SQLException e) {
-            if (!this.skipOnConnectionError) {
-                throw new MojoExecutionException(e.getMessage(), e);
-            } else {
-                // error on get connection and user asked to skip the rest
-                return;
+        // Loop until connection is valid (or exited otherwise)
+        while (!connectionIsValid) {
+
+            // Check should we retry, if there are some errors
+            boolean retryOnConnectionError = this.connectionRetryCount > connectionRetryAttempts;
+
+            try {
+                // Get a new connection if is not already open
+                if (conn == null || conn.isClosed()) {
+                    conn = getConnection();
+                }
+
+                validateConnection(conn);
+
+                // No SQLException thrown, the connection should be fine
+                connectionIsValid = true;
+            } catch (SQLException e) {
+                if (retryOnConnectionError) {
+                    // User want to retry connection, increase the retry attempts
+                    connectionRetryAttempts++;
+                    getLog().info("Connection validation failed: retrying connection in " + connectionRetryInterval
+                            + " secs (" + connectionRetryAttempts + "/" + connectionRetryCount + ")...");
+                    waitToRetryConnectionValidation();
+                } else if (!this.skipOnConnectionError) {
+                    // Make sure connection is closed, it can be open if only validation failed
+                    closeConnection();
+
+                    throw new MojoExecutionException(e.getMessage(), e);
+                } else {
+                    // Make sure connection is closed, it can be open if only validation failed
+                    closeConnection();
+
+                    // Error on get connection and user asked to skip the rest
+                    return;
+                }
             }
         }
 
@@ -673,16 +738,8 @@ public class SqlExecMojo extends AbstractMojo {
             }
             throw new MojoExecutionException(e.getMessage(), e);
         } finally {
-            try {
-                if (statement != null) {
-                    statement.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException ex) {
-                // ignore
-            }
+            closeStatement();
+            closeConnection();
         }
 
         getLog().info(getSuccessfulStatements() + " of " + getTotalStatements()
@@ -822,7 +879,7 @@ public class SqlExecMojo extends AbstractMojo {
      *             fails to load.
      * @throws SQLException if there is problem getting connection with valid url
      */
-    private Connection getConnection() throws MojoExecutionException, SQLException {
+    Connection getConnection() throws MojoExecutionException, SQLException {
         getLog().debug("connecting to " + getUrl());
         Properties info = new Properties();
         info.put("user", getUsername());
@@ -1251,6 +1308,90 @@ public class SqlExecMojo extends AbstractMojo {
             throw new IllegalArgumentException(action + " is not a valid value for onError, only '" + ON_ERROR_ABORT
                     + "', '" + ON_ERROR_ABORT_AFTER + "', or '" + ON_ERROR_CONTINUE + "'.");
         }
+    }
+
+    /**
+     * Validate the database connection by executing all validation SQLs.
+     *
+     * @param conn the open database connection
+     * @throws java.sql.SQLException if SQL execution fails
+     */
+    protected void validateConnection(Connection conn) throws SQLException {
+        if (connectionValidationSqls != null && !connectionValidationSqls.isEmpty()) {
+            for (String sql : connectionValidationSqls) {
+                if (sql != null && sql.trim().length() > 0) {
+                    conn.createStatement().executeQuery(sql);
+                }
+            }
+        }
+    }
+
+    /**
+     * Waits the time specified in <code>connectionRetryInterval</code>.
+     *
+     * @throws MojoExecutionException
+     */
+    private void waitToRetryConnectionValidation() throws MojoExecutionException {
+        try {
+            Thread.sleep(this.connectionRetryInterval * 1000);
+        } catch (InterruptedException e) {
+            throw new MojoExecutionException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Closes the database connection.
+     */
+    void closeConnection() {
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                getLog().debug("Failed to close connection: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Closes the database statement.
+     */
+    private void closeStatement() {
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                getLog().debug("Failed to close statement: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Check is the database connection closed.
+     *
+     * @return <code>true</code> if the connection is closed, otherwise <code>false</code>
+     */
+    protected boolean isConnectionClosed() {
+        try {
+            return conn == null || conn.isClosed();
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    protected int getConnectionRetryAttempts() {
+        return this.connectionRetryAttempts;
+    }
+
+    public void setConnectionValidationSqls(List<String> connectionValidationSql) {
+        this.connectionValidationSqls = connectionValidationSql;
+    }
+
+    public void setConnectionRetryCount(int connectionRetryCount) {
+        this.connectionRetryCount = connectionRetryCount;
+    }
+
+    public void setConnectionRetryInterval(int connectionRetryInterval) {
+        this.connectionRetryInterval = connectionRetryInterval;
     }
 
     void setSettings(Settings settings) {

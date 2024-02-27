@@ -1,0 +1,89 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.codehaus.mojo.it.sql</groupId>
+    <artifactId>sql-maven-plugin-parent</artifactId>
+    <version>0.1</version>
+  </parent>
+
+  <groupId>org.codehaus.mojo</groupId>
+  <artifactId>sql-maven-plugin-it-connection-retry</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <name>sql-maven-plugin Connection Retry Database Integration Test</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <version>@derby.version@</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>sql-maven-plugin</artifactId>
+        <version>@project.version@</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>@derby.version@</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <driver>org.apache.derby.jdbc.EmbeddedDriver</driver>
+          <url>jdbc:derby:${project.build.directory}/testdb;create=true</url>
+        </configuration>
+
+        <executions>
+          <execution>
+            <id>create-table</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <sqlCommand>
+                  create table retry(num int);
+                  create table another(num int);
+              </sqlCommand>
+<!--              <sqlCommand>create table another(num int)</sqlCommand>-->
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>insert-data</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <configuration>
+              <validationSqls>
+                <validationSql>select 1 from retry</validationSql>
+                <validationSql>select 1 from another</validationSql>
+              </validationSqls>
+              <connectionRetryCount>2</connectionRetryCount>
+              <connectionRetryInterval>2</connectionRetryInterval>
+              <sqlCommand>
+                 insert into retry values (2024);
+                 insert into another values (42);
+              </sqlCommand>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
