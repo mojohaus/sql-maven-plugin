@@ -379,13 +379,13 @@ public class SqlExecMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = ",")
     private String outputDelimiter;
-    
+
     /**
      * Encoding to use while writing queried data to a file.
      *
-     * @since 1.1
+     * @since 3.0.0
      */
-    @Parameter( defaultValue = "${project.build.sourceEncoding}", property = "outputEncoding" )
+    @Parameter(defaultValue = "${project.build.sourceEncoding}", property = "outputEncoding")
     private String outputEncoding;
 
     /**
@@ -711,15 +711,15 @@ public class SqlExecMojo extends AbstractMojo {
                 if (outputFile != null) {
                     getLog().debug("Opening PrintStream to output file " + outputFile);
                     outputFile.getParentFile().mkdirs();
-                    
-                    if(StringUtils.isEmpty(this.outputEncoding)){
-                    	this.outputEncoding = System.getProperty("file.encoding");
+
+                    if (StringUtils.isEmpty(this.outputEncoding)) {
+                        this.outputEncoding = System.getProperty("file.encoding");
                     }
-                    
-                    out = new PrintStream( 
-                    		 new BufferedOutputStream( new FileOutputStream( outputFile.getAbsolutePath(),append ) )
-                    		 ,true
-                     		 ,this.outputEncoding);
+
+                    out = new PrintStream(
+                            new BufferedOutputStream(new FileOutputStream(outputFile.getAbsolutePath(), append)),
+                            true,
+                            this.outputEncoding);
                 }
 
                 // Process all transactions
@@ -1451,5 +1451,9 @@ public class SqlExecMojo extends AbstractMojo {
 
     public void setSecurityDispatcher(SecDispatcher securityDispatcher) {
         this.securityDispatcher = securityDispatcher;
+    }
+
+    public void setOutputEncoding(String outputEncoding) {
+        this.outputEncoding = outputEncoding;
     }
 }
