@@ -15,8 +15,11 @@ package org.codehaus.mojo.sql;
  */
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -51,27 +54,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         mojo = new SqlExecMojo();
 
         // populate parameters
-        mojo.setDriver(p.getProperty("driver"));
-        mojo.setUsername(p.getProperty("user"));
-        mojo.setPassword(p.getProperty("password"));
-        mojo.setUrl(p.getProperty("url"));
-        mojo.setDriverProperties(p.getProperty("driverProperties"));
-        mojo.setSqlCommand(null);
-        mojo.setDelimiter(SqlExecMojo.DEFAULT_DELIMITER); // This will simulate the defaultValue of @Parameter (...)
-        mojo.setOnError(SqlExecMojo.ON_ERROR_ABORT);
-        mojo.setDelimiterType(DelimiterType.NORMAL);
-        mojo.setEscapeProcessing(true);
-
-        MavenFileFilter filter =
-                (MavenFileFilter) lookup("org.apache.maven.shared.filtering.MavenFileFilter", "default");
-        mojo.setFileFilter(filter);
-
-        SecDispatcher securityDispatcher =
-                (SecDispatcher) lookup("org.sonatype.plexus.components.sec.dispatcher.SecDispatcher", "default");
-        mojo.setSecurityDispatcher(securityDispatcher);
-
-        MavenProject project = new MavenProjectStub();
-        setVariableValueToObject(mojo, "project", project);
+        setUp(mojo);
     }
 
     /**
@@ -418,28 +401,38 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
     }
 
     public void test016OutputFile() throws Exception {
-        String command = "create table GOODDELIMTYPE3 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)"
-                + "\n:  \n" + "create table GOODDELIMTYPE4 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
-
-        mojo.addText(command);
-        mojo.setDelimiter(":");
-        mojo.setDelimiterType(DelimiterType.NORMAL);
-
         String basedir = System.getProperty("basedir", ".");
         File outputFile = new File(basedir, "target/sql.out");
         outputFile.delete();
         mojo.setOutputFile(outputFile);
         mojo.setPrintResultSet(true);
 
+        String command = "create table GOODDELIMTYPE3 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar);";
+        mojo.addText(command);
         mojo.execute();
 
-        assertTrue("Output file: " + outputFile + " not found.", outputFile.exists());
+        List<String> list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertEquals(1, list.size());
+        assertEquals("0 rows affected", list.get(0));
 
-        assertTrue("Unexpected empty output file. ", outputFile.length() > 0);
+        mojo.setTransactions(new ArrayList<>());
+        mojo.setSqlCommand("insert into GOODDELIMTYPE3 (person_id) values (1)");
+        mojo.execute();
 
-        // makesure we can remote the file, it is not locked
-        // assertTrue( outputFile.delete() );
+        list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertEquals(1, list.size());
+        assertEquals("1 rows affected", list.get(0));
 
+        mojo.setTransactions(new ArrayList<>());
+        mojo.setSqlCommand("select * from GOODDELIMTYPE3");
+        mojo.execute();
+
+        list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertEquals(4, list.size());
+        assertEquals("PERSON_ID,FIRSTNAME,LASTNAME", list.get(0));
+        assertEquals("1,null,null", list.get(1));
+        assertEquals("", list.get(2));
+        assertEquals("0 rows affected", list.get(3));
     }
 
     // MSQL-44
@@ -626,6 +619,69 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
 
         assertTrue(mojo.getConnectionRetryAttempts() >= 5);
         assertTrue(mojo.isConnectionClosed());
+    }
+
+    public void test33CustomPrintResultSet() throws Exception {
+        CustomSqlExecMojo customMojo = new CustomSqlExecMojo();
+        setUp(customMojo);
+
+        String basedir = System.getProperty("basedir", ".");
+        File outputFile = new File(basedir, "target/custom-print-resultset.out");
+        outputFile.delete();
+        customMojo.setOutputFile(outputFile);
+        customMojo.setPrintResultSet(true);
+
+        String command = "create table CUSTOM_PRINT ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        customMojo.addText(command);
+        customMojo.execute();
+
+        List<String> list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertEquals(1, list.size());
+        assertEquals("0 cows affected", list.get(0));
+
+        customMojo.setTransactions(new ArrayList<>());
+        customMojo.setSqlCommand("insert into CUSTOM_PRINT (person_id) values (1)");
+        customMojo.execute();
+
+        list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertEquals(1, list.size());
+        assertEquals("1 cows affected", list.get(0));
+
+        customMojo.setTransactions(new ArrayList<>());
+        customMojo.setSqlCommand("select * from CUSTOM_PRINT");
+        customMojo.execute();
+
+        list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertEquals(2, list.size());
+        assertEquals("This is the way", list.get(0));
+        assertEquals("0 cows affected", list.get(1));
+    }
+
+    private void setUp(SqlExecMojo mojoToSetup) throws Exception {
+
+        // populate parameters
+        mojoToSetup.setDriver(p.getProperty("driver"));
+        mojoToSetup.setUsername(p.getProperty("user"));
+        mojoToSetup.setPassword(p.getProperty("password"));
+        mojoToSetup.setUrl(p.getProperty("url"));
+        mojoToSetup.setDriverProperties(p.getProperty("driverProperties"));
+        mojoToSetup.setSqlCommand(null);
+        mojoToSetup.setDelimiter(
+                SqlExecMojo.DEFAULT_DELIMITER); // This will simulate the defaultValue of @Parameter (...)
+        mojoToSetup.setOnError(SqlExecMojo.ON_ERROR_ABORT);
+        mojoToSetup.setDelimiterType(DelimiterType.NORMAL);
+        mojoToSetup.setEscapeProcessing(true);
+
+        MavenFileFilter filter =
+                (MavenFileFilter) lookup("org.apache.maven.shared.filtering.MavenFileFilter", "default");
+        mojoToSetup.setFileFilter(filter);
+
+        SecDispatcher securityDispatcher =
+                (SecDispatcher) lookup("org.sonatype.plexus.components.sec.dispatcher.SecDispatcher", "default");
+        mojoToSetup.setSecurityDispatcher(securityDispatcher);
+
+        MavenProject project = new MavenProjectStub();
+        setVariableValueToObject(mojo, "project", project);
     }
 
     private void runSqlAfter(int secs, final List<String> sqls) {

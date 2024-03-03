@@ -378,7 +378,7 @@ public class SqlExecMojo extends AbstractMojo {
      * @since 1.4
      */
     @Parameter(defaultValue = ",")
-    private String outputDelimiter;
+    private String outputDelimiter = ",";
 
     /**
      * Encoding to use when reading SQL statements from a file.
@@ -1050,7 +1050,7 @@ public class SqlExecMojo extends AbstractMojo {
             getLog().debug(updateCountTotal + " rows affected");
 
             if (printResultSet) {
-                out.println(updateCountTotal + " rows affected");
+                printResultSetCount(updateCountTotal, out);
             }
 
             SQLWarning warning = conn.getWarnings();
@@ -1133,6 +1133,10 @@ public class SqlExecMojo extends AbstractMojo {
             }
         }
         out.println();
+    }
+
+    protected void printResultSetCount(int updateCountTotal, PrintStream out) {
+        out.println(updateCountTotal + " rows affected");
     }
 
     /**
