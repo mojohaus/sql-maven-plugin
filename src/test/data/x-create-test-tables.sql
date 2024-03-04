@@ -1,0 +1,1 @@
+create table PERSON_OTHER ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar);

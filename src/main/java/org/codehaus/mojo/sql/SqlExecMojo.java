@@ -1382,6 +1382,13 @@ public class SqlExecMojo extends AbstractMojo {
         }
     }
 
+    protected void clear() {
+        sqlCommand = null;
+        if (transactions != null) {
+            transactions.clear();
+        }
+    }
+
     protected int getConnectionRetryAttempts() {
         return this.connectionRetryAttempts;
     }
