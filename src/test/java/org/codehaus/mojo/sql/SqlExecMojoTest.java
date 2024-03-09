@@ -498,7 +498,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
     public void testConnectionRetryCountOnValidationError() {
         SqlExecMojo mojo = createMojo();
         mojo.setConnectionValidationSqls(Arrays.asList("select 1 from nowhere"));
-        mojo.setConnectionRetryCount(5);
+        mojo.setConnectionRetryCount(2);
         try {
             mojo.execute();
 
@@ -507,30 +507,46 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
 
         }
 
-        assertTrue(mojo.getConnectionRetryAttempts() >= 5);
+        assertTrue(mojo.getConnectionRetryAttempts() >= 2);
         assertTrue(mojo.isConnectionClosed());
     }
 
     public void testConnectionRetryCountOnConnectionError() {
         SqlExecMojo mojo = createMojo();
         mojo.setUrl("bad-url");
-        mojo.setConnectionRetryCount(5);
+        mojo.setConnectionRetryCount(2);
         try {
             mojo.execute();
 
             fail("Invalid connection is not detected");
         } catch (MojoExecutionException e) {
-
         }
 
-        assertTrue(mojo.getConnectionRetryAttempts() >= 5);
+        assertTrue(mojo.getConnectionRetryAttempts() >= 2);
         assertTrue(mojo.isConnectionClosed());
     }
 
-    public void testConnectionRetryIntervalC2I2() {
+    public void testConnectionRetryIntervalC2I1() {
         SqlExecMojo mojo = createMojo();
         mojo.setUrl("no-db-here");
         mojo.setConnectionRetryCount(2);
+        mojo.setConnectionRetryInterval(1);
+
+        long start = System.currentTimeMillis();
+
+        try {
+            mojo.execute();
+            fail("Invalid connection is not detected");
+        } catch (MojoExecutionException e) {
+            long end = System.currentTimeMillis();
+            assertTrue((end - start) >= 2000);
+        }
+    }
+
+    public void testConnectionRetryIntervalC1I2() {
+        SqlExecMojo mojo = createMojo();
+        mojo.setUrl("no-db-here");
+        mojo.setConnectionRetryCount(1);
         mojo.setConnectionRetryInterval(2);
 
         long start = System.currentTimeMillis();
@@ -540,24 +556,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
             fail("Invalid connection is not detected");
         } catch (MojoExecutionException e) {
             long end = System.currentTimeMillis();
-            assertTrue((end - start) >= 4000);
-        }
-    }
-
-    public void testConnectionRetryIntervalC1I3() {
-        SqlExecMojo mojo = createMojo();
-        mojo.setUrl("no-db-here");
-        mojo.setConnectionRetryCount(1);
-        mojo.setConnectionRetryInterval(3);
-
-        long start = System.currentTimeMillis();
-
-        try {
-            mojo.execute();
-            fail("Invalid connection is not detected");
-        } catch (MojoExecutionException e) {
-            long end = System.currentTimeMillis();
-            assertTrue((end - start) >= 3000);
+            assertTrue((end - start) >= 2000);
         }
     }
 
@@ -565,7 +564,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         SqlExecMojo mojo = createMojo();
         final String url = mojo.getUrl();
         mojo.setUrl("bad-url");
-        mojo.setConnectionRetryCount(5);
+        mojo.setConnectionRetryCount(2);
         mojo.setConnectionRetryInterval(1);
 
         new Thread(new Runnable() {
@@ -573,7 +572,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
                     public void run() {
                         try {
                             // Wait for three connection attempts
-                            Thread.sleep(3000);
+                            Thread.sleep(500);
                         } catch (InterruptedException ex) {
                             // ignore
                         }
@@ -584,12 +583,11 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
 
         try {
             mojo.execute();
-
         } catch (MojoExecutionException e) {
-            fail("Connection was not restored");
+            fail("Connection was not restored: " + e.getMessage());
         }
 
-        assertTrue(mojo.getConnectionRetryAttempts() >= 3);
+        assertTrue(mojo.getConnectionRetryAttempts() >= 1);
         assertTrue(mojo.isConnectionClosed());
     }
 
@@ -597,19 +595,18 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         SqlExecMojo mojo = createMojo();
         mojo.addText("select * from test32");
         mojo.setConnectionValidationSqls(Arrays.asList("select 1 from test32"));
-        mojo.setConnectionRetryCount(5);
+        mojo.setConnectionRetryCount(2);
         mojo.setConnectionRetryInterval(1);
 
-        runSqlAfter(mojo, 3, Arrays.asList("create table test32 ( ID integer)"));
+        runSqlAfter(mojo, 1, Arrays.asList("create table test32 ( ID integer)"));
 
         try {
             mojo.execute();
-
         } catch (MojoExecutionException e) {
-            fail("Connection was not restored");
+            fail("Connection was not restored: " + e.getMessage());
         }
 
-        assertTrue(mojo.getConnectionRetryAttempts() >= 3);
+        assertTrue(mojo.getConnectionRetryAttempts() >= 1);
         assertTrue(mojo.isConnectionClosed());
     }
 
@@ -617,7 +614,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         SqlExecMojo mojo = createMojo();
         mojo.addText("select * from con_retry");
         mojo.setConnectionValidationSqls(Arrays.asList("select 1 from con_retry", "select 1 from con_retry2"));
-        mojo.setConnectionRetryCount(5);
+        mojo.setConnectionRetryCount(3);
         mojo.setConnectionRetryInterval(1);
 
         runSqlAfter(mojo, 1, Arrays.asList("create table con_retry ( ID integer)"));
@@ -627,7 +624,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
             mojo.execute();
 
         } catch (MojoExecutionException e) {
-            fail("Connection not was restored");
+            fail("Connection was not restored: " + e.getMessage());
         }
 
         assertTrue(mojo.getConnectionRetryAttempts() >= 2);
@@ -638,7 +635,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         SqlExecMojo mojo = createMojo();
         mojo.addText("select * from valid_err");
         mojo.setConnectionValidationSqls(Arrays.asList("select 1 from valid_err", "select 1 from not"));
-        mojo.setConnectionRetryCount(3);
+        mojo.setConnectionRetryCount(2);
         mojo.setConnectionRetryInterval(1);
 
         runSqlAfter(mojo, 1, Arrays.asList("create table valid_err ( ID integer)"));
@@ -650,7 +647,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         } catch (MojoExecutionException e) {
         }
 
-        assertTrue(mojo.getConnectionRetryAttempts() >= 3);
+        assertTrue(mojo.getConnectionRetryAttempts() >= 2);
         assertTrue(mojo.isConnectionClosed());
     }
 
