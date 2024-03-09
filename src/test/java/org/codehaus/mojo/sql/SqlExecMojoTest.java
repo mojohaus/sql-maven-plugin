@@ -728,6 +728,53 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         }
     }
 
+    public void testOutputFileEncoding() throws Exception {
+        String command = "create table ENCODING ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar);\n"
+                + "insert into ENCODING (PERSON_ID, FIRSTNAME, LASTNAME) values (1, 'A', 'B');";
+
+        mojo.addText(command);
+
+        String basedir = System.getProperty("basedir", ".");
+        File outputFile = new File(basedir, "target/sql-encoding.out");
+        outputFile.delete();
+        mojo.setOutputFile(outputFile);
+        mojo.setPrintResultSet(true);
+
+        mojo.execute();
+
+        assertTrue("Output file: " + outputFile + " not found.", outputFile.exists());
+        assertTrue("Unexpected empty output file. ", outputFile.length() > 0);
+
+        List<String> list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertTrue(list.size() == 2);
+        assertEquals("0 rows affected", list.get(0));
+        assertEquals("1 rows affected", list.get(1));
+    }
+
+    public void testOutputFileEncodingUtf16() throws Exception {
+        String command = "create table ENCODING_UTF_16 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar);\n"
+                + "insert into ENCODING_UTF_16 (PERSON_ID, FIRSTNAME, LASTNAME) values (1, 'A', 'B');";
+
+        mojo.addText(command);
+
+        String basedir = System.getProperty("basedir", ".");
+        File outputFile = new File(basedir, "target/sql-encoding-utf-16.out");
+        outputFile.delete();
+        mojo.setOutputFile(outputFile);
+        mojo.setOutputEncoding("UTF-16");
+        mojo.setPrintResultSet(true);
+
+        mojo.execute();
+
+        assertTrue("Output file: " + outputFile + " not found.", outputFile.exists());
+        assertTrue("Unexpected empty output file. ", outputFile.length() > 0);
+
+        List<String> list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_16);
+        assertTrue(list.size() == 2);
+        assertEquals("0 rows affected", list.get(0));
+        assertEquals("1 rows affected", list.get(1));
+    }
+
     private void runSqlAfter(SqlExecMojo mojo, int secs, final List<String> sqls) {
         new Thread(new Runnable() {
                     @Override

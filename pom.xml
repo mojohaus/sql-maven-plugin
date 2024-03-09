@@ -69,6 +69,15 @@
       </roles>
       <timezone>Europe/Berlin</timezone>
     </developer>
+    <developer>
+      <id>Vaibhav</id>
+      <name>Vaibhav Singh</name>
+      <email>vbhav.singh@gmail.com</email>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+      <timezone>America/New_york</timezone>
+    </developer>
   </developers>
 
   <prerequisites>
