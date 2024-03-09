@@ -909,7 +909,7 @@ public class SqlExecMojo extends AbstractMojo {
 
         try {
             Class<?> dc = Class.forName(getDriver());
-            driverInstance = (Driver) dc.newInstance();
+            driverInstance = (Driver) dc.getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException e) {
             throw new MojoExecutionException("Driver class not found: " + getDriver(), e);
         } catch (Exception e) {

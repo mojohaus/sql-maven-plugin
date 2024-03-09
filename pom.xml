@@ -122,12 +122,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>axion</groupId>
-      <artifactId>axion</artifactId>
-      <version>1.0-M2-dev</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.maven.plugin-tools</groupId>
       <artifactId>maven-plugin-annotations</artifactId>
       <scope>provided</scope>
@@ -200,6 +194,12 @@
       <groupId>org.apache.maven.plugin-testing</groupId>
       <artifactId>maven-plugin-testing-harness</artifactId>
       <version>3.3.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>2.7.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>

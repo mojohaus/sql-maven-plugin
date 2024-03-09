@@ -22,6 +22,7 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
@@ -37,6 +38,11 @@ import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
  * Unit test for simple SqlExecMojo.
  */
 public class SqlExecMojoTest extends AbstractMojoTestCase {
+
+    // jdbc:hsqldb:mem:egdb;sql.enforce_size=false
+    // Group 1 ([^;]+) : "jdbc:hsqldb:mem:egdb"
+    // Group 2 (;.*)? : ";sql.enforce_size=false"
+    private static final String URL_REGEXP = "([^;]+)(;.*)?";
 
     private Properties p;
 
@@ -58,7 +64,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
 
     public void testCreateCommandMojo() throws MojoExecutionException {
         SqlExecMojo mojo = createMojo();
-        String command = "create table CREATE_COMMAND ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command =
+                "create table CREATE_COMMAND ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
         mojo.addText(command);
         mojo.execute();
 
@@ -95,8 +102,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
 
     public void testFileArrayMojo() throws MojoExecutionException {
         File[] srcFiles = new File[2];
-        srcFiles[0] = new File("src/test/data/array-create-test-tables.sql");
-        srcFiles[1] = new File("src/test/data/array-drop-test-tables.sql");
+        srcFiles[0] = new File("src/test/data/create-test-tables.sql");
+        srcFiles[1] = new File("src/test/data/drop-test-tables.sql");
 
         SqlExecMojo mojo = createMojo();
         mojo.setSrcFiles(srcFiles);
@@ -110,7 +117,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
      */
     public void testAllMojo() throws MojoExecutionException {
         SqlExecMojo mojo = createMojo();
-        String command = "create table PERSON2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command = "create table PERSON2 ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
         mojo.addText(command);
 
         File[] srcFiles = new File[1];
@@ -130,7 +137,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
     public void testOrderFile() throws MojoExecutionException {
         Fileset ds = new Fileset();
         ds.setBasedir("src/test");
-        ds.setIncludes(new String[] {"**/order-drop*.sql", "**/order-create*.sql"});
+        ds.setIncludes(new String[] {"**/drop*.sql", "**/create*.sql"});
         ds.scan();
 
         SqlExecMojo mojo = createMojo();
@@ -205,7 +212,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         Server server = new Server();
         settings.addServer(server);
 
-        SqlExecMojo mojo = createMojo();
+        SqlExecMojo mojo = createMojo(";user=;password=");
         mojo.setSettings(settings);
 
         // force a lookup of username
@@ -227,7 +234,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         server.setPassword("password");
         settings.addServer(server);
 
-        SqlExecMojo mojo = createMojo();
+        SqlExecMojo mojo = createMojo(";user=username;password=password");
         mojo.setSettings(settings);
 
         // force a lookup of username
@@ -301,7 +308,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
     }
 
     public void testSkip() throws MojoExecutionException {
-        String command = "create table PERSON ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command = "create table PERSON ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
         SqlExecMojo mojo = createMojo();
         mojo.addText(command);
         mojo.setSkip(true);
@@ -326,7 +333,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
     }
 
     public void testBlockMode() throws MojoExecutionException {
-        String command = "create table BLOCKTABLE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command = "create table BLOCKTABLE ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
 
         SqlExecMojo mojo = createMojo();
         mojo.addText(command);
@@ -347,7 +354,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
     public void testKeepFormat() throws MojoExecutionException {
         // Normally a line starting in -- would be ignored, but with keepformat mode
         // on it will not.
-        String command = "--create table PERSON ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command = "--create table PERSON ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
 
         SqlExecMojo mojo = createMojo();
         mojo.addText(command);
@@ -363,8 +370,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
     }
 
     public void testBadDelimiter() throws Exception {
-        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar):"
-                + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50)):"
+                + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
 
         SqlExecMojo mojo = createMojo();
         mojo.addText(command);
@@ -378,8 +385,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
     }
 
     public void testGoodDelimiter() throws Exception {
-        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)\n:\n"
-                + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))\n:\n"
+                + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
 
         SqlExecMojo mojo = createMojo();
         mojo.addText(command);
@@ -391,8 +398,9 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
     }
 
     public void testBadDelimiterType() throws Exception {
-        String command = "create table BADDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)" + "\n:"
-                + "create table BADDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command =
+                "create table BADDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))" + "\n:"
+                        + "create table BADDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
 
         SqlExecMojo mojo = createMojo();
         mojo.addText(command);
@@ -407,8 +415,9 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
     }
 
     public void testGoodDelimiterType() throws Exception {
-        String command = "create table GOODDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)"
-                + "\n:  \n" + "create table GOODDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command = "create table GOODDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))"
+                + "\n:  \n"
+                + "create table GOODDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
 
         SqlExecMojo mojo = createMojo();
         mojo.addText(command);
@@ -428,7 +437,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         mojo.setOutputFile(outputFile);
         mojo.setPrintResultSet(true);
 
-        String command = "create table GOODDELIMTYPE3 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar);";
+        String command =
+                "create table GOODDELIMTYPE3 ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50));";
         mojo.addText(command);
         mojo.execute();
 
@@ -459,7 +469,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
     // MSQL-44
     public void testAnonymousBlock() throws MojoExecutionException {
         String command = "--/ Anonymous SQL Block\n"
-                + "create table ANONBLOCKTABLE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)\n" + "/\n"
+                + "create table ANONBLOCKTABLE ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))\n"
+                + "/\n"
                 + "drop table ANONBLOCKTABLE";
 
         SqlExecMojo mojo = createMojo();
@@ -473,12 +484,12 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         SqlExecMojo mojo = createMojo();
         mojo.setSkipMissingFiles(true);
         mojo.setSrcFiles(new File[] {
-            new File("src/test/data/x-create-test-tables.sql"),
+            new File("src/test/data/create-test-tables.sql"),
             new File("non/existing/file/path.sql"),
-            new File("src/test/data/x-drop-test-tables.sql")
+            new File("src/test/data/drop-test-tables.sql")
         });
         mojo.execute();
-        assertEquals(2, mojo.getSuccessfulStatements());
+        assertEquals(6, mojo.getSuccessfulStatements());
     }
 
     public void testValidationSql() {
@@ -661,7 +672,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         customMojo.setOutputFile(outputFile);
         customMojo.setPrintResultSet(true);
 
-        String command = "create table CUSTOM_PRINT ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command = "create table CUSTOM_PRINT ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
         customMojo.addText(command);
         customMojo.execute();
 
@@ -687,10 +698,20 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals("0 cows affected", list.get(1));
     }
 
+    private SqlExecMojo createMojo(String dbUrlPostfix) {
+        SqlExecMojo mojo = createMojo();
+        mojo.setUrl(mojo.getUrl() + dbUrlPostfix);
+        return mojo;
+    }
+
     private SqlExecMojo createMojo() {
         SqlExecMojo mojo = new SqlExecMojo();
         setUp(mojo);
         return mojo;
+    }
+
+    private String toTestUrl(String url) {
+        return url.replaceAll(URL_REGEXP, "$1" + UUID.randomUUID().toString() + "$2");
     }
 
     private void setUp(SqlExecMojo mojoToSetup) {
@@ -698,8 +719,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         // populate parameters
         mojoToSetup.setDriver(p.getProperty("driver"));
         mojoToSetup.setUsername(p.getProperty("user"));
-        mojoToSetup.setPassword(p.getProperty("password"));
-        mojoToSetup.setUrl(p.getProperty("url"));
+        mojoToSetup.setPassword(p.getProperty("pasword"));
+        mojoToSetup.setUrl(toTestUrl(p.getProperty("url")));
         mojoToSetup.setDriverProperties(p.getProperty("driverProperties"));
         mojoToSetup.setSqlCommand(null);
         mojoToSetup.setDelimiter(
@@ -726,7 +747,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
     }
 
     public void testOutputFileEncoding() throws Exception {
-        String command = "create table ENCODING ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar);\n"
+        String command = "create table ENCODING ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50));\n"
                 + "insert into ENCODING (PERSON_ID, FIRSTNAME, LASTNAME) values (1, 'A', 'B');";
 
         SqlExecMojo mojo = createMojo();
@@ -750,8 +771,9 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
     }
 
     public void testOutputFileEncodingUtf16() throws Exception {
-        String command = "create table ENCODING_UTF_16 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar);\n"
-                + "insert into ENCODING_UTF_16 (PERSON_ID, FIRSTNAME, LASTNAME) values (1, 'A', 'B');";
+        String command =
+                "create table ENCODING_UTF_16 ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50));\n"
+                        + "insert into ENCODING_UTF_16 (PERSON_ID, FIRSTNAME, LASTNAME) values (1, 'A', 'B');";
 
         SqlExecMojo mojo = createMojo();
         mojo.addText(command);
