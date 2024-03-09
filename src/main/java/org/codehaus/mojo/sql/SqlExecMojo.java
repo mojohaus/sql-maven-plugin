@@ -1466,6 +1466,7 @@ public class SqlExecMojo extends AbstractMojo {
 
     public void setOutputDelimiter(String outputDelimiter) {
         this.outputDelimiter = outputDelimiter;
+    }
 
     public void setOutputEncoding(String outputEncoding) {
         this.outputEncoding = outputEncoding;

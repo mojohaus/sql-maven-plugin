@@ -732,6 +732,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         String command = "create table ENCODING ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar);\n"
                 + "insert into ENCODING (PERSON_ID, FIRSTNAME, LASTNAME) values (1, 'A', 'B');";
 
+        SqlExecMojo mojo = createMojo();
         mojo.addText(command);
 
         String basedir = System.getProperty("basedir", ".");
@@ -755,6 +756,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         String command = "create table ENCODING_UTF_16 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar);\n"
                 + "insert into ENCODING_UTF_16 (PERSON_ID, FIRSTNAME, LASTNAME) values (1, 'A', 'B');";
 
+        SqlExecMojo mojo = createMojo();
         mojo.addText(command);
 
         String basedir = System.getProperty("basedir", ".");
