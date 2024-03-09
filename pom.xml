@@ -86,6 +86,7 @@
   <scm>
     <connection>scm:git:https://github.com/mojohaus/sql-maven-plugin.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/mojohaus/sql-maven-plugin.git</developerConnection>
+    <tag>HEAD</tag>
     <url>https://github.com/mojohaus/sql-maven-plugin/</url>
   </scm>
 
