@@ -362,13 +362,13 @@ public class SqlExecMojo extends AbstractMojo {
      * Print header columns.
      */
     @Parameter(property = "showheaders", defaultValue = "true")
-    private boolean showheaders;
+    private boolean showHeaders;
 
     /**
      * Print footer value, informing on the number of rows
      */
-    @Parameter(property = "showfooter", defaultValue = "true")
-    private boolean showfooter = true;
+    @Parameter(property = "showFooter", defaultValue = "true")
+    private boolean showFooter;
 
     /**
      * Dump the SQL execution's output to a file.<br />
@@ -544,8 +544,8 @@ public class SqlExecMojo extends AbstractMojo {
      *
      * @param showHeaders <code>true</code> to show the headers, otherwise <code>false</code>
      */
-    public void setShowheaders(boolean showheaders) {
-        this.showheaders = showheaders;
+    public void setShowHeaders(boolean showHeaders) {
+        this.showHeaders = showHeaders;
     }
 
     /**
@@ -616,6 +616,7 @@ public class SqlExecMojo extends AbstractMojo {
      *
      * @throws MojoExecutionException
      */
+    @Override
     public void execute() throws MojoExecutionException {
 
         if (skipMojo()) {
@@ -1071,7 +1072,7 @@ public class SqlExecMojo extends AbstractMojo {
 
             getLog().debug(updateCountTotal + " rows affected");
 
-            if (printResultSet && showfooter) {
+            if (printResultSet && showFooter) {
                 printResultSetCount(updateCountTotal, out);
             }
 
@@ -1108,7 +1109,7 @@ public class SqlExecMojo extends AbstractMojo {
             ResultSetMetaData md = rs.getMetaData();
             int columnCount = md.getColumnCount();
             StringBuffer line = new StringBuffer();
-            if (showheaders) {
+            if (showHeaders) {
                 boolean first = true;
                 for (int col = 1; col <= columnCount; col++) {
                     String columnValue = md.getColumnName(col);
@@ -1479,7 +1480,7 @@ public class SqlExecMojo extends AbstractMojo {
         this.outputEncoding = outputEncoding;
     }
 
-    public void setShowfooter(boolean showfooter) {
-        this.showfooter = showfooter;
+    public void setShowFooter(boolean showFooter) {
+        this.showFooter = showFooter;
     }
 }

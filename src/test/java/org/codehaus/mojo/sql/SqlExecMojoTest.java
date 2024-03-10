@@ -698,6 +698,31 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals("0 cows affected", list.get(1));
     }
 
+    public void testShowFooter() throws Exception {
+        String basedir = System.getProperty("basedir", ".");
+        File outputFile = new File(basedir, "target/show-footer.out");
+        outputFile.delete();
+
+        SqlExecMojo mojo = createMojo();
+        mojo.setShowFooter(false);
+        mojo.setOutputFile(outputFile);
+        mojo.setPrintResultSet(true);
+
+        String command = "create table CUSTOM_PRINT ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
+        mojo.addText(command);
+        mojo.execute();
+
+        List<String> list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertEquals(0, list.size());
+
+        mojo.clear();
+        mojo.setSqlCommand("insert into CUSTOM_PRINT (person_id) values (1)");
+        mojo.execute();
+
+        list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertEquals(0, list.size());
+    }
+
     private SqlExecMojo createMojo(String dbUrlPostfix) {
         SqlExecMojo mojo = createMojo();
         mojo.setUrl(mojo.getUrl() + dbUrlPostfix);
@@ -729,8 +754,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         mojoToSetup.setDelimiterType(DelimiterType.NORMAL);
         mojoToSetup.setEscapeProcessing(true);
         mojoToSetup.setOutputDelimiter(",");
-        mojoToSetup.setShowfooter(true);
-        mojoToSetup.setShowheaders(true);
+        mojoToSetup.setShowFooter(true);
+        mojoToSetup.setShowHeaders(true);
 
         try {
             MavenFileFilter filter =
