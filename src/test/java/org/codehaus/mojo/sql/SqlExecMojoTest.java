@@ -22,6 +22,7 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
@@ -30,18 +31,18 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.shared.filtering.MavenFileFilter;
-import org.junit.FixMethodOrder;
-import org.junit.runners.MethodSorters;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.sonatype.plexus.components.sec.dispatcher.SecDispatcher;
 
 /**
- * Unit test for simple SqlExecMojo.<br/>
- * ATTENTION: These are no unit tests, cause the are order dependent.<br/>
- * This must be fixed. At the moment it is handled having appropriate method names.
+ * Unit test for simple SqlExecMojo.
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SqlExecMojoTest extends AbstractMojoTestCase {
-    private SqlExecMojo mojo;
+
+    // jdbc:hsqldb:mem:egdb;sql.enforce_size=false
+    // Group 1 ([^;]+) : "jdbc:hsqldb:mem:egdb"
+    // Group 2 (;.*)? : ";sql.enforce_size=false"
+    private static final String URL_REGEXP = "([^;]+)(;.*)?";
 
     private Properties p;
 
@@ -49,58 +50,41 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         super.setUp();
         p = new Properties();
         p.load(getClass().getResourceAsStream("/test.properties"));
-
-        mojo = new SqlExecMojo();
-
-        // populate parameters
-        mojo.setDriver(p.getProperty("driver"));
-        mojo.setUsername(p.getProperty("user"));
-        mojo.setPassword(p.getProperty("password"));
-        mojo.setUrl(p.getProperty("url"));
-        mojo.setDriverProperties(p.getProperty("driverProperties"));
-        mojo.setSqlCommand(null);
-        mojo.setDelimiter(SqlExecMojo.DEFAULT_DELIMITER); // This will simulate the defaultValue of @Parameter (...)
-        mojo.setOnError(SqlExecMojo.ON_ERROR_ABORT);
-        mojo.setDelimiterType(DelimiterType.NORMAL);
-        mojo.setEscapeProcessing(true);
-
-        MavenFileFilter filter =
-                (MavenFileFilter) lookup("org.apache.maven.shared.filtering.MavenFileFilter", "default");
-        mojo.setFileFilter(filter);
-
-        SecDispatcher securityDispatcher =
-                (SecDispatcher) lookup("org.sonatype.plexus.components.sec.dispatcher.SecDispatcher", "default");
-        mojo.setSecurityDispatcher(securityDispatcher);
-
-        MavenProject project = new MavenProjectStub();
-        setVariableValueToObject(mojo, "project", project);
     }
 
     /**
      * No error when there is no input
      */
-    public void test018NoCommandMojo() throws MojoExecutionException {
+    public void testNoCommandMojo() throws MojoExecutionException {
+        SqlExecMojo mojo = createMojo();
         mojo.execute();
 
         assertEquals(0, mojo.getSuccessfulStatements());
     }
 
-    public void test001CreateCommandMojo() throws MojoExecutionException {
-        String command = "create table PERSON ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+    public void testCreateCommandMojo() throws MojoExecutionException {
+        SqlExecMojo mojo = createMojo();
+        String command =
+                "create table CREATE_COMMAND ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
         mojo.addText(command);
         mojo.execute();
 
         assertEquals(1, mojo.getSuccessfulStatements());
     }
 
-    public void test019DropCommandMojo() throws MojoExecutionException {
-        String command = "drop table PERSON";
-        mojo.addText(command);
+    public void testDropCommandMojo() throws MojoExecutionException {
+        SqlExecMojo mojo = createMojo();
+        mojo.setSqlCommand("create table DROP_TEST (id integer)");
         mojo.execute();
+
+        mojo.clear();
+        mojo.addText("drop table DROP_TEST");
+        mojo.execute();
+
         assertEquals(1, mojo.getSuccessfulStatements());
     }
 
-    public void test020FileSetMojo() throws MojoExecutionException {
+    public void testFileSetMojo() throws MojoExecutionException {
 
         Fileset ds = new Fileset();
         ds.setBasedir("src/test");
@@ -108,6 +92,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         ds.scan();
         assert (ds.getIncludedFiles().length == 1);
 
+        SqlExecMojo mojo = createMojo();
         mojo.setFileset(ds);
 
         mojo.execute();
@@ -115,22 +100,24 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals(3, mojo.getSuccessfulStatements());
     }
 
-    public void test021FileArrayMojo() throws MojoExecutionException {
-        File[] srcFiles = new File[1];
-        srcFiles[0] = new File("src/test/data/drop-test-tables.sql");
+    public void testFileArrayMojo() throws MojoExecutionException {
+        File[] srcFiles = new File[2];
+        srcFiles[0] = new File("src/test/data/create-test-tables.sql");
+        srcFiles[1] = new File("src/test/data/drop-test-tables.sql");
 
+        SqlExecMojo mojo = createMojo();
         mojo.setSrcFiles(srcFiles);
         mojo.execute();
 
-        assertEquals(3, mojo.getSuccessfulStatements());
+        assertEquals(6, mojo.getSuccessfulStatements());
     }
 
     /**
      * Ensure srcFiles always execute first
      */
-    public void test022AllMojo() throws MojoExecutionException {
-
-        String command = "create table PERSON2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+    public void testAllMojo() throws MojoExecutionException {
+        SqlExecMojo mojo = createMojo();
+        String command = "create table PERSON2 ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
         mojo.addText(command);
 
         File[] srcFiles = new File[1];
@@ -147,13 +134,14 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals(7, mojo.getSuccessfulStatements());
     }
 
-    public void test023OrderFile() throws MojoExecutionException {
+    public void testOrderFile() throws MojoExecutionException {
         Fileset ds = new Fileset();
         ds.setBasedir("src/test");
         ds.setIncludes(new String[] {"**/drop*.sql", "**/create*.sql"});
         ds.scan();
-        mojo.setFileset(ds);
 
+        SqlExecMojo mojo = createMojo();
+        mojo.setFileset(ds);
         mojo.setOrderFile(SqlExecMojo.FILE_SORTING_ASC);
         mojo.execute();
 
@@ -167,7 +155,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         }
     }
 
-    public void test024OnErrorContinueMojo() throws MojoExecutionException {
+    public void testOnErrorContinueMojo() throws MojoExecutionException {
+        SqlExecMojo mojo = createMojo();
         String command = "create table BOGUS"; // bad syntax
         mojo.addText(command);
         mojo.setOnError("continue");
@@ -175,7 +164,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals(0, mojo.getSuccessfulStatements());
     }
 
-    public void test025OnErrorAbortMojo() throws MojoExecutionException {
+    public void testOnErrorAbortMojo() throws MojoExecutionException {
+        SqlExecMojo mojo = createMojo();
         String command = "create table BOGUS"; // bad syntax
         mojo.addText(command);
 
@@ -190,9 +180,10 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals(0, mojo.getSuccessfulStatements());
     }
 
-    public void test026OnErrorAbortAfterMojo() throws MojoExecutionException {
+    public void testOnErrorAbortAfterMojo() throws MojoExecutionException {
         String commands = "create table BOGUS"; // bad syntax
 
+        SqlExecMojo mojo = createMojo();
         mojo.addText(commands);
 
         File[] srcFiles = new File[1];
@@ -215,12 +206,13 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals(2, mojo.getTotalStatements());
     }
 
-    public void test002DefaultUsernamePassword() throws MojoExecutionException {
+    public void testDefaultUsernamePassword() throws MojoExecutionException {
 
         Settings settings = new Settings();
         Server server = new Server();
         settings.addServer(server);
 
+        SqlExecMojo mojo = createMojo(";user=;password=");
         mojo.setSettings(settings);
 
         // force a lookup of username
@@ -233,7 +225,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals("", mojo.getPassword());
     }
 
-    public void test003UsernamePasswordLookup() throws MojoExecutionException {
+    public void testUsernamePasswordLookup() throws MojoExecutionException {
 
         Settings settings = new Settings();
         Server server = new Server();
@@ -242,6 +234,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         server.setPassword("password");
         settings.addServer(server);
 
+        SqlExecMojo mojo = createMojo(";user=username;password=password");
         mojo.setSettings(settings);
 
         // force a lookup of username
@@ -255,7 +248,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals("password", mojo.getPassword());
     }
 
-    public void test004BadDriver() {
+    public void testBadDriver() {
+        SqlExecMojo mojo = createMojo();
         mojo.setDriver("bad-driver");
         try {
             mojo.execute();
@@ -266,7 +260,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         }
     }
 
-    public void test005BadUrl() {
+    public void testBadUrl() {
+        SqlExecMojo mojo = createMojo();
         mojo.setUrl("bad-url");
         try {
             mojo.execute();
@@ -277,7 +272,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         }
     }
 
-    public void test006BadFile() {
+    public void testBadFile() {
+        SqlExecMojo mojo = createMojo();
         File[] srcFiles = new File[1];
         srcFiles[0] = new File("a-every-bogus-file-that-does-not-exist");
 
@@ -291,7 +287,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         }
     }
 
-    public void test007OnError() {
+    public void testOnError() {
+        SqlExecMojo mojo = createMojo();
         mojo.setOnError("AbOrT");
         assertEquals(SqlExecMojo.ON_ERROR_ABORT, mojo.getOnError());
         mojo.setOnError("cOnTiNuE");
@@ -310,8 +307,9 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         }
     }
 
-    public void test008Skip() throws MojoExecutionException {
-        String command = "create table PERSON ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+    public void testSkip() throws MojoExecutionException {
+        String command = "create table PERSON ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
+        SqlExecMojo mojo = createMojo();
         mojo.addText(command);
         mojo.setSkip(true);
         mojo.execute();
@@ -320,21 +318,24 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals(0, mojo.getSuccessfulStatements());
     }
 
-    public void test009DriverProperties() throws MojoExecutionException {
-        Properties driverProperties = this.mojo.getDriverProperties();
+    public void testDriverProperties() throws MojoExecutionException {
+        SqlExecMojo mojo = createMojo();
+        Properties driverProperties = mojo.getDriverProperties();
         assertEquals(2, driverProperties.size());
         assertEquals("value1", driverProperties.get("key1"));
         assertEquals("value2", driverProperties.get("key2"));
 
         mojo.setDriverProperties("key1=value1,key2");
         try {
-            driverProperties = this.mojo.getDriverProperties();
+            driverProperties = mojo.getDriverProperties();
         } catch (MojoExecutionException e) {
         }
     }
 
-    public void test010BlockMode() throws MojoExecutionException {
-        String command = "create table BLOCKTABLE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+    public void testBlockMode() throws MojoExecutionException {
+        String command = "create table BLOCKTABLE ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
+
+        SqlExecMojo mojo = createMojo();
         mojo.addText(command);
         // TODO: Check if this is equal mojo.setEnableBlockMode( true );
         // to the following:
@@ -350,10 +351,12 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals(1, mojo.getSuccessfulStatements());
     }
 
-    public void test011KeepFormat() throws MojoExecutionException {
+    public void testKeepFormat() throws MojoExecutionException {
         // Normally a line starting in -- would be ignored, but with keepformat mode
         // on it will not.
-        String command = "--create table PERSON ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+        String command = "--create table PERSON ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
+
+        SqlExecMojo mojo = createMojo();
         mojo.addText(command);
         mojo.setKeepFormat(true);
 
@@ -366,10 +369,11 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals(0, mojo.getSuccessfulStatements());
     }
 
-    public void test012BadDelimiter() throws Exception {
-        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar):"
-                + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+    public void testBadDelimiter() throws Exception {
+        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50)):"
+                + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
 
+        SqlExecMojo mojo = createMojo();
         mojo.addText(command);
         mojo.setDelimiter(":");
 
@@ -380,10 +384,11 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         }
     }
 
-    public void test013GoodDelimiter() throws Exception {
-        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)\n:\n"
-                + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+    public void testGoodDelimiter() throws Exception {
+        String command = "create table SEPARATOR ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))\n:\n"
+                + "create table SEPARATOR2 ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
 
+        SqlExecMojo mojo = createMojo();
         mojo.addText(command);
         mojo.setDelimiter(":");
 
@@ -392,10 +397,12 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals(2, mojo.getSuccessfulStatements());
     }
 
-    public void test014BadDelimiterType() throws Exception {
-        String command = "create table BADDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)" + "\n:"
-                + "create table BADDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+    public void testBadDelimiterType() throws Exception {
+        String command =
+                "create table BADDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))" + "\n:"
+                        + "create table BADDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
 
+        SqlExecMojo mojo = createMojo();
         mojo.addText(command);
         mojo.setDelimiter(":");
         mojo.setDelimiterType(DelimiterType.ROW);
@@ -407,10 +414,12 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         }
     }
 
-    public void test015GoodDelimiterType() throws Exception {
-        String command = "create table GOODDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)"
-                + "\n:  \n" + "create table GOODDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
+    public void testGoodDelimiterType() throws Exception {
+        String command = "create table GOODDELIMTYPE ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))"
+                + "\n:  \n"
+                + "create table GOODDELIMTYPE2 ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
 
+        SqlExecMojo mojo = createMojo();
         mojo.addText(command);
         mojo.setDelimiter(":");
         mojo.setDelimiterType(DelimiterType.NORMAL);
@@ -419,43 +428,60 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals(2, mojo.getSuccessfulStatements());
     }
 
-    public void test016OutputFile() throws Exception {
-        String command = "create table GOODDELIMTYPE3 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)"
-                + "\n:  \n" + "create table GOODDELIMTYPE4 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)";
-
-        mojo.addText(command);
-        mojo.setDelimiter(":");
-        mojo.setDelimiterType(DelimiterType.NORMAL);
-
+    public void testOutputFile() throws Exception {
         String basedir = System.getProperty("basedir", ".");
         File outputFile = new File(basedir, "target/sql.out");
         outputFile.delete();
+
+        SqlExecMojo mojo = createMojo();
         mojo.setOutputFile(outputFile);
         mojo.setPrintResultSet(true);
 
+        String command =
+                "create table GOODDELIMTYPE3 ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50));";
+        mojo.addText(command);
         mojo.execute();
 
-        assertTrue("Output file: " + outputFile + " not found.", outputFile.exists());
+        List<String> list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertEquals(1, list.size());
+        assertEquals("0 rows affected", list.get(0));
 
-        assertTrue("Unexpected empty output file. ", outputFile.length() > 0);
+        mojo.clear();
+        mojo.setSqlCommand("insert into GOODDELIMTYPE3 (person_id) values (1)");
+        mojo.execute();
 
-        // makesure we can remote the file, it is not locked
-        // assertTrue( outputFile.delete() );
+        list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertEquals(1, list.size());
+        assertEquals("1 rows affected", list.get(0));
 
+        mojo.clear();
+        mojo.setSqlCommand("select * from GOODDELIMTYPE3");
+        mojo.execute();
+
+        list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertEquals(4, list.size());
+        assertEquals("PERSON_ID,FIRSTNAME,LASTNAME", list.get(0));
+        assertEquals("1,null,null", list.get(1));
+        assertEquals("", list.get(2));
+        assertEquals("0 rows affected", list.get(3));
     }
 
     // MSQL-44
-    public void test017AnonymousBlock() throws MojoExecutionException {
+    public void testAnonymousBlock() throws MojoExecutionException {
         String command = "--/ Anonymous SQL Block\n"
-                + "create table ANONBLOCKTABLE ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar)\n" + "/\n"
+                + "create table ANONBLOCKTABLE ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))\n"
+                + "/\n"
                 + "drop table ANONBLOCKTABLE";
+
+        SqlExecMojo mojo = createMojo();
         mojo.setDelimiter("/");
         mojo.addText(command);
         mojo.execute();
         assertEquals(2, mojo.getSuccessfulStatements());
     }
 
-    public void test027SkipMissingFiles() throws MojoExecutionException {
+    public void testSkipMissingFiles() throws MojoExecutionException {
+        SqlExecMojo mojo = createMojo();
         mojo.setSkipMissingFiles(true);
         mojo.setSrcFiles(new File[] {
             new File("src/test/data/create-test-tables.sql"),
@@ -466,7 +492,8 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals(6, mojo.getSuccessfulStatements());
     }
 
-    public void test028ValidationSql() {
+    public void testValidationSql() {
+        SqlExecMojo mojo = createMojo();
         mojo.setConnectionValidationSqls(Arrays.asList("select 1 from nowhere"));
         try {
             mojo.execute();
@@ -479,9 +506,10 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertTrue(mojo.isConnectionClosed());
     }
 
-    public void test029ConnectionRetryCountOnValidationError() {
+    public void testConnectionRetryCountOnValidationError() {
+        SqlExecMojo mojo = createMojo();
         mojo.setConnectionValidationSqls(Arrays.asList("select 1 from nowhere"));
-        mojo.setConnectionRetryCount(5);
+        mojo.setConnectionRetryCount(2);
         try {
             mojo.execute();
 
@@ -490,28 +518,46 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
 
         }
 
-        assertTrue(mojo.getConnectionRetryAttempts() >= 5);
+        assertTrue(mojo.getConnectionRetryAttempts() >= 2);
         assertTrue(mojo.isConnectionClosed());
     }
 
-    public void test030ConnectionRetryCountOnConnectionError() {
+    public void testConnectionRetryCountOnConnectionError() {
+        SqlExecMojo mojo = createMojo();
         mojo.setUrl("bad-url");
-        mojo.setConnectionRetryCount(5);
+        mojo.setConnectionRetryCount(2);
         try {
             mojo.execute();
 
             fail("Invalid connection is not detected");
         } catch (MojoExecutionException e) {
-
         }
 
-        assertTrue(mojo.getConnectionRetryAttempts() >= 5);
+        assertTrue(mojo.getConnectionRetryAttempts() >= 2);
         assertTrue(mojo.isConnectionClosed());
     }
 
-    public void test031ConnectionRetryIntervalC2I2() {
+    public void testConnectionRetryIntervalC2I1() {
+        SqlExecMojo mojo = createMojo();
         mojo.setUrl("no-db-here");
         mojo.setConnectionRetryCount(2);
+        mojo.setConnectionRetryInterval(1);
+
+        long start = System.currentTimeMillis();
+
+        try {
+            mojo.execute();
+            fail("Invalid connection is not detected");
+        } catch (MojoExecutionException e) {
+            long end = System.currentTimeMillis();
+            assertTrue((end - start) >= 2000);
+        }
+    }
+
+    public void testConnectionRetryIntervalC1I2() {
+        SqlExecMojo mojo = createMojo();
+        mojo.setUrl("no-db-here");
+        mojo.setConnectionRetryCount(1);
         mojo.setConnectionRetryInterval(2);
 
         long start = System.currentTimeMillis();
@@ -521,30 +567,15 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
             fail("Invalid connection is not detected");
         } catch (MojoExecutionException e) {
             long end = System.currentTimeMillis();
-            assertTrue((end - start) >= 4000);
+            assertTrue((end - start) >= 2000);
         }
     }
 
-    public void test031ConnectionRetryIntervalC1I3() {
-        mojo.setUrl("no-db-here");
-        mojo.setConnectionRetryCount(1);
-        mojo.setConnectionRetryInterval(3);
-
-        long start = System.currentTimeMillis();
-
-        try {
-            mojo.execute();
-            fail("Invalid connection is not detected");
-        } catch (MojoExecutionException e) {
-            long end = System.currentTimeMillis();
-            assertTrue((end - start) >= 3000);
-        }
-    }
-
-    public void test032ConnectionRetryOnConnectionError() {
+    public void testConnectionRetryOnConnectionError() {
+        SqlExecMojo mojo = createMojo();
         final String url = mojo.getUrl();
         mojo.setUrl("bad-url");
-        mojo.setConnectionRetryCount(5);
+        mojo.setConnectionRetryCount(2);
         mojo.setConnectionRetryInterval(1);
 
         new Thread(new Runnable() {
@@ -552,7 +583,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
                     public void run() {
                         try {
                             // Wait for three connection attempts
-                            Thread.sleep(3000);
+                            Thread.sleep(500);
                         } catch (InterruptedException ex) {
                             // ignore
                         }
@@ -563,61 +594,62 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
 
         try {
             mojo.execute();
-
         } catch (MojoExecutionException e) {
-            fail("Connection was not restored");
+            fail("Connection was not restored: " + e.getMessage());
         }
 
-        assertTrue(mojo.getConnectionRetryAttempts() >= 3);
+        assertTrue(mojo.getConnectionRetryAttempts() >= 1);
         assertTrue(mojo.isConnectionClosed());
     }
 
-    public void test032ConnectionRetryOnValidationError() {
+    public void testConnectionRetryOnValidationError() {
+        SqlExecMojo mojo = createMojo();
         mojo.addText("select * from test32");
         mojo.setConnectionValidationSqls(Arrays.asList("select 1 from test32"));
-        mojo.setConnectionRetryCount(5);
+        mojo.setConnectionRetryCount(2);
         mojo.setConnectionRetryInterval(1);
 
-        runSqlAfter(3, Arrays.asList("create table test32 ( ID integer)"));
+        runSqlAfter(mojo, 1, Arrays.asList("create table test32 ( ID integer)"));
+
+        try {
+            mojo.execute();
+        } catch (MojoExecutionException e) {
+            fail("Connection was not restored: " + e.getMessage());
+        }
+
+        assertTrue(mojo.getConnectionRetryAttempts() >= 1);
+        assertTrue(mojo.isConnectionClosed());
+    }
+
+    public void testConnectionRetryOnValidationErrorMultipleValidationSql() {
+        SqlExecMojo mojo = createMojo();
+        mojo.addText("select * from con_retry");
+        mojo.setConnectionValidationSqls(Arrays.asList("select 1 from con_retry", "select 1 from con_retry2"));
+        mojo.setConnectionRetryCount(3);
+        mojo.setConnectionRetryInterval(1);
+
+        runSqlAfter(mojo, 1, Arrays.asList("create table con_retry ( ID integer)"));
+        runSqlAfter(mojo, 2, Arrays.asList("create table con_retry2 ( ID integer)"));
 
         try {
             mojo.execute();
 
         } catch (MojoExecutionException e) {
-            fail("Connection was not restored");
+            fail("Connection was not restored: " + e.getMessage());
         }
 
-        assertTrue(mojo.getConnectionRetryAttempts() >= 3);
+        assertTrue(mojo.getConnectionRetryAttempts() >= 2);
         assertTrue(mojo.isConnectionClosed());
     }
 
-    public void test033ConnectionRetryOnValidationErrorMultipleValidationSql() {
-        mojo.addText("select * from person");
-        mojo.setConnectionValidationSqls(Arrays.asList("select 1 from person", "select 1 from notperson"));
-        mojo.setConnectionRetryCount(5);
+    public void testValidationErrorMultipleValidationSql() {
+        SqlExecMojo mojo = createMojo();
+        mojo.addText("select * from valid_err");
+        mojo.setConnectionValidationSqls(Arrays.asList("select 1 from valid_err", "select 1 from not"));
+        mojo.setConnectionRetryCount(2);
         mojo.setConnectionRetryInterval(1);
 
-        runSqlAfter(1, Arrays.asList("create table PERSON ( ID integer)"));
-        runSqlAfter(3, Arrays.asList("create table NOTPERSON ( ID integer)"));
-
-        try {
-            mojo.execute();
-
-        } catch (MojoExecutionException e) {
-            fail("Connection not was restored");
-        }
-
-        assertTrue(mojo.getConnectionRetryAttempts() >= 3);
-        assertTrue(mojo.isConnectionClosed());
-    }
-
-    public void test032ValidationErrorMultipleValidationSql() {
-        mojo.addText("select * from person");
-        mojo.setConnectionValidationSqls(Arrays.asList("select 1 from person", "select 1 from notperson"));
-        mojo.setConnectionRetryCount(5);
-        mojo.setConnectionRetryInterval(1);
-
-        runSqlAfter(3, Arrays.asList("create table PERSON ( ID integer)"));
+        runSqlAfter(mojo, 1, Arrays.asList("create table valid_err ( ID integer)"));
 
         try {
             mojo.execute();
@@ -626,14 +658,99 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         } catch (MojoExecutionException e) {
         }
 
-        assertTrue(mojo.getConnectionRetryAttempts() >= 5);
+        assertTrue(mojo.getConnectionRetryAttempts() >= 2);
         assertTrue(mojo.isConnectionClosed());
     }
 
-    public void test033OutputFileEncoding() throws Exception {
-        String command = "create table ENCODING ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar);\n"
+    public void testCustomPrintResultSet() throws Exception {
+        CustomSqlExecMojo customMojo = new CustomSqlExecMojo();
+        setUp(customMojo);
+
+        String basedir = System.getProperty("basedir", ".");
+        File outputFile = new File(basedir, "target/custom-print-resultset.out");
+        outputFile.delete();
+        customMojo.setOutputFile(outputFile);
+        customMojo.setPrintResultSet(true);
+
+        String command = "create table CUSTOM_PRINT ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50))";
+        customMojo.addText(command);
+        customMojo.execute();
+
+        List<String> list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertEquals(1, list.size());
+        assertEquals("0 cows affected", list.get(0));
+
+        customMojo.clear();
+        customMojo.setSqlCommand("insert into CUSTOM_PRINT (person_id) values (1)");
+        customMojo.execute();
+
+        list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertEquals(1, list.size());
+        assertEquals("1 cows affected", list.get(0));
+
+        customMojo.clear();
+        customMojo.setSqlCommand("select * from CUSTOM_PRINT");
+        customMojo.execute();
+
+        list = Files.readAllLines(outputFile.toPath(), StandardCharsets.UTF_8);
+        assertEquals(2, list.size());
+        assertEquals("This is the way", list.get(0));
+        assertEquals("0 cows affected", list.get(1));
+    }
+
+    private SqlExecMojo createMojo(String dbUrlPostfix) {
+        SqlExecMojo mojo = createMojo();
+        mojo.setUrl(mojo.getUrl() + dbUrlPostfix);
+        return mojo;
+    }
+
+    private SqlExecMojo createMojo() {
+        SqlExecMojo mojo = new SqlExecMojo();
+        setUp(mojo);
+        return mojo;
+    }
+
+    private String toTestUrl(String url) {
+        return url.replaceAll(URL_REGEXP, "$1" + UUID.randomUUID().toString() + "$2");
+    }
+
+    private void setUp(SqlExecMojo mojoToSetup) {
+
+        // populate parameters
+        mojoToSetup.setDriver(p.getProperty("driver"));
+        mojoToSetup.setUsername(p.getProperty("user"));
+        mojoToSetup.setPassword(p.getProperty("pasword"));
+        mojoToSetup.setUrl(toTestUrl(p.getProperty("url")));
+        mojoToSetup.setDriverProperties(p.getProperty("driverProperties"));
+        mojoToSetup.setSqlCommand(null);
+        mojoToSetup.setDelimiter(
+                SqlExecMojo.DEFAULT_DELIMITER); // This will simulate the defaultValue of @Parameter (...)
+        mojoToSetup.setOnError(SqlExecMojo.ON_ERROR_ABORT);
+        mojoToSetup.setDelimiterType(DelimiterType.NORMAL);
+        mojoToSetup.setEscapeProcessing(true);
+        mojoToSetup.setOutputDelimiter(",");
+
+        try {
+            MavenFileFilter filter =
+                    (MavenFileFilter) lookup("org.apache.maven.shared.filtering.MavenFileFilter", "default");
+            mojoToSetup.setFileFilter(filter);
+
+            SecDispatcher securityDispatcher =
+                    (SecDispatcher) lookup("org.sonatype.plexus.components.sec.dispatcher.SecDispatcher", "default");
+            mojoToSetup.setSecurityDispatcher(securityDispatcher);
+
+            MavenProject project = new MavenProjectStub();
+            setVariableValueToObject(mojoToSetup, "project", project);
+        } catch (ComponentLookupException | IllegalAccessException e) {
+            throw new RuntimeException("Failed to setup mojo: " + e.getMessage(), e);
+        }
+    }
+
+    public void testOutputFileEncoding() throws Exception {
+        String command = "create table ENCODING ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50));\n"
                 + "insert into ENCODING (PERSON_ID, FIRSTNAME, LASTNAME) values (1, 'A', 'B');";
 
+        SqlExecMojo mojo = createMojo();
         mojo.addText(command);
 
         String basedir = System.getProperty("basedir", ".");
@@ -653,10 +770,12 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals("1 rows affected", list.get(1));
     }
 
-    public void test034OutputFileEncodingUtf16() throws Exception {
-        String command = "create table ENCODING_UTF_16 ( PERSON_ID integer, FIRSTNAME varchar, LASTNAME varchar);\n"
-                + "insert into ENCODING_UTF_16 (PERSON_ID, FIRSTNAME, LASTNAME) values (1, 'A', 'B');";
+    public void testOutputFileEncodingUtf16() throws Exception {
+        String command =
+                "create table ENCODING_UTF_16 ( PERSON_ID integer, FIRSTNAME varchar(50), LASTNAME varchar(50));\n"
+                        + "insert into ENCODING_UTF_16 (PERSON_ID, FIRSTNAME, LASTNAME) values (1, 'A', 'B');";
 
+        SqlExecMojo mojo = createMojo();
         mojo.addText(command);
 
         String basedir = System.getProperty("basedir", ".");
@@ -677,7 +796,7 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals("1 rows affected", list.get(1));
     }
 
-    private void runSqlAfter(int secs, final List<String> sqls) {
+    private void runSqlAfter(SqlExecMojo mojo, int secs, final List<String> sqls) {
         new Thread(new Runnable() {
                     @Override
                     public void run() {

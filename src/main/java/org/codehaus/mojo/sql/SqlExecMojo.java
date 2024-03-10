@@ -909,7 +909,7 @@ public class SqlExecMojo extends AbstractMojo {
 
         try {
             Class<?> dc = Class.forName(getDriver());
-            driverInstance = (Driver) dc.newInstance();
+            driverInstance = (Driver) dc.getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException e) {
             throw new MojoExecutionException("Driver class not found: " + getDriver(), e);
         } catch (Exception e) {
@@ -1065,7 +1065,7 @@ public class SqlExecMojo extends AbstractMojo {
             getLog().debug(updateCountTotal + " rows affected");
 
             if (printResultSet) {
-                out.println(updateCountTotal + " rows affected");
+                printResultSetCount(updateCountTotal, out);
             }
 
             SQLWarning warning = conn.getWarnings();
@@ -1095,7 +1095,7 @@ public class SqlExecMojo extends AbstractMojo {
      * @param out the place to print results
      * @throws SQLException on SQL problems.
      */
-    private void printResultSet(ResultSet rs, PrintStream out) throws SQLException {
+    protected void printResultSet(ResultSet rs, PrintStream out) throws SQLException {
         if (rs != null) {
             getLog().debug("Processing new result set.");
             ResultSetMetaData md = rs.getMetaData();
@@ -1148,6 +1148,10 @@ public class SqlExecMojo extends AbstractMojo {
             }
         }
         out.println();
+    }
+
+    protected void printResultSetCount(int updateCountTotal, PrintStream out) {
+        out.println(updateCountTotal + " rows affected");
     }
 
     /**
@@ -1393,6 +1397,13 @@ public class SqlExecMojo extends AbstractMojo {
         }
     }
 
+    protected void clear() {
+        sqlCommand = null;
+        if (transactions != null) {
+            transactions.clear();
+        }
+    }
+
     protected int getConnectionRetryAttempts() {
         return this.connectionRetryAttempts;
     }
@@ -1451,6 +1462,10 @@ public class SqlExecMojo extends AbstractMojo {
 
     public void setSecurityDispatcher(SecDispatcher securityDispatcher) {
         this.securityDispatcher = securityDispatcher;
+    }
+
+    public void setOutputDelimiter(String outputDelimiter) {
+        this.outputDelimiter = outputDelimiter;
     }
 
     public void setOutputEncoding(String outputEncoding) {
