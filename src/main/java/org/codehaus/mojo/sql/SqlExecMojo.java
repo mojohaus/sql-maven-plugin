@@ -1001,11 +1001,11 @@ public class SqlExecMojo extends AbstractMojo {
             }
 
             // Check for mysql delimiter statements
-            if (overflow >= SqlSplitter.NO_END)
-            {
+            if (overflow >= SqlSplitter.NO_END) {
                 String ucLine = line.toUpperCase();
                 if (ucLine.startsWith(DELIMITER_STATEMENT)) {
-                    String newDelimiter = line.substring(DELIMITER_STATEMENT_LENGTH).trim();
+                    String newDelimiter =
+                            line.substring(DELIMITER_STATEMENT_LENGTH).trim();
                     setDelimiter(newDelimiter);
                     continue;
                 }

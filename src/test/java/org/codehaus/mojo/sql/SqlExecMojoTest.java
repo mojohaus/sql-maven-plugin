@@ -796,6 +796,17 @@ public class SqlExecMojoTest extends AbstractMojoTestCase {
         assertEquals("1 rows affected", list.get(1));
     }
 
+    public void testDelimiter() throws MojoExecutionException {
+        File[] srcFiles = new File[1];
+        srcFiles[0] = new File("src/test/data/create-test-tables-delimiter.sql");
+
+        SqlExecMojo mojo = createMojo();
+        mojo.setSrcFiles(srcFiles);
+        mojo.execute();
+
+        assertEquals(3, mojo.getSuccessfulStatements());
+    }
+
     private void runSqlAfter(SqlExecMojo mojo, int secs, final List<String> sqls) {
         new Thread(new Runnable() {
                     @Override
