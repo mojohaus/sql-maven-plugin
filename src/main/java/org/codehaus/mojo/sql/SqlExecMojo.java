@@ -965,6 +965,10 @@ public class SqlExecMojo extends AbstractMojo {
     private void runStatements(Reader reader, PrintStream out) throws SQLException, IOException {
         String line;
 
+        // The delimeter can be overwritten by mysql DELIMETER command.
+        // If the delimeter is overwritten it is in one file, not a global change
+        String fileDelimeter = this.delimiter;
+
         // TODO: Check if this equivalent with if (enableBlockMode) {..
         if (delimiterType.equals(DelimiterType.ROW)) {
             // no need to parse the content, ship it directly to jdbc in one sql statement
@@ -974,9 +978,7 @@ public class SqlExecMojo extends AbstractMojo {
         }
 
         StringBuilder sql = new StringBuilder();
-
         BufferedReader in = new BufferedReader(reader);
-
         int overflow = SqlSplitter.NO_END;
 
         while ((line = in.readLine()) != null) {
@@ -1001,12 +1003,10 @@ public class SqlExecMojo extends AbstractMojo {
             }
 
             // Check for mysql delimiter statements
-            if (overflow >= SqlSplitter.NO_END)
-            {
+            if (overflow >= SqlSplitter.NO_END) {
                 String ucLine = line.toUpperCase();
                 if (ucLine.startsWith(DELIMITER_STATEMENT)) {
-                    String newDelimiter = line.substring(DELIMITER_STATEMENT_LENGTH).trim();
-                    setDelimiter(newDelimiter);
+                    fileDelimeter = line.substring(DELIMITER_STATEMENT_LENGTH).trim();
                     continue;
                 }
             }
@@ -1017,7 +1017,7 @@ public class SqlExecMojo extends AbstractMojo {
                 sql.append("\n").append(line);
             }
 
-            overflow = SqlSplitter.containsSqlEnd(line, delimiter, overflow);
+            overflow = SqlSplitter.containsSqlEnd(line, fileDelimeter, overflow);
 
             // SQL defines "--" as a comment to EOL
             // and in Oracle it may contain a hint
@@ -1027,8 +1027,8 @@ public class SqlExecMojo extends AbstractMojo {
             }
 
             if ((delimiterType.equals(DelimiterType.NORMAL) && overflow > 0)
-                    || (delimiterType.equals(DelimiterType.ROW) && line.trim().equals(delimiter))) {
-                execSQL(sql.substring(0, sql.length() - delimiter.length()), out);
+                    || (delimiterType.equals(DelimiterType.ROW) && line.trim().equals(fileDelimeter))) {
+                execSQL(sql.substring(0, sql.length() - fileDelimeter.length()), out);
                 sql.setLength(0); // clean buffer
                 overflow = SqlSplitter.NO_END;
             }
