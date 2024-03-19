@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"org.codehaus.mojo.sql"},{"l":"org.codehaus.mojo.sql_maven_plugin"}]
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"org.codehaus.mojo.sql"},{"l":"org.codehaus.mojo.sql_maven_plugin"}];updateSearchResults();
